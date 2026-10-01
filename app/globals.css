@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', system-ui, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    background-color: #F7F7F7;
+    color: #111111;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D4D4D4;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #AAAAAA;
+  }
+}
+
+@layer components {
+  /* ─── Skeleton shimmer ───────────────────────────── */
+  .skeleton {
+    @apply relative overflow-hidden bg-[#EBEBEB] rounded;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%);
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+
+  /* ─── Status Badges ──────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide;
+  }
+  .badge-ok {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+  }
+  .badge-low {
+    @apply bg-amber-50 text-amber-700 border border-amber-200;
+  }
+  .badge-critical {
+    @apply bg-red-50 text-red-700 border border-red-200;
+  }
+  .badge-out {
+    @apply bg-red-100 text-red-800 border border-red-300;
+  }
+  .badge-normal {
+    @apply bg-[#F0F0F0] text-[#555555] border border-[#E0E0E0];
+  }
+  .badge-info {
+    @apply bg-blue-50 text-blue-700 border border-blue-200;
+  }
+  .badge-purple {
+    @apply bg-purple-50 text-purple-700 border border-purple-200;
+  }
+
+  /* ─── Buttons ────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 bg-[#111111] text-white text-xs font-semibold rounded-md
+           hover:bg-[#2a2a2a] active:bg-[#000] transition-colors duration-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-1.5 px-3 py-2 bg-white text-[#333333] text-xs font-medium rounded-md border border-[#EAEAEA]
+           hover:bg-[#F7F7F7] hover:border-[#CCCCCC] active:bg-[#EEEEEE] transition-colors duration-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-danger {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white text-xs font-semibold rounded-md
+           hover:bg-red-700 active:bg-red-800 transition-colors duration-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* ─── Table styles ───────────────────────────────── */
+  .data-table {
+    @apply w-full text-sm;
+  }
+  .data-table th {
+    @apply text-left px-3 py-2.5 text-[#666666] font-semibold text-[11px] tracking-wide bg-[#F7F7F7] border-b border-[#EAEAEA] sticky top-0 z-10 whitespace-nowrap;
+  }
+  .data-table td {
+    @apply px-3 py-2.5 border-b border-[#EAEAEA] align-middle;
+  }
+  .data-table tr:hover td {
+    background: #F2F2F2;
+    transition: background 80ms;
+  }
+  .data-table tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* ─── Form inputs ────────────────────────────────── */
+  .input-field {
+    @apply w-full px-3 py-2 text-sm border border-[#EAEAEA] rounded-md outline-none transition-all duration-150 bg-white;
+  }
+  .input-field:focus {
+    @apply border-[#111111] ring-2 ring-[#111111]/10;
+  }
+
+  /* ─── Sidebar nav ────────────────────────────────── */
+  .nav-item {
+    @apply flex items-center gap-2.5 px-3 py-1.5 rounded text-[rgba(255,255,255,0.6)] text-[13px] cursor-pointer transition-all duration-100 hover:bg-white/10 hover:text-white;
+  }
+  .nav-item.active {
+    @apply bg-white/15 text-white font-medium;
+  }
+  .nav-section {
+    @apply text-[10px] font-semibold tracking-widest text-[rgba(255,255,255,0.3)] px-3 pt-4 pb-1 uppercase;
+  }
+
+  /* ─── Card ───────────────────────────────────────── */
+  .card {
+    @apply bg-white border border-[#EAEAEA] rounded-lg shadow-xs;
+  }
+
+  /* ─── KPI card number ────────────────────────────── */
+  .kpi-number {
+    @apply text-2xl font-bold tracking-tight text-[#111111] tabular-nums;
+  }
+
+  /* ─── Page fade-in ───────────────────────────────── */
+  .page-enter {
+    animation: page-enter 0.18s ease-out forwards;
+  }
+}
+
+@layer utilities {
+  .text-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  .ring-pulse {
+    animation: ring-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Print utility */
+  @media print {
+    .print\:hidden { display: none !important; }
+    .print\:block { display: block !important; }
+    body { background: white !important; }
+  }
+
+  /* Safe Area Insets for Mobile / PWA / iPhone Notch */
+  .pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+  .pt-safe {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+  .mb-safe {
+    margin-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  /* Mobile touch & scroll enhancements */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes ring-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(17, 17, 17, 0); }
+  }
+
+  @keyframes page-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
