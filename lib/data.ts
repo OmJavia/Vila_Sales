@@ -51,6 +51,7 @@ export interface Item {
   allocatedStock: number;
   stockLevel: StockLevel;
   godownStock: GodownStock[];
+  location?: string; // Standard warehouse bin location e.g. "A1", "A2", "B4"
   specifications?: string;
   suggestedSupplier?: string;
 }
@@ -60,6 +61,7 @@ export interface GodownStock {
   physical: number;
   reserved: number;
   available: number;
+  location?: string; // Bin/rack location e.g. "A20", "B05", "C12"
 }
 
 export interface OrderItem {
@@ -214,7 +216,7 @@ export const CUSTOMERS: Customer[] = [
 
 import { MIDAS_ITEMS } from "./midasData";
 
-export const ITEMS: Item[] = [
+const RAW_ITEMS: Item[] = [
   {
     id: "I001",
     name: "AJAX 1000×20 GREEN ANCHOR BOLT",
@@ -229,8 +231,8 @@ export const ITEMS: Item[] = [
     allocatedStock: 10,
     stockLevel: "OK",
     godownStock: [
-      { godown: "Main Warehouse", physical: 100, reserved: 15, available: 85 },
-      { godown: "Secondary Store", physical: 45, reserved: 5, available: 40 },
+      { godown: "Main Warehouse", physical: 100, reserved: 15, available: 85, location: "A12" },
+      { godown: "Secondary Store", physical: 45, reserved: 5, available: 40, location: "P03" },
     ],
   },
   {
@@ -247,8 +249,8 @@ export const ITEMS: Item[] = [
     allocatedStock: 30,
     stockLevel: "OK",
     godownStock: [
-      { godown: "Main Warehouse", physical: 250, reserved: 45, available: 205 },
-      { godown: "Secondary Store", physical: 70, reserved: 15, available: 55 },
+      { godown: "Main Warehouse", physical: 250, reserved: 45, available: 205, location: "B07" },
+      { godown: "Secondary Store", physical: 70, reserved: 15, available: 55, location: "P11" },
     ],
   },
   {
@@ -265,8 +267,8 @@ export const ITEMS: Item[] = [
     allocatedStock: 5,
     stockLevel: "CRITICAL",
     godownStock: [
-      { godown: "Main Warehouse", physical: 18, reserved: 10, available: 8 },
-      { godown: "Secondary Store", physical: 0, reserved: 0, available: 0 },
+      { godown: "Main Warehouse", physical: 18, reserved: 10, available: 8, location: "C22" },
+      { godown: "Secondary Store", physical: 0, reserved: 0, available: 0, location: "Q01" },
     ],
   },
   {
@@ -283,8 +285,8 @@ export const ITEMS: Item[] = [
     allocatedStock: 80,
     stockLevel: "OK",
     godownStock: [
-      { godown: "Main Warehouse", physical: 600, reserved: 100, available: 500 },
-      { godown: "Secondary Store", physical: 292, reserved: 50, available: 242 },
+      { godown: "Main Warehouse", physical: 600, reserved: 100, available: 500, location: "D05" },
+      { godown: "Secondary Store", physical: 292, reserved: 50, available: 242, location: "Q08" },
     ],
   },
   {
@@ -301,12 +303,57 @@ export const ITEMS: Item[] = [
     allocatedStock: 10,
     stockLevel: "LOW",
     godownStock: [
-      { godown: "Main Warehouse", physical: 50, reserved: 15, available: 35 },
-      { godown: "Secondary Store", physical: 17, reserved: 5, available: 12 },
+      { godown: "Main Warehouse", physical: 50, reserved: 15, available: 35, location: "A9" },
+      { godown: "Secondary Store", physical: 17, reserved: 5, available: 12, location: "B1" },
     ],
   },
   ...MIDAS_ITEMS,
 ];
+
+/**
+ * Standard warehouse location generator:
+ * Follows the warehouse grid format requested:
+ * A1 to A9, then B1 to B9, C1 to C9, D1 to D9, E1 to E9, F1 to F9, etc.
+ */
+export function getStandardLocationCode(index: number): string {
+  const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "R", "S", "T", "U", "V", "W"];
+  const letterIndex = Math.floor(index / 9) % letters.length;
+  const number = (index % 9) + 1; // 1 to 9
+  return `${letters[letterIndex]}${number}`;
+}
+
+export function getItemPrimaryLocation(item: Item): string {
+  if (item.location) return item.location;
+  if (item.godownStock && item.godownStock.length > 0 && item.godownStock[0].location) {
+    return item.godownStock[0].location;
+  }
+  return "A1";
+}
+
+// Normalize all items with standardized warehouse grid locations (A1..A9, B1..B9, C1..C9...)
+export const ITEMS: Item[] = RAW_ITEMS.map((item, itemIdx) => {
+  const primaryLoc = getStandardLocationCode(itemIdx * 2);
+  const secondaryLoc = getStandardLocationCode(itemIdx * 2 + 1);
+
+  const updatedGodowns = (item.godownStock || []).map((g, gIdx) => ({
+    ...g,
+    location: gIdx === 0 ? primaryLoc : secondaryLoc,
+  }));
+
+  return {
+    ...item,
+    location: primaryLoc,
+    godownStock: updatedGodowns.length > 0 ? updatedGodowns : [
+      {
+        godown: "Main Warehouse",
+        physical: item.stock,
+        reserved: item.reservedStock,
+        available: Math.max(item.stock - item.reservedStock, 0),
+        location: primaryLoc,
+      },
+    ],
+  };
+});
 
 const makeWorkflow = (currentStatus: OrderStatus): WorkflowStep[] => {
   const steps: { id: string; label: string; statuses: OrderStatus[] }[] = [
@@ -1471,4 +1518,417 @@ export async function fetchOutstandingRecords(): Promise<OutstandingRecord[]> {
   const { randomDelay } = await import("./utils");
   await randomDelay();
   return OUTSTANDING_RECORDS;
+}
+
+// ─── Shipments ────────────────────────────────────────────────────────────────
+
+export type ShipmentStatus =
+  | "PLANNED"
+  | "ORDERED"
+  | "IN_TRANSIT"
+  | "ARRIVING_TODAY"
+  | "RECEIVED"
+  | "DELAYED"
+  | "CANCELLED";
+
+export interface ShipmentItem {
+  itemCode: string;
+  itemName: string;
+  qtyOrdered: number;
+  qtyReceived: number;
+  unit: string;
+  unitCost: number;
+}
+
+export interface Shipment {
+  id: string;
+  shipmentNo: string;
+  supplierId: string;
+  supplierName: string;
+  items: ShipmentItem[];
+  totalQty: number;
+  totalValue: number;
+  orderDate: string;
+  expectedDate: string;
+  receivedDate?: string;
+  status: ShipmentStatus;
+  warehouse: string;
+  trackingRef?: string;
+  notes?: string;
+  timeline: { event: string; date: string; done: boolean }[];
+}
+
+export const SHIPMENTS: Shipment[] = [
+  {
+    id: "SH-1024",
+    shipmentNo: "#SH-1024",
+    supplierId: "SUP-003",
+    supplierName: "Maxgrip Industrial Fasteners",
+    items: [
+      { itemCode: "MGP-500-12-SKT", itemName: "MAXGRIP 500×12 SOCKET HEAD", qtyOrdered: 100, qtyReceived: 0, unit: "Box", unitCost: 480 },
+    ],
+    totalQty: 100,
+    totalValue: 48000,
+    orderDate: "2026-10-06",
+    expectedDate: "2026-10-14",
+    status: "IN_TRANSIT",
+    warehouse: "Main Warehouse (Bhiwandi)",
+    trackingRef: "BLUE-9028193",
+    timeline: [
+      { event: "Order Placed", date: "2026-10-06", done: true },
+      { event: "Dispatched by Supplier", date: "2026-10-08", done: true },
+      { event: "In Transit", date: "2026-10-09", done: true },
+      { event: "Arriving at Warehouse", date: "2026-10-14", done: false },
+      { event: "Received & Inspected", date: "", done: false },
+    ],
+  },
+  {
+    id: "SH-1023",
+    shipmentNo: "#SH-1023",
+    supplierId: "SUP-001",
+    supplierName: "Apex Forgings & Fasteners Ltd.",
+    items: [
+      { itemCode: "AJX-1000-20-GRN", itemName: "AJAX 1000×20 GREEN ANCHOR BOLT", qtyOrdered: 200, qtyReceived: 0, unit: "Box", unitCost: 900 },
+    ],
+    totalQty: 200,
+    totalValue: 180000,
+    orderDate: "2026-10-08",
+    expectedDate: "2026-10-10",
+    status: "ARRIVING_TODAY",
+    warehouse: "Secondary Store (Kalamboli)",
+    trackingRef: "VTRANS-82910",
+    timeline: [
+      { event: "Order Placed", date: "2026-10-08", done: true },
+      { event: "Dispatched by Supplier", date: "2026-10-09", done: true },
+      { event: "In Transit", date: "2026-10-09", done: true },
+      { event: "Arriving at Warehouse", date: "2026-10-10", done: true },
+      { event: "Received & Inspected", date: "", done: false },
+    ],
+  },
+  {
+    id: "SH-1022",
+    shipmentNo: "#SH-1022",
+    supplierId: "SUP-005",
+    supplierName: "Midas Treads (India) Pvt. Ltd.",
+    items: [
+      { itemCode: "MID-EPDM-4MM", itemName: "EPDM Rubber Sheet 4mm", qtyOrdered: 500, qtyReceived: 500, unit: "Sheets", unitCost: 185 },
+      { itemCode: "MID-NR-6MM", itemName: "NR Rubber Sheet 6mm", qtyOrdered: 200, qtyReceived: 200, unit: "Sheets", unitCost: 210 },
+    ],
+    totalQty: 700,
+    totalValue: 134500,
+    orderDate: "2026-09-25",
+    expectedDate: "2026-10-02",
+    receivedDate: "2026-10-03",
+    status: "RECEIVED",
+    warehouse: "Main Warehouse (Bhiwandi)",
+    trackingRef: "TCI-7719023",
+    timeline: [
+      { event: "Order Placed", date: "2026-09-25", done: true },
+      { event: "Dispatched by Supplier", date: "2026-09-28", done: true },
+      { event: "In Transit", date: "2026-09-29", done: true },
+      { event: "Arriving at Warehouse", date: "2026-10-02", done: true },
+      { event: "Received & Inspected", date: "2026-10-03", done: true },
+    ],
+  },
+  {
+    id: "SH-1021",
+    shipmentNo: "#SH-1021",
+    supplierId: "SUP-004",
+    supplierName: "Sterling Stainless Components",
+    items: [
+      { itemCode: "PWF-300-10-SS", itemName: "POWERFIT 300×10 SS WASHER", qtyOrdered: 500, qtyReceived: 0, unit: "Kg", unitCost: 110 },
+    ],
+    totalQty: 500,
+    totalValue: 55000,
+    orderDate: "2026-10-09",
+    expectedDate: "2026-10-20",
+    status: "ORDERED",
+    warehouse: "Main Warehouse (Bhiwandi)",
+    notes: "Requested express dispatch due to backorder",
+    timeline: [
+      { event: "Order Placed", date: "2026-10-09", done: true },
+      { event: "Dispatched by Supplier", date: "", done: false },
+      { event: "In Transit", date: "", done: false },
+      { event: "Arriving at Warehouse", date: "2026-10-20", done: false },
+      { event: "Received & Inspected", date: "", done: false },
+    ],
+  },
+];
+
+export async function fetchShipments(): Promise<Shipment[]> {
+  const { randomDelay } = await import("./utils");
+  await randomDelay();
+  return SHIPMENTS;
+}
+
+export async function fetchShipment(id: string): Promise<Shipment | null> {
+  const { randomDelay } = await import("./utils");
+  await randomDelay();
+  return SHIPMENTS.find((s) => s.id === id) ?? null;
+}
+
+// ─── Deliveries ───────────────────────────────────────────────────────────────
+
+export type DeliveryStatus =
+  | "SCHEDULED"
+  | "PREPARING"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "DELAYED"
+  | "FAILED";
+
+export interface Delivery {
+  id: string;
+  deliveryNo: string;
+  orderId: string;
+  orderNo: string;
+  customerId: string;
+  customerName: string;
+  customerCity: string;
+  items: { itemName: string; qty: number; unit: string }[];
+  scheduledDate: string;
+  scheduledTimeWindow: string;
+  deliveredDate?: string;
+  status: DeliveryStatus;
+  assignedTo?: string;
+  vehicleNo?: string;
+  notes?: string;
+  isPartial: boolean;
+  totalQty: number;
+}
+
+export const DELIVERIES: Delivery[] = [
+  {
+    id: "DEL-1048",
+    deliveryNo: "#DEL-1048",
+    orderId: "O001",
+    orderNo: "#1048",
+    customerId: "C001",
+    customerName: "ABC Industries Pvt. Ltd.",
+    customerCity: "Mumbai",
+    items: [{ itemName: "AJAX 1000×20 GREEN ANCHOR BOLT", qty: 60, unit: "Box" }],
+    scheduledDate: "2026-10-10",
+    scheduledTimeWindow: "10:00 AM – 1:00 PM",
+    status: "OUT_FOR_DELIVERY",
+    assignedTo: "Raju More",
+    vehicleNo: "MH-04-GP-3829",
+    isPartial: true,
+    totalQty: 60,
+    notes: "Partial delivery – 40 units on backorder",
+  },
+  {
+    id: "DEL-1045",
+    deliveryNo: "#DEL-1045",
+    orderId: "O004",
+    orderNo: "#1045",
+    customerId: "C004",
+    customerName: "Bharat Steel Works",
+    customerCity: "Nagpur",
+    items: [{ itemName: "POWERFIT 300×10 SS WASHER", qty: 500, unit: "Kg" }],
+    scheduledDate: "2026-10-12",
+    scheduledTimeWindow: "2:00 PM – 5:00 PM",
+    status: "SCHEDULED",
+    assignedTo: "Sneha Joshi",
+    vehicleNo: "MH-31-TR-9004",
+    isPartial: false,
+    totalQty: 500,
+  },
+  {
+    id: "DEL-1047",
+    deliveryNo: "#DEL-1047",
+    orderId: "O002",
+    orderNo: "#1047",
+    customerId: "C002",
+    customerName: "Sunrise Traders",
+    customerCity: "Pune",
+    items: [{ itemName: "SILVER 750×16 HEX BOLT M16", qty: 250, unit: "Kg" }],
+    scheduledDate: "2026-10-03",
+    scheduledTimeWindow: "9:00 AM – 12:00 PM",
+    deliveredDate: "2026-10-03",
+    status: "DELIVERED",
+    assignedTo: "Raju More",
+    vehicleNo: "MH-12-QE-7721",
+    isPartial: false,
+    totalQty: 250,
+  },
+];
+
+export async function fetchDeliveries(): Promise<Delivery[]> {
+  const { randomDelay } = await import("./utils");
+  await randomDelay();
+  return DELIVERIES;
+}
+
+// ─── Notifications ─────────────────────────────────────────────────────────────
+
+export type NotificationCategory = "ORDERS" | "INVENTORY" | "SHIPMENTS" | "DELIVERIES" | "SYSTEM";
+export type NotificationPriority = "HIGH" | "MEDIUM" | "LOW";
+
+export interface AppNotification {
+  id: string;
+  category: NotificationCategory;
+  priority: NotificationPriority;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  actionLabel?: string;
+  actionHref?: string;
+}
+
+export const NOTIFICATIONS: AppNotification[] = [
+  {
+    id: "N001",
+    category: "ORDERS",
+    priority: "HIGH",
+    title: "New Order",
+    message: "ABC Industries placed Order #1048. 4 products · ₹84,500",
+    timestamp: "2026-10-10T12:41:00+05:30",
+    read: false,
+    actionLabel: "Review Order",
+    actionHref: "/orders/O001",
+  },
+  {
+    id: "N002",
+    category: "SHIPMENTS",
+    priority: "HIGH",
+    title: "Shipment Arriving Today",
+    message: "Shipment #SH-1023 from Apex Forgings arrives today. 200 units AJAX anchor bolts.",
+    timestamp: "2026-10-10T09:00:00+05:30",
+    read: false,
+    actionLabel: "View Shipment",
+    actionHref: "/shipments/SH-1023",
+  },
+  {
+    id: "N003",
+    category: "INVENTORY",
+    priority: "HIGH",
+    title: "Critical Stock Alert",
+    message: "MAXGRIP 500×12 SOCKET HEAD has reached critical stock. Available: 18 · Reorder Level: 30",
+    timestamp: "2026-10-10T08:30:00+05:30",
+    read: false,
+    actionLabel: "View Inventory",
+    actionHref: "/inventory/stock",
+  },
+  {
+    id: "N004",
+    category: "DELIVERIES",
+    priority: "MEDIUM",
+    title: "Delivery Reminder",
+    message: "Order #1048 is out for delivery today. Assigned to Raju More.",
+    timestamp: "2026-10-10T08:00:00+05:30",
+    read: true,
+    actionLabel: "View Delivery",
+    actionHref: "/deliveries/DEL-1048",
+  },
+  {
+    id: "N005",
+    category: "ORDERS",
+    priority: "MEDIUM",
+    title: "Payment Overdue",
+    message: "Excellent Builders – Invoice #INV-1044 payment is 3 days overdue. ₹27,000 outstanding.",
+    timestamp: "2026-10-10T07:00:00+05:30",
+    read: true,
+    actionLabel: "View Finance",
+    actionHref: "/finance/outstanding",
+  },
+  {
+    id: "N006",
+    category: "SYSTEM",
+    priority: "LOW",
+    title: "Backorder Alert",
+    message: "Order #1046 (Metro Hardware) still awaiting 62 units of MAXGRIP 500×12. Purchase order sent.",
+    timestamp: "2026-10-09T17:00:00+05:30",
+    read: true,
+    actionLabel: "View Order",
+    actionHref: "/orders/O003",
+  },
+];
+
+export async function fetchNotifications(): Promise<AppNotification[]> {
+  const { randomDelay } = await import("./utils");
+  await randomDelay();
+  return NOTIFICATIONS;
+}
+
+// ─── Enhanced Dashboard KPI ──────────────────────────────────────────────────
+
+export interface DashboardKPI {
+  // Operations
+  pendingOrders: number;
+  purchaseRequired: number;
+  ordersReady: number;
+  verificationPending: number;
+  dispatchPending: number;
+  invoicePending: number;
+  outstanding: number;
+  complaints: number;
+  // Today's metrics
+  todaySales: number;
+  todayOrders: number;
+  pendingDeliveries: number;
+  inventoryValue: number;
+  lowStockItems: number;
+  incomingShipments: number;
+  // Needs attention counts
+  ordersAwaitingStock: number;
+  shipmentsArrivingToday: number;
+  deliveriesScheduledTomorrow: number;
+  newOrdersAwaitingConfirmation: number;
+  // Trends
+  salesTrend: { date: string; value: number }[];
+  ordersTrend: { date: string; count: number }[];
+  ordersByStatus: { status: string; count: number; color: string }[];
+}
+
+export const DASHBOARD_KPI: DashboardKPI = {
+  pendingOrders: 23,
+  purchaseRequired: 8,
+  ordersReady: 5,
+  verificationPending: 3,
+  dispatchPending: 7,
+  invoicePending: 11,
+  outstanding: 1842000,
+  complaints: 3,
+  todaySales: 124500,
+  todayOrders: 24,
+  pendingDeliveries: 8,
+  inventoryValue: 4820000,
+  lowStockItems: 6,
+  incomingShipments: 2,
+  ordersAwaitingStock: 3,
+  shipmentsArrivingToday: 2,
+  deliveriesScheduledTomorrow: 5,
+  newOrdersAwaitingConfirmation: 4,
+  salesTrend: [
+    { date: "04 Oct", value: 98000 },
+    { date: "05 Oct", value: 145000 },
+    { date: "06 Oct", value: 112000 },
+    { date: "07 Oct", value: 87500 },
+    { date: "08 Oct", value: 134000 },
+    { date: "09 Oct", value: 192000 },
+    { date: "10 Oct", value: 124500 },
+  ],
+  ordersTrend: [
+    { date: "04 Oct", count: 18 },
+    { date: "05 Oct", count: 22 },
+    { date: "06 Oct", count: 17 },
+    { date: "07 Oct", count: 14 },
+    { date: "08 Oct", count: 21 },
+    { date: "09 Oct", count: 28 },
+    { date: "10 Oct", count: 24 },
+  ],
+  ordersByStatus: [
+    { status: "New/Draft", count: 4, color: "#94A3B8" },
+    { status: "Confirmed", count: 6, color: "#3B82F6" },
+    { status: "Awaiting Stock", count: 3, color: "#F59E0B" },
+    { status: "Ready", count: 5, color: "#10B981" },
+    { status: "Dispatched", count: 7, color: "#6366F1" },
+  ],
+};
+
+export async function fetchDashboardKPI(): Promise<DashboardKPI> {
+  const { randomDelay } = await import("./utils");
+  await randomDelay();
+  return DASHBOARD_KPI;
 }

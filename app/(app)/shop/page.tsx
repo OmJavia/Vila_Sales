@@ -20,7 +20,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ITEMS, Item } from "@/lib/data";
 import { useShopStore } from "@/lib/shopStore";
-import { getCategoryImage, getCategoryColor, getBrandColor, getProductGradient } from "@/lib/productImages";
+import { getCategoryImage, getCategoryColor, getBrandColor } from "@/lib/productImages";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -200,95 +200,68 @@ export default function ShopPage() {
         </div>
       </div>
 
-      {/* ─── Category Filter Panel ───────────────────────────────────── */}
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden mb-4"
+      {/* ─── Always-Visible Category Ribbon (Blinkit Style) ─────────────── */}
+      <div className="mb-5 flex items-center gap-2 overflow-x-auto pb-2 -mx-3 sm:mx-0 px-3 sm:px-0">
+        <motion.button
+          onClick={() => setSelectedCategory(null)}
+          whileTap={{ scale: 0.97 }}
+          className={cn(
+            "flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold border transition-all flex-shrink-0 whitespace-nowrap shadow-xs",
+            selectedCategory === null
+              ? "bg-[#111] text-white border-[#111] shadow-md"
+              : "bg-white text-[#555] border-[#EAEAEA] hover:border-[#CCC] hover:bg-[#F9F9F9]"
+          )}
+        >
+          <span>✨</span>
+          <span>All Items</span>
+          <span
+            className={cn(
+              "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold",
+              selectedCategory === null ? "bg-white/20 text-white" : "bg-black/5 text-[#666]"
+            )}
           >
-            <div className="card p-3 sm:p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-wider">
-                  Filter by Category ({categories.length})
-                </span>
-                {selectedCategory && (
-                  <button
-                    onClick={() => setSelectedCategory(null)}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
-                  >
-                    Clear <X className="w-3 h-3" />
-                  </button>
+            {inStockItems.length}
+          </span>
+        </motion.button>
+
+        {categories.map((cat) => {
+          const colors = getCategoryColor(cat);
+          const isSelected = selectedCategory === cat;
+          return (
+            <motion.button
+              key={cat}
+              onClick={() => setSelectedCategory(isSelected ? null : cat)}
+              whileTap={{ scale: 0.97 }}
+              className={cn(
+                "flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold border transition-all duration-150 flex-shrink-0 whitespace-nowrap shadow-xs",
+                isSelected
+                  ? "ring-2 ring-offset-1 ring-[#111] bg-[#111] text-white border-[#111]"
+                  : "bg-white hover:border-[#CCC] hover:shadow-xs"
+              )}
+              style={
+                !isSelected
+                  ? {
+                      backgroundColor: colors.bg,
+                      color: colors.text,
+                      borderColor: colors.border,
+                    }
+                  : undefined
+              }
+            >
+              <span>{CATEGORY_ICONS[cat] || "📦"}</span>
+              <span>{cat}</span>
+              <span
+                className={cn(
+                  "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold",
+                  isSelected ? "bg-white/20 text-white" : "bg-black/5"
                 )}
-              </div>
-              {/* Horizontally scrollable on mobile, wraps on desktop */}
-              <div className="flex gap-2 overflow-x-auto pb-1 -mx-3 sm:mx-0 px-3 sm:px-0 sm:flex-wrap">
-                <motion.button
-                  onClick={() => setSelectedCategory(null)}
-                  whileTap={{ scale: 0.97 }}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 flex-shrink-0 whitespace-nowrap",
-                    selectedCategory === null
-                      ? "ring-2 ring-offset-1 ring-[#111] bg-[#111] text-white border-[#111]"
-                      : "bg-[#F7F7F7] text-[#666] border-[#EAEAEA] hover:bg-[#EAEAEA]"
-                  )}
-                >
-                  <span>✨</span>
-                  All Products
-                  <span
-                    className={cn(
-                      "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold",
-                      selectedCategory === null ? "bg-white/20 text-white" : "bg-black/5 text-[#666]"
-                    )}
-                  >
-                    {inStockItems.length}
-                  </span>
-                </motion.button>
-                {categories.map((cat) => {
-                  const colors = getCategoryColor(cat);
-                  const isSelected = selectedCategory === cat;
-                  return (
-                    <motion.button
-                      key={cat}
-                      onClick={() => setSelectedCategory(isSelected ? null : cat)}
-                      whileTap={{ scale: 0.97 }}
-                      className={cn(
-                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 flex-shrink-0 whitespace-nowrap",
-                        isSelected
-                          ? "ring-2 ring-offset-1 ring-[#111] bg-[#111] text-white border-[#111]"
-                          : "hover:shadow-sm"
-                      )}
-                      style={
-                        !isSelected
-                          ? {
-                              backgroundColor: colors.bg,
-                              color: colors.text,
-                              borderColor: colors.border,
-                            }
-                          : undefined
-                      }
-                    >
-                      <span>{CATEGORY_ICONS[cat] || "📦"}</span>
-                      {cat}
-                      <span
-                        className={cn(
-                          "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold",
-                          isSelected ? "bg-white/20 text-white" : "bg-black/5"
-                        )}
-                      >
-                        {categoryCounts[cat] || 0}
-                      </span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              >
+                {categoryCounts[cat] || 0}
+              </span>
+            </motion.button>
+          );
+        })}
+      </div>
 
       {/* ─── Toolbar ──────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-4 gap-2">
@@ -482,7 +455,6 @@ function ProductCard({
   const categoryImg = getCategoryImage(item.category);
   const categoryColor = getCategoryColor(item.category);
   const brandColor = getBrandColor(item.brand);
-  const [grad1, grad2] = getProductGradient(item.id);
 
   const stockLabel =
     item.stockLevel === "OK"
@@ -512,20 +484,15 @@ function ProductCard({
       {/* Brand color strip */}
       <div className="h-1 w-full" style={{ backgroundColor: brandColor }} />
 
-      {/* Product Image */}
-      <div
-        className="relative h-28 sm:h-36 flex items-center justify-center overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${grad1}, ${grad2})` }}
-      >
-        <div className="relative w-16 h-16 sm:w-24 sm:h-24 opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300">
-          <Image
-            src={categoryImg}
-            alt={item.name}
-            fill
-            className="object-contain drop-shadow-md"
-            sizes="96px"
-          />
-        </div>
+      {/* Product Image — full bleed, no background, consistent fixed height */}
+      <div className="relative h-40 sm:h-44 overflow-hidden flex-shrink-0">
+        <Image
+          src={categoryImg}
+          alt={item.name}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 640px) 50vw, 220px"
+        />
 
         {/* Stock badge */}
         <div
@@ -573,6 +540,35 @@ function ProductCard({
           </span>
         </div>
 
+        {/* Quantity Selector — below name/code/brand */}
+        {quantity > 0 && (
+          <div className="flex items-center justify-between bg-[#111] rounded-lg overflow-hidden mb-2">
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={onDecrement}
+              className="p-1.5 sm:p-2 text-white hover:bg-white/10 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </motion.button>
+            <motion.span
+              key={quantity}
+              initial={{ scale: 1.3, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-white font-bold text-sm tabular-nums min-w-[24px] text-center"
+            >
+              {quantity}
+            </motion.span>
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={onIncrement}
+              disabled={quantity >= item.stock}
+              className="p-1.5 sm:p-2 text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </motion.button>
+          </div>
+        )}
+
         <div className="mt-auto">
           {/* Price */}
           <div className="flex items-baseline gap-1 mb-2">
@@ -582,8 +578,8 @@ function ProductCard({
             <span className="text-[9px] sm:text-[10px] text-[#999]">/ {item.unit}</span>
           </div>
 
-          {/* Add to Cart / Quantity Selector */}
-          {quantity === 0 ? (
+          {/* Add to Cart button — shown only when qty is 0 */}
+          {quantity === 0 && (
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => onAdd(item)}
@@ -592,32 +588,6 @@ function ProductCard({
               <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               Add to Cart
             </motion.button>
-          ) : (
-            <div className="flex items-center justify-between bg-[#111] rounded-lg overflow-hidden">
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={onDecrement}
-                className="p-1.5 sm:p-2 text-white hover:bg-white/10 transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              </motion.button>
-              <motion.span
-                key={quantity}
-                initial={{ scale: 1.3, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="text-white font-bold text-sm tabular-nums min-w-[24px] text-center"
-              >
-                {quantity}
-              </motion.span>
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={onIncrement}
-                disabled={quantity >= item.stock}
-                className="p-1.5 sm:p-2 text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </motion.button>
-            </div>
           )}
         </div>
       </div>

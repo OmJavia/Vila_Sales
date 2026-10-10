@@ -26,6 +26,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useShopStore, CartItem } from "@/lib/shopStore";
+import { CustomerOrderBooking, addDaysToDate } from "@/lib/customerOrderService";
 import { getCategoryImage, getBrandColor } from "@/lib/productImages";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ export default function CheckoutPage() {
   const getCartTotal = useShopStore((s) => s.getCartTotal);
   const getCartItemCount = useShopStore((s) => s.getCartItemCount);
   const clearCart = useShopStore((s) => s.clearCart);
+  const setCurrentBooking = useShopStore((s) => s.setCurrentBooking);
 
   useEffect(() => setMounted(true), []);
 
@@ -67,6 +69,61 @@ export default function CheckoutPage() {
     d.setDate(d.getDate() + parseInt(paymentTerms));
     return d.toISOString().split("T")[0];
   })();
+
+  const handleProceedToPayment = () => {
+    const orderId = `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const invoiceNum = `INV/26-27/${orderId.split("-")[2]}`;
+    const scheduledFollowUpDate = addDaysToDate(new Date(), 5);
+
+    const booking: CustomerOrderBooking = {
+      orderId,
+      orderNumber: `#${orderId.replace("ORD-2026-", "")}`,
+      invoiceNumber: invoiceNum,
+      customerId: customer.id,
+      customerName: customer.contactPerson || customer.name,
+      companyName: customer.name,
+      phone: customer.phone,
+      email: customer.email,
+      deliveryAddress: `${customer.city}, Maharashtra`,
+      city: customer.city,
+      state: "Maharashtra",
+      pincode: "400001",
+      gstin: customer.gstin,
+      items: cart.map((item) => ({
+        itemId: item.itemId,
+        itemName: item.itemName,
+        itemCode: item.itemCode,
+        brand: item.brand,
+        category: item.category,
+        unit: item.unit,
+        price: item.price,
+        quantity: item.quantity,
+        subtotal: item.price * item.quantity,
+      })),
+      subtotal: taxableAmount,
+      taxableAmount: taxableAmount,
+      cgst,
+      sgst,
+      igst,
+      grandTotal,
+      paymentMethod: "UPI",
+      paymentStatus: "PENDING_VERIFICATION",
+      paymentDetails: {},
+      transporter,
+      orderNotes: notes,
+      bookingDate: new Date().toISOString(),
+      estimatedDeliveryDate: addDaysToDate(new Date(), 3),
+      deliveryStatus: "BOOKED",
+      followUp: {
+        scheduledDate: scheduledFollowUpDate,
+        status: "PENDING",
+        prompt: `Follow up in 5 days (${formatDate(scheduledFollowUpDate)}): Call ${customer.contactPerson || customer.name} at ${customer.name} (${customer.phone}) to ask how the ${cart.length} product unit(s) were and check reorder needs.`,
+      },
+    };
+
+    setCurrentBooking(booking);
+    router.push(`/shop/payment?orderId=${orderId}`);
+  };
 
   const handleGenerateInvoice = async () => {
     setIsProcessing(true);
@@ -297,11 +354,19 @@ export default function CheckoutPage() {
                   </div>
 
                   <button
-                    onClick={() => setStep("review")}
-                    className="w-full mt-5 py-3 bg-[#111] text-white rounded-xl text-sm font-semibold hover:bg-[#2a2a2a] transition-all duration-150 flex items-center justify-center gap-2 group active:scale-[0.98]"
+                    onClick={handleProceedToPayment}
+                    className="w-full mt-5 py-3 bg-[#111] text-white rounded-xl text-sm font-semibold hover:bg-[#2a2a2a] transition-all duration-150 flex items-center justify-center gap-2 group active:scale-[0.98] shadow-sm"
                   >
-                    Review Order
+                    <span>Proceed to Payment</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+
+                  <button
+                    onClick={() => setStep("review")}
+                    className="w-full mt-2 py-2.5 bg-[#F5F5F5] text-[#333] hover:bg-[#EAEAEA] rounded-xl text-xs font-semibold transition-all duration-150 flex items-center justify-center gap-1.5"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-[#666]" />
+                    Review Proforma Invoice
                   </button>
                 </div>
               </div>
@@ -459,10 +524,10 @@ export default function CheckoutPage() {
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Back to Details
               </button>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <button
                   onClick={handlePrint}
-                  className="btn-secondary flex items-center gap-1.5"
+                  className="btn-secondary flex items-center gap-1.5 text-xs py-2.5 px-3"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   Print Preview
@@ -470,19 +535,28 @@ export default function CheckoutPage() {
                 <button
                   onClick={handleGenerateInvoice}
                   disabled={isProcessing}
-                  className="btn-primary px-6 py-3 flex items-center gap-2 text-sm disabled:opacity-50"
+                  className="btn-secondary flex items-center gap-1.5 text-xs py-2.5 px-3 disabled:opacity-50"
+                  title="Generate proforma invoice on credit terms without immediate payment"
                 >
                   {isProcessing ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-[#666]/30 border-t-[#333] rounded-full animate-spin" />
                       Generating...
                     </>
                   ) : (
                     <>
-                      <Send className="w-4 h-4" />
-                      Generate Invoice
+                      <Send className="w-3.5 h-3.5" />
+                      Issue on Credit
                     </>
                   )}
+                </button>
+                <button
+                  onClick={handleProceedToPayment}
+                  className="btn-primary py-2.5 px-5 flex items-center gap-2 text-xs font-semibold shadow-sm"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  Pay Now (UPI / NEFT / COD)
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>

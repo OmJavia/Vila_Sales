@@ -30,6 +30,11 @@ import {
   Building,
   ShoppingBag,
   Store,
+  Ship,
+  Calendar,
+  HardHat,
+  ListTodo,
+  PhoneCall,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useShopStore } from "@/lib/shopStore";
@@ -57,6 +62,8 @@ const NAV: NavItem[] = [
       { label: "Returns", href: "/returns", icon: RotateCcw },
     ],
   },
+  { label: "Shipments", href: "/shipments", icon: Ship },
+  { label: "Deliveries", href: "/deliveries", icon: Truck },
   {
     label: "Inventory",
     icon: Package,
@@ -81,10 +88,10 @@ const NAV: NavItem[] = [
   },
   {
     label: "Dispatch",
-    icon: Truck,
+    icon: PackageSearch,
     children: [
       { label: "Ready to Dispatch", href: "/dispatch/ready", icon: PackageSearch },
-      { label: "Dispatch", href: "/dispatch", icon: Truck },
+      { label: "Dispatch", href: "/dispatch", icon: PackageSearch },
       { label: "LR / POD", href: "/dispatch/lr-pod", icon: FileCheck },
     ],
   },
@@ -93,6 +100,7 @@ const NAV: NavItem[] = [
     icon: Users,
     children: [
       { label: "Customers", href: "/customers", icon: Users },
+      { label: "Abandoned Carts", href: "/customers/abandoned-carts", icon: PhoneCall },
       { label: "Complaints", href: "/customers/complaints", icon: AlertCircle },
       { label: "Follow-ups", href: "/customers/followups", icon: ClipboardList },
     ],
@@ -107,6 +115,14 @@ const NAV: NavItem[] = [
     ],
   },
   { label: "Reports", href: "/reports", icon: BarChart2 },
+  {
+    label: "Workers",
+    icon: HardHat,
+    children: [
+      { label: "Manage Workers", href: "/workers", icon: Users },
+      { label: "Worker Portal", href: "/worker", icon: ListTodo },
+    ],
+  },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 

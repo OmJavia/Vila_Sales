@@ -17,6 +17,9 @@ import {
   AlertCircle,
   CheckCircle2,
   Receipt,
+  Clock,
+  Phone,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,6 +28,7 @@ import { useShopStore, CartItem } from "@/lib/shopStore";
 import { getCategoryImage, getCategoryColor, getBrandColor } from "@/lib/productImages";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
 import { CUSTOMERS } from "@/lib/data";
 
 export default function CartPage() {
@@ -39,6 +43,9 @@ export default function CartPage() {
   const getCartTotal = useShopStore((s) => s.getCartTotal);
   const getCartItemCount = useShopStore((s) => s.getCartItemCount);
   const clearCart = useShopStore((s) => s.clearCart);
+  const customerPhone = useShopStore((s) => s.customerPhone);
+  const simulate7HourIdle = useShopStore((s) => s.simulate7HourIdle);
+  const toast = useToast();
 
   useEffect(() => setMounted(true), []);
 
@@ -239,6 +246,35 @@ export default function CartPage() {
                     Final pricing including applicable discounts will be 
                     confirmed at checkout.
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 7-Hour Cart Policy & Manager Follow-up Alert Box */}
+            <div className="mt-4 p-3.5 bg-amber-50 rounded-xl border border-amber-200">
+              <div className="flex items-start gap-2.5">
+                <Clock className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+                <div className="text-[11px] text-amber-900 leading-relaxed">
+                  <p className="font-bold">7-Hour Stock Reservation Guarantee</p>
+                  <p className="mt-0.5 text-amber-800">
+                    Items kept in cart are held for up to 7 hours. If unpurchased for 7 hours, an automated callback alert is sent to our dispatch manager ({customerPhone}) so we can call you and hold stock.
+                  </p>
+                  <div className="mt-2.5 pt-2 border-t border-amber-200/80 flex items-center justify-between">
+                    <span className="text-[10px] text-amber-700 font-medium">Test this workflow:</span>
+                    <button
+                      onClick={() => {
+                        simulate7HourIdle();
+                        toast.warning(
+                          "Alert Dispatched to Manager!",
+                          "Simulated 7-hour abandonment. The manager has received an urgent callback notification."
+                        );
+                      }}
+                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[10px] font-bold shadow-xs transition-colors flex items-center gap-1"
+                    >
+                      <Sparkles className="w-2.5 h-2.5" />
+                      Simulate 7h Alert
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

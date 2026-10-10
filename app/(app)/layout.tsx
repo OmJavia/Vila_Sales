@@ -5,6 +5,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { ToastContainer } from "@/components/ui/Toast";
+import { ShopHeader } from "@/components/shop/ShopHeader";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
@@ -21,6 +22,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     void el.offsetHeight;
     el.classList.add("page-enter");
   }, [pathname]);
+
+  const isStoreRoute = pathname === "/" || pathname?.startsWith("/shop");
+
+  if (isStoreRoute) {
+    return (
+      <div className="min-h-screen bg-[#F7F7F7] flex flex-col">
+        <ShopHeader />
+        <main className="flex-1 min-h-[calc(100vh-90px)]">
+          <div ref={mainRef} className="p-3 sm:p-4 md:p-6 page-enter max-w-7xl mx-auto overflow-x-hidden w-full">
+            {children}
+          </div>
+        </main>
+        <ToastContainer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-[#F7F7F7]">

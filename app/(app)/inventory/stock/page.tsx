@@ -20,6 +20,7 @@ import {
   Trash2,
   ShoppingCart,
   ZoomIn,
+  MapPin,
 } from "lucide-react";
 import { fetchItems, type Item } from "@/lib/data";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -46,7 +47,9 @@ function StockLookupPanel({ items }: { items: Item[] }) {
         (i) =>
           i.name.toLowerCase().includes(q) ||
           i.code.toLowerCase().includes(q) ||
-          i.category.toLowerCase().includes(q)
+          i.category.toLowerCase().includes(q) ||
+          (i.location && i.location.toLowerCase().includes(q)) ||
+          i.godownStock?.some((g) => g.location?.toLowerCase().includes(q))
       )
       .slice(0, 10);
   }, [query, items]);
@@ -86,8 +89,8 @@ function StockLookupPanel({ items }: { items: Item[] }) {
     <div className="bg-white border border-[#EAEAEA] rounded-xl shadow-sm p-4 space-y-4">
       <div className="flex items-center gap-2">
         <ZoomIn className="w-4 h-4 text-[#111111]" />
-        <h2 className="text-sm font-bold text-[#111111]">Stock Lookup</h2>
-        <span className="text-xs text-[#999999]">— search any item to check live stock</span>
+        <h2 className="text-sm font-bold text-[#111111]">Stock &amp; Location Lookup</h2>
+        <span className="text-xs text-[#999999]">— check live stock and exact rack location (A1..A9, B1..B9)</span>
       </div>
 
       {/* Search input */}
@@ -104,7 +107,7 @@ function StockLookupPanel({ items }: { items: Item[] }) {
             setShowResults(true);
           }}
           onFocus={() => setShowResults(true)}
-          placeholder="Search by item name, code, or category…"
+          placeholder="Search by item name, code, category, or rack location (e.g. A1, B3)…"
           className="w-full pl-9 pr-4 py-2.5 text-sm border border-[#EAEAEA] rounded-lg outline-none focus:border-[#111111] focus:ring-2 focus:ring-[#111111]/10 transition-all"
         />
         {query && (
@@ -133,7 +136,12 @@ function StockLookupPanel({ items }: { items: Item[] }) {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium text-[#111111] truncate">{item.name}</div>
-                    <div className="text-[10px] text-[#999999] font-mono">{item.code} · {item.category}</div>
+                    <div className="text-[10px] text-[#999999] font-mono flex items-center gap-2 mt-0.5">
+                      <span>{item.code} · {item.category}</span>
+                      <span className="font-bold text-blue-600 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
+                        📍 Location: {item.location || item.godownStock[0]?.location || "A1"}
+                      </span>
+                    </div>
                   </div>
                   <StatusBadge status={item.stockLevel} />
                 </button>
@@ -173,6 +181,24 @@ function StockLookupPanel({ items }: { items: Item[] }) {
                 <StatusBadge status={selected.stockLevel} />
               </div>
 
+              {/* Prominent Warehouse Location Card */}
+              <div className="flex items-center gap-2.5 p-2.5 bg-blue-50/90 border border-blue-200 rounded-xl text-blue-900 shadow-2xs">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 font-mono font-bold text-sm shadow-xs">
+                  {selected.location || selected.godownStock[0]?.location || "A1"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold flex items-center gap-1.5 flex-wrap">
+                    <span>Stored at Location {selected.location || selected.godownStock[0]?.location || "A1"}</span>
+                    <span className="text-[10px] font-semibold text-blue-800 bg-white px-1.5 py-0.2 rounded border border-blue-200">
+                      Aisle {(selected.location || "A1")[0]} · Shelf {(selected.location || "A1").slice(1)}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-blue-700 mt-0.5">
+                    Worker retrieval path: Bay {(selected.location || "A1")[0]}, Rack Level {(selected.location || "A1").slice(1)}
+                  </div>
+                </div>
+              </div>
+
               {/* Stock bar */}
               <div>
                 <div className="flex items-center justify-between text-[11px] mb-1">
@@ -195,9 +221,14 @@ function StockLookupPanel({ items }: { items: Item[] }) {
               <div className="grid grid-cols-2 gap-2">
                 {selected.godownStock.map((g) => (
                   <div key={g.godown} className="bg-white/70 border border-white rounded-lg p-2">
-                    <div className="flex items-center gap-1 mb-1">
-                      <Warehouse className="w-3 h-3 text-[#666666]" />
-                      <span className="text-[10px] font-semibold text-[#333333] truncate">{g.godown}</span>
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <Warehouse className="w-3 h-3 text-[#666666] flex-shrink-0" />
+                        <span className="text-[10px] font-semibold text-[#333333] truncate">{g.godown}</span>
+                      </div>
+                      <span className="font-mono text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 border border-blue-200 flex-shrink-0">
+                        📍 {g.location || selected.location || "A1"}
+                      </span>
                     </div>
                     <div className="grid grid-cols-3 gap-1 text-[10px] text-center">
                       <div><div className="font-bold text-[#111111] tabular-nums">{g.physical}</div><div className="text-[#999999]">Physical</div></div>
@@ -398,7 +429,9 @@ export default function StockOverviewPage() {
           i.name.toLowerCase().includes(q) ||
           i.code.toLowerCase().includes(q) ||
           i.brand.toLowerCase().includes(q) ||
-          i.category.toLowerCase().includes(q)
+          i.category.toLowerCase().includes(q) ||
+          (i.location && i.location.toLowerCase().includes(q)) ||
+          i.godownStock?.some((g) => g.location?.toLowerCase().includes(q))
       );
     }
     return list;
@@ -612,7 +645,13 @@ export default function StockOverviewPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-[#111111] line-clamp-2 leading-snug">{item.name}</p>
-                    <p className="text-[10px] font-mono text-[#999999] mt-0.5">{item.code}</p>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="text-[10px] font-mono text-[#999999]">{item.code}</span>
+                      <span className="inline-flex items-center gap-0.5 font-mono text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                        <MapPin className="w-2.5 h-2.5 text-blue-500" />
+                        Location {item.location || item.godownStock[0]?.location || "A1"}
+                      </span>
+                    </div>
                     <p className="text-[11px] text-[#666666] mt-0.5">{item.category}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
@@ -660,6 +699,7 @@ export default function StockOverviewPage() {
               <tr>
                 <th>Item</th>
                 <th>Code</th>
+                <th>Location</th>
                 <th>Category</th>
                 <th className="text-right">Physical Stock</th>
                 <th className="text-right">Reserved</th>
@@ -671,7 +711,7 @@ export default function StockOverviewPage() {
               </tr>
             </thead>
             {isLoading ? (
-              <TableSkeleton rows={5} cols={10} />
+              <TableSkeleton rows={5} cols={11} />
             ) : (
               <tbody>
                 {filtered.map((item, index) => {
@@ -707,6 +747,12 @@ export default function StockOverviewPage() {
                         </div>
                       </td>
                       <td><span className="font-mono text-xs text-[#666666]">{item.code}</span></td>
+                      <td>
+                        <span className="inline-flex items-center gap-1 font-mono text-xs font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs whitespace-nowrap">
+                          <MapPin className="w-3 h-3 text-blue-500" />
+                          {item.location || item.godownStock[0]?.location || "A1"}
+                        </span>
+                      </td>
                       <td className="text-xs text-[#666666]">{item.category}</td>
                       <td className="text-right">
                         <div className="flex items-center justify-end gap-2">

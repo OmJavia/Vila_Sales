@@ -28,7 +28,10 @@ export default function LoginPage() {
     // Demo auth — accept any of these
     const validEmails = ["amit@tradeflow.in", "priya@tradeflow.in", "raju@tradeflow.in"];
     if (validEmails.includes(email) && password.length >= 6) {
-      toast.success("Welcome back, Amit!", "Redirecting to dashboard...");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("tradeflow_admin_logged_in", "true");
+      }
+      toast.success("Welcome back, Amit!", "Redirecting to admin dashboard...");
       await sleep(400);
       router.push("/dashboard");
     } else {
@@ -47,8 +50,18 @@ export default function LoginPage() {
         transition={{ duration: 0.24, ease: "easeOut" }}
         className="w-full max-w-[380px]"
       >
+        {/* Back to Store */}
+        <div className="mb-4">
+          <button
+            onClick={() => router.push("/shop")}
+            className="text-xs text-[#666] hover:text-[#111] font-semibold flex items-center gap-1 transition-colors"
+          >
+            ← Back to Customer Store
+          </button>
+        </div>
+
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-10">
+        <div className="flex items-center gap-3 mb-8">
           <div className="w-9 h-9 bg-[#111111] rounded-lg flex items-center justify-center">
             <Package className="w-5 h-5 text-white" />
           </div>

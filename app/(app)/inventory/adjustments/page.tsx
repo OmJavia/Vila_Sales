@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SlidersHorizontal, Plus, AlertCircle } from "lucide-react";
+import { SlidersHorizontal, Plus, AlertCircle, MapPin } from "lucide-react";
 import { ITEMS } from "@/lib/data";
 
 interface StockAdjustment {
@@ -11,6 +11,7 @@ interface StockAdjustment {
   itemCode: string;
   itemName: string;
   godown: string;
+  location?: string;
   systemQty: number;
   physicalQty: number;
   difference: number;
@@ -26,6 +27,7 @@ const SAMPLE_ADJUSTMENTS: StockAdjustment[] = [
     itemCode: "MGP-500-12-SKT",
     itemName: "MAXGRIP 500×12 SOCKET HEAD",
     godown: "Main Warehouse (Bhiwandi)",
+    location: "A3",
     systemQty: 20,
     physicalQty: 18,
     difference: -2,
@@ -39,6 +41,7 @@ const SAMPLE_ADJUSTMENTS: StockAdjustment[] = [
     itemCode: "PWF-300-10-SS",
     itemName: "POWERFIT 300×10 SS WASHER",
     godown: "Secondary Store (Kalamboli)",
+    location: "B7",
     systemQty: 282,
     physicalQty: 292,
     difference: +10,
@@ -69,6 +72,7 @@ export default function StockAdjustmentsPage() {
               <th className="p-3">Date</th>
               <th className="p-3">Item Description</th>
               <th className="p-3">Godown</th>
+              <th className="p-3">Rack Location</th>
               <th className="p-3 text-center">System Qty</th>
               <th className="p-3 text-center">Physical Count</th>
               <th className="p-3 text-center">Variance</th>
@@ -77,34 +81,44 @@ export default function StockAdjustmentsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {adjustments.map((adj) => (
-              <tr key={adj.id} className="hover:bg-hover/50">
-                <td className="p-3 font-mono font-semibold text-brand-primary">{adj.adjNo}</td>
-                <td className="p-3 font-mono text-text-muted">{adj.date}</td>
-                <td className="p-3">
-                  <div className="font-medium text-text-primary">{adj.itemName}</div>
-                  <div className="font-mono text-[10px] text-text-muted">{adj.itemCode}</div>
-                </td>
-                <td className="p-3 text-text-secondary">{adj.godown}</td>
-                <td className="p-3 text-center font-mono">{adj.systemQty}</td>
-                <td className="p-3 text-center font-mono font-bold">{adj.physicalQty}</td>
-                <td className="p-3 text-center font-mono font-bold">
-                  <span
-                    className={
-                      adj.difference > 0
-                        ? "text-emerald-600"
-                        : adj.difference < 0
-                        ? "text-red-600"
-                        : "text-text-muted"
-                    }
-                  >
-                    {adj.difference > 0 ? `+${adj.difference}` : adj.difference}
-                  </span>
-                </td>
-                <td className="p-3 text-text-secondary">{adj.reason}</td>
-                <td className="p-3 text-text-muted">{adj.approvedBy}</td>
-              </tr>
-            ))}
+              {adjustments.map((adj) => {
+                const stockItem = ITEMS.find((i) => i.code === adj.itemCode);
+                const rackLoc = adj.location || stockItem?.location || stockItem?.godownStock.find((g) => g.location)?.location || "A1";
+                return (
+                  <tr key={adj.id} className="hover:bg-hover/50">
+                    <td className="p-3 font-mono font-semibold text-brand-primary">{adj.adjNo}</td>
+                    <td className="p-3 font-mono text-text-muted">{adj.date}</td>
+                    <td className="p-3">
+                      <div className="font-medium text-text-primary">{adj.itemName}</div>
+                      <div className="font-mono text-[10px] text-text-muted">{adj.itemCode}</div>
+                    </td>
+                    <td className="p-3 text-text-secondary">{adj.godown}</td>
+                    <td className="p-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-amber-500/10 text-amber-700 border border-amber-500/20">
+                        <MapPin className="w-3 h-3 text-amber-600" />
+                        {rackLoc}
+                      </span>
+                    </td>
+                    <td className="p-3 text-center font-mono">{adj.systemQty}</td>
+                    <td className="p-3 text-center font-mono font-bold">{adj.physicalQty}</td>
+                    <td className="p-3 text-center font-mono font-bold">
+                      <span
+                        className={
+                          adj.difference > 0
+                            ? "text-emerald-600"
+                            : adj.difference < 0
+                            ? "text-red-600"
+                            : "text-text-muted"
+                        }
+                      >
+                        {adj.difference > 0 ? `+${adj.difference}` : adj.difference}
+                      </span>
+                    </td>
+                    <td className="p-3 text-text-secondary">{adj.reason}</td>
+                    <td className="p-3 text-text-muted">{adj.approvedBy}</td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>

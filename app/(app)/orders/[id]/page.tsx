@@ -22,8 +22,9 @@ import {
   BarChart3,
   RotateCcw,
   Info,
+  MapPin,
 } from "lucide-react";
-import { fetchOrder, ORDER_ACTIVITY, type OrderStatus, type Order } from "@/lib/data";
+import { fetchOrder, ORDER_ACTIVITY, ITEMS, type OrderStatus, type Order } from "@/lib/data";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { WorkflowStepper } from "@/components/ui/WorkflowStepper";
 import { ActivityTimeline } from "@/components/ui/ActivityTimeline";
@@ -443,6 +444,7 @@ function ItemsTab({ order }: { order: Order }) {
           <tr>
             <th>Item</th>
             <th>Code</th>
+            <th>Rack Location</th>
             <th className="text-right">Qty Ordered</th>
             <th className="text-right">Available</th>
             <th className="text-right">Reserved</th>
@@ -453,43 +455,53 @@ function ItemsTab({ order }: { order: Order }) {
           </tr>
         </thead>
         <tbody>
-          {order.items.map((item) => (
-            <tr key={item.itemId}>
-              <td>
-                <div className="text-sm font-medium text-[#111111]">{item.itemName}</div>
-              </td>
-              <td>
-                <span className="font-mono text-xs text-[#666666]">{item.itemCode}</span>
-              </td>
-              <td className="text-right tabular-nums text-sm">{item.qtyOrdered} {item.unit}</td>
-              <td className="text-right tabular-nums text-sm">
-                <span className={cn(
-                  item.qtyAvailable >= item.qtyOrdered ? "text-[#16A34A]" : "text-[#DC2626]"
-                )}>
-                  {item.qtyAvailable}
-                </span>
-              </td>
-              <td className="text-right tabular-nums text-sm text-[#666666]">{item.qtyReserved}</td>
-              <td className="text-right tabular-nums text-sm text-[#2563EB]">{item.qtyAllocated}</td>
-              <td className="text-right tabular-nums text-sm">
-                {item.qtyShort > 0 ? (
-                  <span className="text-[#DC2626] font-semibold">{item.qtyShort}</span>
-                ) : (
-                  <span className="text-[#16A34A]">0</span>
-                )}
-              </td>
-              <td className="text-right tabular-nums text-sm text-[#666666]">
-                ₹{item.rate.toLocaleString("en-IN")}
-              </td>
-              <td className="text-right tabular-nums text-sm font-semibold text-[#111111]">
-                ₹{item.amount.toLocaleString("en-IN")}
-              </td>
-            </tr>
-          ))}
+          {order.items.map((item) => {
+            const stockItem = ITEMS.find((i) => i.id === item.itemId || i.code === item.itemCode);
+            const rackLoc = stockItem?.location || stockItem?.godownStock.find((g) => g.location)?.location || "A1";
+            return (
+              <tr key={item.itemId}>
+                <td>
+                  <div className="text-sm font-medium text-[#111111]">{item.itemName}</div>
+                </td>
+                <td>
+                  <span className="font-mono text-xs text-[#666666]">{item.itemCode}</span>
+                </td>
+                <td>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    <MapPin className="w-3 h-3 text-amber-600" />
+                    {rackLoc}
+                  </span>
+                </td>
+                <td className="text-right tabular-nums text-sm">{item.qtyOrdered} {item.unit}</td>
+                <td className="text-right tabular-nums text-sm">
+                  <span className={cn(
+                    item.qtyAvailable >= item.qtyOrdered ? "text-[#16A34A]" : "text-[#DC2626]"
+                  )}>
+                    {item.qtyAvailable}
+                  </span>
+                </td>
+                <td className="text-right tabular-nums text-sm text-[#666666]">{item.qtyReserved}</td>
+                <td className="text-right tabular-nums text-sm text-[#2563EB]">{item.qtyAllocated}</td>
+                <td className="text-right tabular-nums text-sm">
+                  {item.qtyShort > 0 ? (
+                    <span className="text-[#DC2626] font-semibold">{item.qtyShort}</span>
+                  ) : (
+                    <span className="text-[#16A34A]">0</span>
+                  )}
+                </td>
+                <td className="text-right tabular-nums text-sm text-[#666666]">
+                  ₹{item.rate.toLocaleString("en-IN")}
+                </td>
+                <td className="text-right tabular-nums text-sm font-semibold text-[#111111]">
+                  ₹{item.amount.toLocaleString("en-IN")}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={8} className="px-3 py-3 text-right text-sm font-semibold text-[#111111]">
+            <td colSpan={9} className="px-3 py-3 text-right text-sm font-semibold text-[#111111]">
               Total
             </td>
             <td className="px-3 py-3 text-right text-base font-bold text-[#111111] tabular-nums">
@@ -516,12 +528,20 @@ function StockTab({ order }: { order: Order }) {
       {order.items.map((item) => {
         const pct = Math.min((item.qtyAvailable / item.qtyOrdered) * 100, 100);
         const status = item.qtyAvailable >= item.qtyOrdered ? "OK" : item.qtyAvailable > 0 ? "LOW" : "OUT";
+        const stockItem = ITEMS.find((i) => i.id === item.itemId || i.code === item.itemCode);
+        const rackLoc = stockItem?.location || stockItem?.godownStock.find((g) => g.location)?.location || "A1";
         return (
           <div key={item.itemId} className="border border-[#EAEAEA] rounded-lg p-4">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="text-sm font-semibold text-[#111111]">{item.itemName}</div>
-                <div className="text-xs font-mono text-[#999999] mt-0.5">{item.itemCode}</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-xs font-mono text-[#999999]">{item.itemCode}</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    <MapPin className="w-3 h-3 text-amber-600" />
+                    Rack {rackLoc}
+                  </span>
+                </div>
               </div>
               <StatusBadge status={status} />
             </div>
