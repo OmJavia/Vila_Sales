@@ -247,12 +247,12 @@ export function Sidebar() {
         {/* Logo & Mobile Dismiss Button */}
         <div className="h-[52px] flex items-center justify-between px-4 border-b border-white/10 flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-white rounded flex items-center justify-center">
-              <Package className="w-4 h-4 text-[#111111]" />
+            <div className="w-7 h-7 bg-white rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <img src="/icon.svg" alt="Vila Sales Logo" className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-white font-bold text-sm leading-none">TradeFlow</div>
-              <div className="text-[rgba(255,255,255,0.4)] text-[10px] mt-0.5">Business Operations</div>
+              <div className="text-white font-bold text-sm leading-none">Vila Sales</div>
+              <div className="text-[rgba(255,255,255,0.4)] text-[10px] mt-0.5">Midas Rubber Co.</div>
             </div>
           </div>
 

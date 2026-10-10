@@ -13,13 +13,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "TradeFlow — Business Operations & Inventory",
-  description: "Internal business operations and inventory management for Indian B2B trading",
+  title: "Vila Sales — Midas Rubber Company",
+  description: "Internal business operations and inventory management for Vila Sales - Midas Rubber Company",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "TradeFlow",
+    title: "Vila Sales",
   },
   icons: {
     icon: "/icon.svg",

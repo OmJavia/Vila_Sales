@@ -1,12 +1,12 @@
 {
-  "name": "TradeFlow — Business Operations & Inventory",
-  "short_name": "TradeFlow",
-  "description": "Internal business operations and inventory management for Indian B2B trading",
-  "start_url": "/dashboard",
+  "name": "Vila Sales — Midas Rubber Company",
+  "short_name": "Vila Sales",
+  "description": "Business operations and inventory management for Vila Sales - Midas Rubber Company",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#111111",
   "theme_color": "#111111",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/icon.svg",

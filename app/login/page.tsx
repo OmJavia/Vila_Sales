@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Package, Eye, EyeOff, ArrowRight, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { ToastContainer } from "@/components/ui/Toast";
 import { sleep } from "@/lib/utils";
@@ -62,12 +62,12 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-9 h-9 bg-[#111111] rounded-lg flex items-center justify-center">
-            <Package className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 bg-[#111111] rounded-lg flex items-center justify-center overflow-hidden">
+            <img src="/icon.svg" alt="Vila Sales Logo" className="w-6 h-6" style={{ filter: 'invert(1)' }} />
           </div>
           <div>
-            <div className="text-lg font-bold text-[#111111] leading-none">TradeFlow</div>
-            <div className="text-xs text-[#999999] mt-0.5">Business Operations</div>
+            <div className="text-lg font-bold text-[#111111] leading-none">Vila Sales</div>
+            <div className="text-xs text-[#999999] mt-0.5">Midas Rubber Company</div>
           </div>
         </div>
 
