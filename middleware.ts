@@ -64,18 +64,42 @@ async function readValidSession(token: string, secret: string): Promise<SessionP
   }
 }
 
-function requiredRoles(pathname: string, method: string): string[] | null {
-  if (method === "POST" && pathname === "/api/settings") return ["ADMIN"];
-  if (method === "POST" && /^\/api\/invoices\/[^/]+\/payment\/?$/.test(pathname)) return ["ADMIN", "ACCOUNTS"];
-  if (method === "POST" && pathname === "/api/invoices") return ["ADMIN", "ACCOUNTS"];
-  if (method === "POST" && pathname === "/api/payments/verify") return ["ADMIN", "ACCOUNTS"];
-  if (method === "POST" && pathname === "/api/payments/create-intent") return ["ADMIN", "SALES", "ACCOUNTS"];
-  if (method === "POST" && pathname === "/api/orders") return ["ADMIN", "SALES"];
-  if (method === "POST" && pathname === "/api/purchase/receive") return ["ADMIN", "WAREHOUSE"];
-  if (method === "POST" && pathname === "/api/inventory/adjustments") return ["ADMIN", "WAREHOUSE"];
-  if (method === "POST" && /^\/api\/returns\/[^/]+\/approve\/?$/.test(pathname)) return ["ADMIN", "WAREHOUSE"];
-  if (method === "PATCH" && /^\/api\/orders\/[^/]+\/?$/.test(pathname)) return ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH"];
-  return null;
+function requiredRoles(pathname: string, method: string): string[] {
+  const path = pathname.replace(/\/$/, "") || "/";
+
+  // Explicit least-privilege policy for high-value reads.
+  if (method === "GET" || method === "HEAD") {
+    if (path === "/api/customers") return ["ADMIN", "SALES", "ACCOUNTS"];
+    if (path === "/api/invoices") return ["ADMIN", "SALES", "ACCOUNTS"];
+    if (path === "/api/orders" || /^\/api\/orders\/[^/]+$/.test(path)) {
+      return ["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE", "DISPATCH"];
+    }
+    if (path === "/api/inventory/movements" || path === "/api/inventory/adjustments") {
+      return ["ADMIN", "WAREHOUSE", "ACCOUNTS"];
+    }
+    if (path === "/api/inventory/items") return ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH"];
+    if (path === "/api/settings") return ["ADMIN", "ACCOUNTS"];
+    // General internal screens and lower-risk read-only APIs are staff-only.
+    return ["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE", "DISPATCH"];
+  }
+
+  // Restrict sensitive mutations to explicit roles. Any unclassified mutation
+  // is ADMIN-only by default; add a deliberate exception when its workflow is audited.
+  if (method === "POST" && path === "/api/settings") return ["ADMIN"];
+  if (method === "POST" && /^\/api\/invoices\/[^/]+\/payment$/.test(path)) return ["ADMIN", "ACCOUNTS"];
+  if (method === "POST" && path === "/api/invoices") return ["ADMIN", "ACCOUNTS"];
+  if (method === "POST" && path === "/api/invoices/send-email") return ["ADMIN", "SALES", "ACCOUNTS"];
+  if (method === "POST" && path === "/api/payments/verify") return ["ADMIN", "ACCOUNTS"];
+  if (method === "POST" && path === "/api/payments/create-intent") return ["ADMIN", "SALES", "ACCOUNTS"];
+  if (method === "POST" && path === "/api/orders") return ["ADMIN", "SALES"];
+  if (method === "PATCH" && /^\/api\/orders\/[^/]+$/.test(path)) return ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH"];
+  if (method === "POST" && path === "/api/purchase/receive") return ["ADMIN", "WAREHOUSE"];
+  if (method === "POST" && path === "/api/inventory/adjustments") return ["ADMIN", "WAREHOUSE"];
+  if (method === "POST" && /^\/api\/returns\/[^/]+\/approve$/.test(path)) return ["ADMIN", "WAREHOUSE"];
+  if (method === "POST" && /^\/api\/quotations\/[^/]+\/convert$/.test(path)) return ["ADMIN", "SALES"];
+  if (method === "POST" && path === "/api/notifications/expo-push") return ["ADMIN"];
+
+  return ["ADMIN"];
 }
 
 export async function middleware(request: NextRequest) {
