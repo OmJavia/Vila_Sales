@@ -227,7 +227,26 @@ export function isValidGstin(gstin: string): boolean {
   if (!gstin) return false;
   const cleaned = gstin.trim().toUpperCase();
   const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-  return regex.test(cleaned);
+  if (!regex.test(cleaned)) return false;
+
+  // Validate the GSTIN's final base-36 check character, not just its shape.
+  const valueOf = (character: string) =>
+    character >= "0" && character <= "9"
+      ? character.charCodeAt(0) - 48
+      : character.charCodeAt(0) - 55;
+  const characterOf = (value: number) =>
+    value < 10 ? String(value) : String.fromCharCode(value + 55);
+
+  let factor = 2;
+  let sum = 0;
+  for (let index = cleaned.length - 2; index >= 0; index--) {
+    const product = valueOf(cleaned[index]) * factor;
+    sum += Math.floor(product / 36) + (product % 36);
+    factor = factor === 2 ? 1 : 2;
+  }
+
+  const checkValue = (36 - (sum % 36)) % 36;
+  return characterOf(checkValue) === cleaned[14];
 }
 
 /**
