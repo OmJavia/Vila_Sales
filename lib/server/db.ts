@@ -862,25 +862,41 @@ class ServerDatabase {
     remarks?: string;
   }): Promise<GoodsReceiptRecord> {
     return this.transaction((data) => {
+      if (typeof params.poNo !== "string" || !params.poNo.trim()) throw new Error("A purchase order reference is required.");
+      if (typeof params.godown !== "string" || !params.godown.trim()) throw new Error("A receiving warehouse is required.");
+      if (!Array.isArray(params.items) || params.items.length < 1 || params.items.length > 100) {
+        throw new Error("A goods receipt must contain between 1 and 100 line items.");
+      }
+
+      const seen = new Set<string>();
+      const normalized = params.items.map((line) => {
+        const key = typeof line?.itemId === "string" ? line.itemId.trim() : "";
+        if (!key) throw new Error("Every goods receipt line must reference a catalogue item.");
+        if (seen.has(key)) throw new Error("Duplicate receipt items are not accepted; combine quantities.");
+        seen.add(key);
+        if (!Number.isSafeInteger(line.receivedQty) || line.receivedQty <= 0 || line.receivedQty > 100000) {
+          throw new Error("Received quantity must be a positive whole number no greater than 100,000.");
+        }
+        const item = data.items.find((candidate) => candidate.id === key || candidate.code === key);
+        if (!item) throw new Error(`Item ${key} not found.`);
+        return { key, qty: line.receivedQty, item };
+      });
+
       const supplier = data.suppliers.find((s) => s.id === params.supplierId);
+      if (!supplier) throw new Error("Supplier not found. Select a registered supplier.");
       const seq = data.counters.grnSeq++;
       const grnNo = `GRN-2026-${seq.toString().padStart(4, "0")}`;
 
-      const receivedItemsDetail = params.items.map((it) => {
-        const item = data.items.find((i) => i.id === it.itemId || i.code === it.itemId);
-        if (!item) throw new Error(`Item ${it.itemId} not found`);
-
-        const qty = Math.max(0, it.receivedQty);
+      const receivedItemsDetail = normalized.map(({ item, qty }) => {
 
         // Atomically increase usable stock
         item.stock += qty;
 
         // Increase godown stock
-        const targetGodown = item.godownStock.find((g) => g.godown === params.godown) || item.godownStock[0];
-        if (targetGodown) {
-          targetGodown.physical += qty;
-          targetGodown.available += qty;
-        }
+        const targetGodown = item.godownStock.find((g) => g.godown === params.godown);
+        if (!targetGodown) throw new Error(`Warehouse ${params.godown} is not configured for item ${item.code}.`);
+        targetGodown.physical += qty;
+        targetGodown.available += qty;
 
         // Ledger Entry
         data.stockMovements.unshift({
