@@ -96,7 +96,7 @@ function requiredRoles(pathname: string, method: string): string[] {
   if (method === "POST" && path === "/api/payments/verify") return ["ADMIN", "ACCOUNTS"];
   if (method === "POST" && path === "/api/payments/create-intent") return ["ADMIN", "SALES", "ACCOUNTS"];
   if (method === "POST" && path === "/api/orders") return ["ADMIN", "SALES"];
-  if (method === "PATCH" && /^\/api\/orders\/[^/]+$/.test(path)) return ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH"];
+  if (method === "PATCH" && /^\/api\/orders\/[^/]+$/.test(path)) return ["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE", "DISPATCH"];
   if (method === "POST" && path === "/api/purchase/receive") return ["ADMIN", "WAREHOUSE"];
   if (method === "POST" && path === "/api/inventory/adjustments") return ["ADMIN", "WAREHOUSE"];
   if (method === "POST" && /^\/api\/returns\/[^/]+\/approve$/.test(path)) return ["ADMIN", "WAREHOUSE"];
@@ -156,7 +156,7 @@ export async function middleware(request: NextRequest) {
         { status: 403 }
       );
     }
-    return NextResponse.redirect(new URL("/dashboard?error=forbidden", request.url));
+    return NextResponse.redirect(new URL("/login?reason=forbidden", request.url));
   }
 
   return NextResponse.next();
