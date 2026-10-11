@@ -42,9 +42,10 @@ export async function PATCH(
     const body = await req.json();
     const { status, cancelReason } = body;
 
-    if (!status) {
+    const allowedStatuses = ["DRAFT", "CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "ALLOCATED", "VERIFIED", "CHALLAN_READY", "DISPATCHED", "INVOICED", "PAYMENT_DONE", "CLOSED", "CANCELLED"];
+    if (typeof status !== "string" || !allowedStatuses.includes(status)) {
       return NextResponse.json(
-        { success: false, error: "New status is required" },
+        { success: false, error: "A valid order status is required" },
         { status: 400 }
       );
     }
