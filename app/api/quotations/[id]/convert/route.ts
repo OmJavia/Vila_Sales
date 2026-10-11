@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Sales Officer";
+    const access = requireAuth(req, ["ADMIN", "SALES"]);
+    if ("errorResponse" in access) return access.errorResponse;
+    const actor = access.session.name;
 
     const result = await serverDb.convertQuotationToOrder({
       quotationId: params.id,
