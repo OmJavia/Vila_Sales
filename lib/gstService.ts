@@ -74,7 +74,7 @@ export function round2(num: number): number {
  * 1. Customer GSTIN first 2 digits (authoritative)
  * 2. Explicitly passed stateCode
  * 3. Inferred state from State Name
- * 4. Default to Seller state ("27" - Maharashtra) if entirely unknown
+ * 4. Reject unknown or incomplete state identity; never infer a seller/customer state silently
  */
 export function resolveCustomerStateCode(params: {
   gstin?: string;
@@ -133,9 +133,15 @@ export function calculateGST(params: {
   if (!isValidGstin(CANONICAL_COMPANY_CONFIG.gstin)) {
     throw new Error("Seller GSTIN is missing or invalid. Configure the actual registered GSTIN before generating orders or invoices.");
   }
+  const sellerStateFromGstin = getStateCodeFromGstin(CANONICAL_COMPANY_CONFIG.gstin);
+  if (!sellerStateFromGstin) {
+    throw new Error("Seller GSTIN has no recognised state code. Correct the company registration details before calculating GST.");
+  }
   const sellerCode = params.sellerStateCode || CANONICAL_COMPANY_CONFIG.stateCode;
   const sellerName = INDIAN_STATE_CODES[sellerCode];
-  if (!sellerName) throw new Error("Seller state code is invalid.");
+  if (!sellerName || sellerCode !== sellerStateFromGstin) {
+    throw new Error("Seller state code does not match the first two digits of the registered seller GSTIN.");
+  }
 
   const { stateCode: custCode, stateName: custName } = resolveCustomerStateCode({
     gstin: params.customerGstin,
