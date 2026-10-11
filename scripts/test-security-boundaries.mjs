@@ -90,11 +90,22 @@ try {
     { token: createTestToken("ADMIN", legacySecret) }
   );
 
+  const warehouseToken = createTestToken("WAREHOUSE", sessionSecret);
+  const sessionResponse = await fetch(`${baseUrl}/api/auth/session`, {
+    headers: { authorization: `Bearer ${warehouseToken}` },
+  });
+  const sessionPayload = await sessionResponse.json();
+  assert.equal(
+    sessionPayload.authenticated,
+    true,
+    "A token signed with the configured CI session secret must be accepted by the Node auth verifier."
+  );
+
   await check(
     "Warehouse session cannot mutate company settings",
     "/api/settings",
     403,
-    { method: "POST", token: createTestToken("WAREHOUSE", sessionSecret), body: { companyName: "Attacker Change" } }
+    { method: "POST", token: warehouseToken, body: { companyName: "Attacker Change" } }
   );
 
   await check("Public storefront catalogue remains reachable", "/shop", 200);
