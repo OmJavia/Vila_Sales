@@ -161,10 +161,15 @@ export function calculateGST(params: {
     const discAmount = round2((gross * discPct) / 100);
     const taxable = round2(gross - discAmount);
 
-    const gstRate = item.gstRate !== undefined ? item.gstRate : 18;
-    if (![0, 5, 12, 18, 28].includes(gstRate)) {
+    const gstRate = item.gstRate;
+    if (typeof gstRate !== "number" || !Number.isFinite(gstRate) || ![0, 5, 12, 18, 28].includes(gstRate)) {
       throw new Error(`Unsupported GST rate for item ${item.itemCode}. Correct the item master before invoicing.`);
     }
+    const hsnCode = (item.hsnCode || "").trim();
+    if (!/^\\d{4,8}$/.test(hsnCode)) {
+      throw new Error(`HSN code is missing or invalid for item ${item.itemCode}. Configure the verified product tax master before generating commercial documents.`);
+    }
+
     let cgstRate = 0;
     let cgstAmount = 0;
     let sgstRate = 0;
@@ -196,7 +201,7 @@ export function calculateGST(params: {
       itemId: item.itemId,
       itemCode: item.itemCode,
       itemName: item.itemName,
-      hsnCode: item.hsnCode || "40082100", // Default Midas Rubber HSN
+      hsnCode,
       qty,
       rate,
       grossAmount: gross,
