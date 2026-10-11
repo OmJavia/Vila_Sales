@@ -79,8 +79,6 @@ function PaymentContent() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<CustomerOrderBooking | null>(null);
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
 
   // Store access
   const cart = useShopStore((s) => s.cart);
@@ -196,11 +194,6 @@ function PaymentContent() {
     );
   };
 
-  const handleSimulateOtpSubmit = async () => {
-    setIsProcessing(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    finalizeBooking();
-  };
 
   if (!mounted) return null;
 
@@ -1160,59 +1153,12 @@ function PaymentContent() {
             {/* Assurance footer */}
             <div className="mt-5 pt-3 border-t border-[#EAEAEA] text-[11px] text-[#777] flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Full GST Input Tax Credit invoice will be issued.</span>
+              <span>Payment collection is currently unavailable. No payment will be recorded or invoice issued from this screen.</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* OTP MODAL FOR CARD SIMULATION */}
-      {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="card w-full max-w-sm bg-white p-6 rounded-2xl border border-border shadow-2xl">
-            <div className="text-center mb-4">
-              <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Lock className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-[#111]">3D Secure Authentication</h3>
-              <p className="text-xs text-[#666] mt-0.5">
-                Enter the simulated one-time password sent to your registered mobile number ending in{" "}
-                <strong>••42</strong>
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <label className="text-label text-[#666] block mb-1">Enter OTP (Demo: 123456)</label>
-              <input
-                type="text"
-                maxLength={6}
-                placeholder="123456"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                className="input-field text-center font-mono text-lg tracking-widest"
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setShowOtpModal(false)}
-                className="btn-secondary flex-1 py-2 text-xs"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSimulateOtpSubmit}
-                disabled={isProcessing}
-                className="btn-primary flex-1 py-2 text-xs font-semibold"
-              >
-                {isProcessing ? "Verifying..." : "Authorize"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
