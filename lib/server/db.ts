@@ -466,6 +466,12 @@ class ServerDatabase {
         if (!Number.isFinite(rate) || rate < 0) {
           throw new Error(`Catalogue price is invalid for item ${item.code}; correct the item master before ordering.`);
         }
+        if (![0, 5, 12, 18, 28].includes(item.gstRate as number)) {
+          throw new Error(`GST rate is missing or invalid for item ${item.code}; configure the verified product tax master before ordering.`);
+        }
+        if (typeof item.hsnCode !== "string" || !/^\\d{4,8}$/.test(item.hsnCode.trim())) {
+          throw new Error(`HSN code is missing or invalid for item ${item.code}; configure the verified product tax master before ordering.`);
+        }
         const stock = Number(item.stock) || 0;
         const reservedStock = Number(item.reservedStock) || 0;
         const available = Math.max(0, stock - reservedStock);
@@ -494,6 +500,8 @@ class ServerDatabase {
           itemName: line.itemName,
           qty: line.qtyOrdered,
           rate: line.rate,
+          gstRate: normalized.find((n) => n.item.id === line.itemId)?.item.gstRate,
+          hsnCode: normalized.find((n) => n.item.id === line.itemId)?.item.hsnCode,
         })),
         customerGstin: customer.gstin,
         customerStateCode: customer.stateCode,
@@ -699,6 +707,12 @@ class ServerDatabase {
         const item = data.items.find((candidate) => candidate.code === key || candidate.id === key);
         if (!item) throw new Error(`Item ${key} not found in catalogue.`);
         if (!Number.isFinite(item.price) || item.price < 0) throw new Error(`Invalid catalogue price for ${item.code}.`);
+        if (![0, 5, 12, 18, 28].includes(item.gstRate as number)) {
+          throw new Error(`GST rate is missing or invalid for item ${item.code}; invoice creation is blocked until the tax master is configured.`);
+        }
+        if (typeof item.hsnCode !== "string" || !/^\\d{4,8}$/.test(item.hsnCode.trim())) {
+          throw new Error(`HSN code is missing or invalid for item ${item.code}; invoice creation is blocked until the tax master is configured.`);
+        }
         return {
           itemId: item.id,
           itemCode: item.code,
@@ -706,7 +720,8 @@ class ServerDatabase {
           qty: input.qty,
           rate: item.price,
           discountPct: 0,
-          hsnCode: typeof (item as any).hsnCode === "string" ? (item as any).hsnCode : undefined,
+          hsnCode: item.hsnCode.trim(),
+          gstRate: item.gstRate,
         };
       });
 
@@ -719,6 +734,7 @@ class ServerDatabase {
           rate: it.rate,
           discountPct: it.discountPct,
           hsnCode: it.hsnCode,
+          gstRate: it.gstRate,
         })),
         customerGstin: customer.gstin,
         customerStateCode: customer.stateCode,
