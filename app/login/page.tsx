@@ -9,8 +9,8 @@ import { ToastContainer } from "@/components/ui/Toast";
 import { sleep } from "@/lib/utils";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("amit@vilasales.in");
-  const [password, setPassword] = useState("demo1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,10 +32,6 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (data.success && data.user) {
-        if (typeof window !== "undefined") {
-          localStorage.setItem("vs_user_session", JSON.stringify(data.user));
-          localStorage.setItem("tradeflow_admin_logged_in", "true");
-        }
         toast.success(
           `Welcome back, ${data.user.name}!`,
           `Authenticated as ${data.user.role}. Redirecting...`
@@ -43,7 +39,7 @@ export default function LoginPage() {
         await sleep(350);
         router.push("/dashboard");
       } else {
-        setError(data.error || "Invalid email or password. Try amit@vilasales.in / demo1234");
+        setError(data.error || "Invalid email or password.");
         setLoading(false);
       }
     } catch (err: any) {
@@ -156,7 +152,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-[#999999] mt-6">
-          Staff Portal: amit@vilasales.in / demo1234
+          Staff access is provisioned by your Vila Sales administrator.
         </p>
       </motion.div>
     </div>
