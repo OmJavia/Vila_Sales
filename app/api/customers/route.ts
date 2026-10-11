@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
+import { requireAuth } from "@/lib/server/auth";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
   try {
+    const auth = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS"]);
+    if (auth.errorResponse) return auth.errorResponse;
+
     const db = serverDb.read();
 
     // Reconcile outstanding balances from real invoices

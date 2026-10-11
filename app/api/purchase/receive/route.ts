@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Warehouse Receiver";
+    const auth = requireAuth(req, ["ADMIN", "WAREHOUSE"]);
+    if (auth.errorResponse) return auth.errorResponse;
+    const actor = auth.session.name;
 
     const body = await req.json();
     const { poNo, supplierId, godown, items, transporter, vehicleNo, remarks } = body;

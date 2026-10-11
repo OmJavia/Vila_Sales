@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
+    const auth = requireAuth(req);
+    if (auth.errorResponse) return auth.errorResponse;
+    const session = auth.session;
+
     const db = serverDb.read();
     let orders = db.orders;
 
     // If buyer, filter only their own orders
-    if (session && session.role === "BUYER") {
+    if (session.role === "BUYER") {
       orders = orders.filter((o) => o.customerId === session.userId);
     }
 
@@ -24,13 +29,18 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Sales Representative";
+    const auth = requireAuth(req, ["ADMIN", "SALES", "BUYER"]);
+    if (auth.errorResponse) return auth.errorResponse;
+    const session = auth.session;
+    const actor = session.name;
 
     const body = await req.json();
     const { customerId, items, priority, deliveryDate, notes } = body;
 
-    if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
+    // If buyer, ensure they can only order for themselves
+    const effectiveCustomerId = session.role === "BUYER" ? session.userId : customerId;
+
+    if (!effectiveCustomerId || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { success: false, error: "customerId and a non-empty items array are required" },
         { status: 400 }
@@ -38,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await serverDb.createOrder({
-      customerId,
+      customerId: effectiveCustomerId,
       items,
       priority,
       deliveryDate,

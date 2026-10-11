@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Sales Officer";
+    const auth = requireAuth(req, ["ADMIN", "SALES"]);
+    if (auth.errorResponse) return auth.errorResponse;
+    const actor = auth.session.name;
 
     const result = await serverDb.convertQuotationToOrder({
       quotationId: params.id,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { createSessionToken, AUTH_COOKIE_NAME } from "@/lib/server/auth";
+import { createSessionToken, verifyPassword, AUTH_COOKIE_NAME } from "@/lib/server/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
       (u) => u.email.toLowerCase() === email.toLowerCase().trim() && u.isActive
     );
 
-    // Verify password (for demo accounts, check against passwordHash)
-    if (!user || user.passwordHash !== password) {
+    // Verify password securely using verifyPassword
+    if (!user || !verifyPassword(password, user.passwordHash)) {
       return NextResponse.json(
         { success: false, error: "Invalid email or password" },
         { status: 401 }

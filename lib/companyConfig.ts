@@ -95,7 +95,7 @@ export const CANONICAL_COMPANY_CONFIG: CompanyConfig & {
   companyName: "Vila Sales",
   legalEntityName: "Vila Sales Private Limited",
   tradeName: "Midas Rubber Company (Authorized Distributor)",
-  gstin: "27AAACV9012K1Z8",
+  gstin: "27AAACV9012K1Z6",
   pan: "AAACV9012K",
   stateCode: "27",
   stateName: "Maharashtra",
@@ -221,13 +221,34 @@ export const INDIAN_STATE_CODES: Record<string, string> = {
 };
 
 /**
- * Validates an Indian GSTIN format (15 characters)
+ * Calculates Indian GSTIN 15th modulo-36 checksum character
+ */
+export function calculateGstinChecksum(gstin14: string): string {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let sum = 0;
+  for (let i = 0; i < 14; i++) {
+    const c = gstin14[i];
+    const val = chars.indexOf(c);
+    if (val === -1) return "";
+    const weight = i % 2 === 0 ? 1 : 2;
+    const prod = val * weight;
+    const quotient = Math.floor(prod / 36);
+    const remainder = prod % 36;
+    sum += quotient + remainder;
+  }
+  const checkVal = (36 - (sum % 36)) % 36;
+  return chars[checkVal];
+}
+
+/**
+ * Validates an Indian GSTIN format (15 characters) and checksum
  */
 export function isValidGstin(gstin: string): boolean {
   if (!gstin) return false;
   const cleaned = gstin.trim().toUpperCase();
   const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-  return regex.test(cleaned);
+  if (!regex.test(cleaned)) return false;
+  return calculateGstinChecksum(cleaned.slice(0, 14)) === cleaned[14];
 }
 
 /**

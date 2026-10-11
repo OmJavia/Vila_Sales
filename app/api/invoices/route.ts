@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS"]);
+    if (auth.errorResponse) return auth.errorResponse;
+
     const db = serverDb.read();
     return NextResponse.json({ success: true, invoices: db.invoices });
   } catch (error: any) {
@@ -16,8 +21,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Accounts Manager";
+    const auth = requireAuth(req, ["ADMIN", "ACCOUNTS"]);
+    if (auth.errorResponse) return auth.errorResponse;
+    const actor = auth.session.name;
 
     const body = await req.json();
     const { orderNo, customerId, items, transporter, vehicleNo, ewayBillNo, notes } = body;

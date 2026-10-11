@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
   try {
+    const auth = requireAuth(req);
+    if (auth.errorResponse) return auth.errorResponse;
+
     const db = serverDb.read();
     return NextResponse.json({ success: true, settings: db.settings });
   } catch (error: any) {
@@ -16,14 +21,9 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    // Only ADMIN can modify master configuration
-    if (session && session.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Forbidden: Only Administrator can modify master settings" },
-        { status: 403 }
-      );
-    }
+    // Only ADMIN can modify master configuration - explicitly enforce
+    const auth = requireAuth(req, ["ADMIN"]);
+    if (auth.errorResponse) return auth.errorResponse;
 
     const body = await req.json();
 

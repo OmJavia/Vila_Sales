@@ -6,6 +6,8 @@ import {
 } from "@/lib/paymentService";
 import { CANONICAL_COMPANY_CONFIG } from "@/lib/companyConfig";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

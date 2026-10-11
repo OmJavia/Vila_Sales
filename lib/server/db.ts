@@ -11,6 +11,7 @@ import { CANONICAL_COMPANY_CONFIG, CompanyConfig } from "../companyConfig";
 import { calculateGST } from "../gstService";
 import { MIDAS_ITEMS } from "../midasData";
 import { CUSTOMERS, SUPPLIERS, Item, Customer, Supplier, Order, Invoice, StockMovement } from "../data";
+import { hashPassword } from "./auth";
 
 export type Role = "ADMIN" | "SALES" | "ACCOUNTS" | "WAREHOUSE" | "DISPATCH" | "BUYER";
 
@@ -203,7 +204,7 @@ function getInitialSeedData(): DatabaseSchema {
       id: "usr-admin",
       name: "Amit Sharma",
       email: "amit@vilasales.in",
-      passwordHash: "demo1234", // in real production compare with scrypt/argon2
+      passwordHash: hashPassword("demo1234"),
       role: "ADMIN",
       phone: "+91 98201 12345",
       isActive: true,
@@ -213,7 +214,7 @@ function getInitialSeedData(): DatabaseSchema {
       id: "usr-sales",
       name: "Priya Nair",
       email: "priya@vilasales.in",
-      passwordHash: "demo1234",
+      passwordHash: hashPassword("demo1234"),
       role: "SALES",
       phone: "+91 98201 54321",
       isActive: true,
@@ -223,7 +224,7 @@ function getInitialSeedData(): DatabaseSchema {
       id: "usr-accounts",
       name: "Raju Merchant",
       email: "raju@vilasales.in",
-      passwordHash: "demo1234",
+      passwordHash: hashPassword("demo1234"),
       role: "ACCOUNTS",
       phone: "+91 98201 67890",
       isActive: true,
@@ -233,7 +234,7 @@ function getInitialSeedData(): DatabaseSchema {
       id: "usr-warehouse",
       name: "Suresh Patil",
       email: "warehouse@vilasales.in",
-      passwordHash: "demo1234",
+      passwordHash: hashPassword("demo1234"),
       role: "WAREHOUSE",
       phone: "+91 98201 99887",
       isActive: true,
@@ -383,19 +384,26 @@ class ServerDatabase {
     }
   }
 
-  public read(): DatabaseSchema {
-    if (this.cache) return this.cache;
+  private lastMtime = 0;
 
+  public read(): DatabaseSchema {
     this.ensureDir();
     if (fs.existsSync(DB_FILE)) {
       try {
+        const stat = fs.statSync(DB_FILE);
+        if (this.cache && stat.mtimeMs === this.lastMtime) {
+          return this.cache;
+        }
         const raw = fs.readFileSync(DB_FILE, "utf-8");
         this.cache = JSON.parse(raw);
+        this.lastMtime = stat.mtimeMs;
         return this.cache!;
       } catch (err) {
         console.error("Failed to read database file, seeding default:", err);
       }
     }
+
+    if (this.cache) return this.cache;
 
     const seeded = getInitialSeedData();
     this.write(seeded);
@@ -443,6 +451,17 @@ class ServerDatabase {
       const customer = data.customers.find((c) => c.id === params.customerId);
       if (!customer) throw new Error("Customer not found");
 
+      if (!params.items || !Array.isArray(params.items) || params.items.length === 0) {
+        throw new Error("Order must contain at least one item");
+      }
+
+      for (const it of params.items) {
+        if (!it.itemId) throw new Error("Item ID is required");
+        if (typeof it.qty !== "number" || !Number.isInteger(it.qty) || it.qty <= 0) {
+          throw new Error(`Invalid item quantity for ${it.itemId}: must be a strictly positive integer`);
+        }
+      }
+
       const seq = data.counters.orderSeq++;
       const orderNo = `SO-2026-${seq}`;
       const orderId = `ORD-2026-${seq}`;
@@ -451,7 +470,8 @@ class ServerDatabase {
         const item = data.items.find((i) => i.id === it.itemId || i.code === it.itemId);
         if (!item) throw new Error(`Item ${it.itemId} not found in catalog`);
 
-        const rate = it.rate !== undefined ? it.rate : item.price;
+        // Strictly enforce master catalogue pricing to prevent price tampering
+        const rate = item.price;
         const available = Math.max(0, item.stock - item.reservedStock);
         const qtyOrdered = it.qty;
         const qtyReserved = Math.min(qtyOrdered, available);
@@ -509,6 +529,14 @@ class ServerDatabase {
         customerStateName: customer.state,
       });
 
+      // Enforce credit limit
+      const currentCreditUsed = customer.creditUsed || 0;
+      if (customer.creditLimit > 0 && currentCreditUsed + gstCalc.grandTotal > customer.creditLimit) {
+        throw new Error(
+          `Credit limit exceeded: Order total ₹${gstCalc.grandTotal.toLocaleString("en-IN")} exceeds available credit limit ₹${Math.max(0, customer.creditLimit - currentCreditUsed).toLocaleString("en-IN")} (Credit limit: ₹${customer.creditLimit.toLocaleString("en-IN")})`
+        );
+      }
+
       const newOrder: Order = {
         id: orderId,
         orderNo,
@@ -537,7 +565,7 @@ class ServerDatabase {
       // Update customer credit & order count
       customer.totalOrders = (customer.totalOrders || 0) + 1;
       customer.lastOrderDate = newOrder.orderDate;
-      customer.creditUsed = Math.min(customer.creditLimit, customer.creditUsed + newOrder.totalAmount);
+      customer.creditUsed = (customer.creditUsed || 0) + newOrder.totalAmount;
 
       data.orders.unshift(newOrder);
       return newOrder;
@@ -743,11 +771,40 @@ class ServerDatabase {
       const invoice = data.invoices.find((i) => i.id === params.invoiceId || i.invoiceNo === params.invoiceId);
       if (!invoice) throw new Error("Invoice not found");
 
+      if (typeof params.amount !== "number" || !Number.isFinite(params.amount) || params.amount <= 0) {
+        throw new Error("Payment amount must be a valid positive number greater than zero");
+      }
+
+      const outstandingBalance = Math.round((invoice.totalAmount - (invoice.amountReceived || 0)) * 100) / 100;
+      if (outstandingBalance <= 0) {
+        throw new Error(`Invoice ${invoice.invoiceNo} is already fully paid`);
+      }
+
+      if (params.amount > outstandingBalance) {
+        throw new Error(
+          `Payment amount (₹${params.amount}) exceeds outstanding balance (₹${outstandingBalance}) for invoice ${invoice.invoiceNo}`
+        );
+      }
+
+      const cleanUtr = (params.transactionRef || "").trim();
+      if (cleanUtr.length < 6) {
+        throw new Error("Transaction reference / UTR must be at least 6 characters");
+      }
+
+      const duplicate = data.receipts.find(
+        (r) => r.transactionRef.toLowerCase() === cleanUtr.toLowerCase()
+      );
+      if (duplicate) {
+        throw new Error(
+          `Duplicate UTR: Transaction reference '${cleanUtr}' is already registered on receipt ${duplicate.receiptNo}`
+        );
+      }
+
       const customer = data.customers.find((c) => c.id === invoice.customerId);
       const seq = data.counters.receiptSeq++;
       const receiptNo = `RCT-26-27/${seq.toString().padStart(4, "0")}`;
 
-      invoice.amountReceived = Math.min(invoice.totalAmount, (invoice.amountReceived || 0) + params.amount);
+      invoice.amountReceived = Math.round(((invoice.amountReceived || 0) + params.amount) * 100) / 100;
       if (invoice.amountReceived >= invoice.totalAmount) {
         invoice.paymentStatus = "PAID";
       } else if (invoice.amountReceived > 0) {

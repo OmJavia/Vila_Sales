@@ -3,6 +3,8 @@ import { verifyRazorpaySignature } from "@/lib/paymentService";
 import { serverDb } from "@/lib/server/db";
 import { getSessionFromRequest } from "@/lib/server/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const session = getSessionFromRequest(req);

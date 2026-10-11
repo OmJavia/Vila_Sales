@@ -4,7 +4,7 @@
     "companyName": "Vila Sales",
     "legalEntityName": "Vila Sales Private Limited",
     "tradeName": "Midas Rubber Company (Authorized Distributor)",
-    "gstin": "27AAACV9012K1Z8",
+    "gstin": "27AAACV9012K1Z6",
     "pan": "AAACV9012K",
     "stateCode": "27",
     "stateName": "Maharashtra",
@@ -91,7 +91,7 @@
       "id": "usr-admin",
       "name": "Amit Sharma",
       "email": "amit@vilasales.in",
-      "passwordHash": "demo1234",
+      "passwordHash": "68a12b80bee58d66b24cd43348b613c2:a79b3bb79cb0c120dc2bee43a5821df7a042405247b5a5bec33b5e7f8e313a2de99e857adc85e3b6df66c62d473685f00e9b0b28d395d3e2ac2f17d4d0f408a3",
       "role": "ADMIN",
       "phone": "+91 98201 12345",
       "isActive": true,
@@ -101,7 +101,7 @@
       "id": "usr-sales",
       "name": "Priya Nair",
       "email": "priya@vilasales.in",
-      "passwordHash": "demo1234",
+      "passwordHash": "0e038d98c3ac496e91effde1355f0cdd:5024237c96ea98cee2e02a2dd49b4dd8b93e8f133873fee002d3626c569f4915a5b7fec60d6937e2ef0a75b6c4db25d12e2fe7eede91d347f77cba9c83ff0046",
       "role": "SALES",
       "phone": "+91 98201 54321",
       "isActive": true,
@@ -111,7 +111,7 @@
       "id": "usr-accounts",
       "name": "Raju Merchant",
       "email": "raju@vilasales.in",
-      "passwordHash": "demo1234",
+      "passwordHash": "93ddc5f8879a16d7cb8811b3164b126a:b9e99440e3c25004051af7a9f292c2c72f606fd916ad9d60b4101dde1ec0c510853afb09b2444838e342d89f9993b86b02abff0162a16b078c82cc53d45bb54c",
       "role": "ACCOUNTS",
       "phone": "+91 98201 67890",
       "isActive": true,
@@ -121,7 +121,7 @@
       "id": "usr-warehouse",
       "name": "Suresh Patil",
       "email": "warehouse@vilasales.in",
-      "passwordHash": "demo1234",
+      "passwordHash": "c3c5df4b1ef61f04c38c75454092e42b:9fe714fbe776cd5b76aab97ff46a9744ae2f60578b93ec6a3fca2284809230785c3e89ab552b8d538fcad1ce43bd1460ca100848661d02908f64e480458f226a",
       "role": "WAREHOUSE",
       "phone": "+91 98201 99887",
       "isActive": true,
@@ -139,7 +139,7 @@
       "price": 3450,
       "stock": 270,
       "minStock": 30,
-      "reservedStock": 19,
+      "reservedStock": 28,
       "allocatedStock": 12,
       "stockLevel": "OK",
       "specifications": "Special 99°C fast cure gum to reduce chamber cure time; high tack formulation",
@@ -3737,13 +3737,13 @@
       "city": "Mumbai",
       "gstin": "27AABCA1234B1Z5",
       "creditLimit": 500000,
-      "creditUsed": 329200,
+      "creditUsed": 365837,
       "paymentTerms": 30,
       "phone": "+91 98765 43210",
       "email": "accounts@abcindustries.in",
       "contactPerson": "Rajesh Mehta",
-      "outstandingAmount": 341000,
-      "totalOrders": 50,
+      "outstandingAmount": 414276,
+      "totalOrders": 56,
       "lastOrderDate": "2026-10-11",
       "state": "Gujarat",
       "stateCode": "27",
@@ -3896,6 +3896,234 @@
   ],
   "orders": [
     {
+      "id": "ORD-2026-1056",
+      "orderNo": "SO-2026-1056",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CONFIRMED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 1,
+          "qtyAvailable": 243,
+          "qtyReserved": 1,
+          "qtyAllocated": 1,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 3450,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 4071,
+      "notes": "",
+      "assignedTo": "Adversary",
+      "createdBy": "Adversary",
+      "workflow": [
+        {
+          "id": "wf-1791721654534",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Adversary"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2026-1055",
+      "orderNo": "SO-2026-1055",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CONFIRMED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 2,
+          "qtyAvailable": 245,
+          "qtyReserved": 2,
+          "qtyAllocated": 2,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 6900,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 8142,
+      "notes": "",
+      "assignedTo": "Automated QA Test",
+      "createdBy": "Automated QA Test",
+      "workflow": [
+        {
+          "id": "wf-1791721654532",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Automated QA Test"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2026-1054",
+      "orderNo": "SO-2026-1054",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CONFIRMED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 1,
+          "qtyAvailable": 246,
+          "qtyReserved": 1,
+          "qtyAllocated": 1,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 3450,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 4071,
+      "notes": "",
+      "assignedTo": "Adversary",
+      "createdBy": "Adversary",
+      "workflow": [
+        {
+          "id": "wf-1791721589107",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Adversary"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2026-1053",
+      "orderNo": "SO-2026-1053",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CONFIRMED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 2,
+          "qtyAvailable": 248,
+          "qtyReserved": 2,
+          "qtyAllocated": 2,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 6900,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 8142,
+      "notes": "",
+      "assignedTo": "Automated QA Test",
+      "createdBy": "Automated QA Test",
+      "workflow": [
+        {
+          "id": "wf-1791721589105",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Automated QA Test"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2026-1052",
+      "orderNo": "SO-2026-1052",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CONFIRMED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 1,
+          "qtyAvailable": 249,
+          "qtyReserved": 1,
+          "qtyAllocated": 1,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 3450,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 4071,
+      "notes": "",
+      "assignedTo": "Adversary",
+      "createdBy": "Adversary",
+      "workflow": [
+        {
+          "id": "wf-1791721545874",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Adversary"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2026-1051",
+      "orderNo": "SO-2026-1051",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CONFIRMED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 2,
+          "qtyAvailable": 251,
+          "qtyReserved": 2,
+          "qtyAllocated": 2,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 6900,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 8142,
+      "notes": "",
+      "assignedTo": "Automated QA Test",
+      "createdBy": "Automated QA Test",
+      "workflow": [
+        {
+          "id": "wf-1791721545872",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Automated QA Test"
+        }
+      ]
+    },
+    {
       "id": "ORD-2026-1050",
       "orderNo": "SO-2026-1050",
       "customerId": "C001",
@@ -4040,6 +4268,228 @@
   ],
   "invoices": [
     {
+      "id": "INV-52",
+      "invoiceNo": "VS/26-27/0052",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 6900,
+      "cgst": 621,
+      "sgst": 621,
+      "igst": 0,
+      "totalAmount": 8142,
+      "paymentStatus": "PENDING",
+      "amountReceived": 0,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 2,
+          "unit": "Roll",
+          "rate": 3450,
+          "discountPct": 0,
+          "taxableAmount": 6900,
+          "gstRate": 18,
+          "cgstAmount": 621,
+          "sgstAmount": 621,
+          "igstAmount": 0,
+          "totalAmount": 8142
+        }
+      ]
+    },
+    {
+      "id": "INV-51",
+      "invoiceNo": "VS/26-27/0051",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 6900,
+      "cgst": 621,
+      "sgst": 621,
+      "igst": 0,
+      "totalAmount": 8142,
+      "paymentStatus": "PARTIAL",
+      "amountReceived": 1,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 2,
+          "unit": "Roll",
+          "rate": 3450,
+          "discountPct": 0,
+          "taxableAmount": 6900,
+          "gstRate": 18,
+          "cgstAmount": 621,
+          "sgstAmount": 621,
+          "igstAmount": 0,
+          "totalAmount": 8142
+        }
+      ]
+    },
+    {
+      "id": "INV-50",
+      "invoiceNo": "VS/26-27/0050",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 17250,
+      "cgst": 1552.5,
+      "sgst": 1552.5,
+      "igst": 0,
+      "totalAmount": 20355,
+      "paymentStatus": "PENDING",
+      "amountReceived": 0,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 5,
+          "unit": "Roll",
+          "rate": 3450,
+          "discountPct": 0,
+          "taxableAmount": 17250,
+          "gstRate": 18,
+          "cgstAmount": 1552.5,
+          "sgstAmount": 1552.5,
+          "igstAmount": 0,
+          "totalAmount": 20355
+        }
+      ]
+    },
+    {
+      "id": "INV-49",
+      "invoiceNo": "VS/26-27/0049",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 6900,
+      "cgst": 621,
+      "sgst": 621,
+      "igst": 0,
+      "totalAmount": 8142,
+      "paymentStatus": "PENDING",
+      "amountReceived": 0,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 2,
+          "unit": "Roll",
+          "rate": 3450,
+          "discountPct": 0,
+          "taxableAmount": 6900,
+          "gstRate": 18,
+          "cgstAmount": 621,
+          "sgstAmount": 621,
+          "igstAmount": 0,
+          "totalAmount": 8142
+        }
+      ]
+    },
+    {
+      "id": "INV-48",
+      "invoiceNo": "VS/26-27/0048",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 6900,
+      "cgst": 621,
+      "sgst": 621,
+      "igst": 0,
+      "totalAmount": 8142,
+      "paymentStatus": "PARTIAL",
+      "amountReceived": 1,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 2,
+          "unit": "Roll",
+          "rate": 3450,
+          "discountPct": 0,
+          "taxableAmount": 6900,
+          "gstRate": 18,
+          "cgstAmount": 621,
+          "sgstAmount": 621,
+          "igstAmount": 0,
+          "totalAmount": 8142
+        }
+      ]
+    },
+    {
+      "id": "INV-47",
+      "invoiceNo": "VS/26-27/0047",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 17250,
+      "cgst": 1552.5,
+      "sgst": 1552.5,
+      "igst": 0,
+      "totalAmount": 20355,
+      "paymentStatus": "PENDING",
+      "amountReceived": 0,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 5,
+          "unit": "Roll",
+          "rate": 3450,
+          "discountPct": 0,
+          "taxableAmount": 17250,
+          "gstRate": 18,
+          "cgstAmount": 1552.5,
+          "sgstAmount": 1552.5,
+          "igstAmount": 0,
+          "totalAmount": 20355
+        }
+      ]
+    },
+    {
       "id": "INV-46",
       "invoiceNo": "VS/26-27/0046",
       "customerId": "C001",
@@ -4158,6 +4608,102 @@
     }
   ],
   "stockMovements": [
+    {
+      "id": "MOV-1791721654534-90b6",
+      "timestamp": "2026-10-11T12:27:34.534Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -1,
+      "balanceAfter": 242,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1056",
+      "reason": "Reserved for Sales Order SO-2026-1056",
+      "actor": "Adversary"
+    },
+    {
+      "id": "MOV-1791721654532-tyel",
+      "timestamp": "2026-10-11T12:27:34.532Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -2,
+      "balanceAfter": 243,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1055",
+      "reason": "Reserved for Sales Order SO-2026-1055",
+      "actor": "Automated QA Test"
+    },
+    {
+      "id": "MOV-1791721589107-53l4",
+      "timestamp": "2026-10-11T12:26:29.107Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -1,
+      "balanceAfter": 245,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1054",
+      "reason": "Reserved for Sales Order SO-2026-1054",
+      "actor": "Adversary"
+    },
+    {
+      "id": "MOV-1791721589099-rpqk",
+      "timestamp": "2026-10-11T12:26:29.099Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -2,
+      "balanceAfter": 246,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1053",
+      "reason": "Reserved for Sales Order SO-2026-1053",
+      "actor": "Automated QA Test"
+    },
+    {
+      "id": "MOV-1791721545874-jfrb",
+      "timestamp": "2026-10-11T12:25:45.874Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -1,
+      "balanceAfter": 248,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1052",
+      "reason": "Reserved for Sales Order SO-2026-1052",
+      "actor": "Adversary"
+    },
+    {
+      "id": "MOV-1791721545866-ndsg",
+      "timestamp": "2026-10-11T12:25:45.866Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -2,
+      "balanceAfter": 249,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1051",
+      "reason": "Reserved for Sales Order SO-2026-1051",
+      "actor": "Automated QA Test"
+    },
     {
       "id": "MOV-1791706746363-a5to",
       "timestamp": "2026-10-11T08:19:06.363Z",
@@ -4356,6 +4902,36 @@
   ],
   "receipts": [
     {
+      "id": "RCT-33",
+      "receiptNo": "RCT-26-27/0033",
+      "invoiceId": "INV-51",
+      "invoiceNo": "VS/26-27/0051",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "amount": 1,
+      "paymentMode": "UPI",
+      "transactionRef": "TESTUTR1791721654537",
+      "paymentDate": "2026-10-11",
+      "status": "VERIFIED",
+      "verifiedBy": "Accounts Lead",
+      "createdAt": "2026-10-11T12:27:34.538Z"
+    },
+    {
+      "id": "RCT-32",
+      "receiptNo": "RCT-26-27/0032",
+      "invoiceId": "INV-48",
+      "invoiceNo": "VS/26-27/0048",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "amount": 1,
+      "paymentMode": "UPI",
+      "transactionRef": "TESTUTR1791721589109",
+      "paymentDate": "2026-10-11",
+      "status": "VERIFIED",
+      "verifiedBy": "Accounts Lead",
+      "createdAt": "2026-10-11T12:26:29.110Z"
+    },
+    {
       "id": "RCT-31",
       "receiptNo": "RCT-26-27/0031",
       "invoiceId": "INV-46",
@@ -4364,7 +4940,7 @@
       "customerName": "ABC Industries Pvt. Ltd.",
       "amount": 5900,
       "paymentMode": "NEFT_RTGS",
-      "transactionRef": "HDFC9821739218",
+      "transactionRef": "HDFC9821739219",
       "paymentDate": "2026-10-11",
       "status": "VERIFIED",
       "verifiedBy": "Accounts Reconciler",
@@ -4389,13 +4965,13 @@
     }
   ],
   "counters": {
-    "orderSeq": 1051,
-    "invoiceSeq": 47,
+    "orderSeq": 1057,
+    "invoiceSeq": 53,
     "challanSeq": 22,
     "quoteSeq": 15,
     "grnSeq": 14,
     "adjSeq": 6,
     "cnSeq": 8,
-    "receiptSeq": 32
+    "receiptSeq": 34
   }
 }

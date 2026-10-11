@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendInvoiceEmail } from "@/lib/invoiceEmail";
 import { Invoice } from "@/lib/data";
+import { requireAuth } from "@/lib/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS"]);
+    if (auth.errorResponse) return auth.errorResponse;
+
     const body = await req.json();
     const { invoice, recipientEmail, notes, subject } = body;
 

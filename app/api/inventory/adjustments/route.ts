@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = requireAuth(req, ["ADMIN", "WAREHOUSE"]);
+    if (auth.errorResponse) return auth.errorResponse;
+
     const db = serverDb.read();
     return NextResponse.json({ success: true, adjustments: db.adjustments });
   } catch (error: any) {
@@ -16,8 +21,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    const approvedBy = session ? session.name : "Warehouse Supervisor";
+    const auth = requireAuth(req, ["ADMIN", "WAREHOUSE"]);
+    if (auth.errorResponse) return auth.errorResponse;
+    const approvedBy = auth.session.name;
 
     const body = await req.json();
     const { itemId, godown, physicalCount, reason } = body;
