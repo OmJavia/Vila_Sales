@@ -198,48 +198,23 @@ function getInitialSeedData(): DatabaseSchema {
     billingAddress: c.billingAddress || `${c.city}, Maharashtra, India`,
   }));
 
-  const initialUsers: UserAccount[] = [
-    {
-      id: "usr-admin",
-      name: "Amit Sharma",
-      email: "amit@vilasales.in",
-      passwordHash: "demo1234", // in real production compare with scrypt/argon2
-      role: "ADMIN",
-      phone: "+91 98201 12345",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-    {
-      id: "usr-sales",
-      name: "Priya Nair",
-      email: "priya@vilasales.in",
-      passwordHash: "demo1234",
-      role: "SALES",
-      phone: "+91 98201 54321",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-    {
-      id: "usr-accounts",
-      name: "Raju Merchant",
-      email: "raju@vilasales.in",
-      passwordHash: "demo1234",
-      role: "ACCOUNTS",
-      phone: "+91 98201 67890",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-    {
-      id: "usr-warehouse",
-      name: "Suresh Patil",
-      email: "warehouse@vilasales.in",
-      passwordHash: "demo1234",
-      role: "WAREHOUSE",
-      phone: "+91 98201 99887",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-  ];
+  // No shared demo passwords. A local bootstrap admin is created only from explicit,
+  // operator-provided credentials stored as a salted scrypt hash in environment variables.
+  const bootstrapEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const bootstrapPasswordHash = process.env.ADMIN_PASSWORD_HASH?.trim();
+  const initialUsers: UserAccount[] =
+    bootstrapEmail && bootstrapPasswordHash?.startsWith("scrypt$")
+      ? [{
+          id: "usr-admin-bootstrap",
+          name: process.env.ADMIN_NAME?.trim() || "Administrator",
+          email: bootstrapEmail,
+          passwordHash: bootstrapPasswordHash,
+          role: "ADMIN",
+          phone: process.env.ADMIN_PHONE || "",
+          isActive: true,
+          createdAt: new Date().toISOString(),
+        }]
+      : [];
 
   const initialOrders: Order[] = [
     {
@@ -383,35 +358,57 @@ class ServerDatabase {
     }
   }
 
+  /**
+   * The JSON adapter is for local development only. Vercel/serverless deployments
+   * need a managed transactional database shared by all instances. Fail closed
+   * rather than serving seed data or claiming writes were persisted.
+   */
+  private assertLocalStorageOnly() {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "Persistent storage is not configured. The JSON-file adapter is development-only; configure a shared transactional database before production use."
+      );
+    }
+  }
+
   public read(): DatabaseSchema {
-    if (this.cache) return this.cache;
+    this.assertLocalStorageOnly();
+    if (this.cache) return structuredClone(this.cache);
 
     this.ensureDir();
     if (fs.existsSync(DB_FILE)) {
       try {
         const raw = fs.readFileSync(DB_FILE, "utf-8");
-        this.cache = JSON.parse(raw);
-        return this.cache!;
+        const parsed = JSON.parse(raw) as DatabaseSchema;
+        if (!parsed || !Array.isArray(parsed.users) || !Array.isArray(parsed.items)) {
+          throw new Error("Database file has an invalid shape");
+        }
+        this.cache = parsed;
+        return structuredClone(parsed);
       } catch (err) {
-        console.error("Failed to read database file, seeding default:", err);
+        console.error("Failed to read database file:", err);
+        throw new Error("Local database could not be read safely. Restore a valid backup before continuing.");
       }
     }
 
     const seeded = getInitialSeedData();
     this.write(seeded);
-    this.cache = seeded;
-    return seeded;
+    return structuredClone(seeded);
   }
 
   public write(data: DatabaseSchema): void {
-    this.cache = data;
+    this.assertLocalStorageOnly();
     this.ensureDir();
+    const tmpFile = `${DB_FILE}.tmp.${Date.now()}`;
     try {
-      const tmpFile = `${DB_FILE}.tmp.${Date.now()}`;
-      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
+      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), { encoding: "utf-8", mode: 0o600 });
       fs.renameSync(tmpFile, DB_FILE);
+      // Publish to memory only after the disk write succeeds.
+      this.cache = structuredClone(data);
     } catch (err) {
-      console.error("Failed to durably write to database file:", err);
+      try { if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile); } catch { /* best-effort cleanup */ }
+      console.error("Failed to persist local database:", err);
+      throw new Error("The transaction was not persisted. No success should be reported until storage succeeds.");
     }
   }
 
@@ -420,7 +417,7 @@ class ServerDatabase {
   public async transaction<T>(callback: (db: DatabaseSchema) => Promise<T> | T): Promise<T> {
     const release = await acquireLock();
     try {
-      const data = this.read();
+      const data = structuredClone(this.read());
       const result = await callback(data);
       this.write(data);
       return result;
