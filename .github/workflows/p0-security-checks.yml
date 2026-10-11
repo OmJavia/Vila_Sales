@@ -17,3 +17,8 @@ jobs:
       - run: npm ci
       - run: npx tsc --noEmit
       - run: npm run build
+      - name: Runtime authentication and role regression tests
+        run: npm run test:security
+        env:
+          SESSION_SECRET: "ci-only-test-secret-do-not-use-in-production-1234567890"
+          PORT: "3210"
