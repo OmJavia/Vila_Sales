@@ -9,8 +9,7 @@ import fs from "fs";
 import path from "path";
 import { CANONICAL_COMPANY_CONFIG, CompanyConfig } from "../companyConfig";
 import { calculateGST } from "../gstService";
-import { MIDAS_ITEMS } from "../midasData";
-import { CUSTOMERS, SUPPLIERS, Item, Customer, Supplier, Order, Invoice, StockMovement } from "../data";
+import { Item, Customer, Supplier, Order, Invoice, StockMovement } from "../data";
 
 export type Role = "ADMIN" | "SALES" | "ACCOUNTS" | "WAREHOUSE" | "DISPATCH" | "BUYER";
 
@@ -189,22 +188,12 @@ const DB_FILE = path.join(DATA_DIR, "vilasales-db.json");
  * Seed data generator
  */
 function getInitialSeedData(): DatabaseSchema {
-  const initialItems: Item[] = (MIDAS_ITEMS && MIDAS_ITEMS.length > 0)
-    ? MIDAS_ITEMS.slice(0, 120) // Seed top 120 Midas Rubber SKU items
-    : [];
-
-  const initialCustomers: Customer[] = CUSTOMERS.map((c) => ({
-    ...c,
-    state: c.state || (c.stateCode === "27" ? "Maharashtra" : "Gujarat"),
-    stateCode: c.stateCode || "27",
-    billingAddress: c.billingAddress || `${c.city}, Maharashtra, India`,
-  }));
-
-  // No shared demo passwords. A local bootstrap admin is created only from explicit,
-  // operator-provided credentials stored as a salted scrypt hash in environment variables.
+  // Never recreate mock customers, invoices, UTRs, credit balances or stock counts
+  // when the local store is empty. Business masters must be imported from verified
+  // company records after a durable database is configured.
   const bootstrapEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const bootstrapPasswordHash = process.env.ADMIN_PASSWORD_HASH?.trim();
-  const initialUsers: UserAccount[] =
+  const users: UserAccount[] =
     bootstrapEmail && bootstrapPasswordHash?.startsWith("scrypt$")
       ? [{
           id: "usr-admin-bootstrap",
@@ -218,131 +207,29 @@ function getInitialSeedData(): DatabaseSchema {
         }]
       : [];
 
-  const initialOrders: Order[] = [
-    {
-      id: "ORD-2026-1048",
-      orderNo: "SO-2026-1048",
-      customerId: "C001",
-      customerName: "ABC Industries Pvt. Ltd.",
-      status: "ALLOCATED",
-      priority: "HIGH",
-      orderDate: "2026-09-28",
-      deliveryDate: "2026-10-02",
-      items: [
-        {
-          itemId: initialItems[0]?.id || "MIDAS-101",
-          itemCode: initialItems[0]?.code || "MDS-BG-FC99",
-          itemName: initialItems[0]?.name || "MIDAS BONDING GUM - FAST CURE 99°C",
-          qtyOrdered: 20,
-          qtyAvailable: 160,
-          qtyReserved: 20,
-          qtyAllocated: 20,
-          qtyShort: 0,
-          rate: initialItems[0]?.price || 3450,
-          amount: 69000,
-          unit: "Roll",
-        },
-      ],
-      totalAmount: 81420,
-      notes: "Urgent batch required for Kalyan Tyre Retreaders depot",
-      assignedTo: "Amit Sharma",
-      createdBy: "Priya Nair",
-      workflow: [
-        { id: "wf-1", label: "Order Created", status: "COMPLETED", completedAt: "2026-09-28", completedBy: "Priya Nair" },
-        { id: "wf-2", label: "Credit & Stock Approved", status: "COMPLETED", completedAt: "2026-09-28", completedBy: "Amit Sharma" },
-        { id: "wf-3", label: "Stock Reserved in Bhiwandi", status: "COMPLETED", completedAt: "2026-09-29", completedBy: "Suresh Patil" },
-      ],
-    },
-  ];
-
-  const initialInvoices: Invoice[] = [
-    {
-      id: "INV-1044",
-      invoiceNo: "VS/26-27/0044",
-      orderNo: "SO-2026-1044",
-      customerId: "C001",
-      customerName: "ABC Industries Pvt. Ltd.",
-      customerGstin: "27AABCA1234A1Z5",
-      customerAddress: "Plot C-12, MIDC Andheri East, Mumbai, MH - 400093",
-      customerCity: "Mumbai",
-      customerState: "Maharashtra",
-      customerStateCode: "27",
-      invoiceDate: "2026-09-26",
-      dueDate: "2026-10-11",
-      placeOfSupply: "27 - Maharashtra",
-      ewayBillNo: "241828901234",
-      vehicleNo: "MH-04-G-4412",
-      transporter: "V-Trans Logistics",
-      taxableAmount: 114000,
-      cgst: 10260,
-      sgst: 10260,
-      igst: 0,
-      totalAmount: 134520,
-      paymentStatus: "PENDING",
-      amountReceived: 0,
-      items: [
-        {
-          id: "LI-1",
-          itemCode: "MDS-BG-FC99",
-          itemName: "MIDAS BONDING GUM - FAST CURE 99°C",
-          hsnCode: "40082100",
-          qty: 30,
-          unit: "Roll",
-          rate: 3450,
-          discountPct: 0,
-          taxableAmount: 103500,
-          gstRate: 18,
-          cgstAmount: 9315,
-          sgstAmount: 9315,
-          igstAmount: 0,
-          totalAmount: 122130,
-        },
-      ],
-    },
-  ];
-
-  const initialMovements: StockLedgerEntry[] = [
-    {
-      id: "MOV-001",
-      timestamp: "2026-09-28T10:00:00.000Z",
-      itemId: "MIDAS-101",
-      itemCode: "MDS-BG-FC99",
-      itemName: "MIDAS BONDING GUM - FAST CURE 99°C",
-      godown: "Main Warehouse (Bhiwandi Logistics Hub)",
-      changeQty: -20,
-      balanceAfter: 140,
-      direction: "OUT",
-      type: "ORDER_ALLOCATION",
-      referenceType: "SO",
-      referenceId: "SO-2026-1048",
-      reason: "Reserved for Sales Order SO-2026-1048",
-      actor: "Suresh Patil",
-    },
-  ];
-
   return {
     settings: CANONICAL_COMPANY_CONFIG,
-    users: initialUsers,
-    items: initialItems,
-    customers: initialCustomers,
-    suppliers: SUPPLIERS || [],
-    orders: initialOrders,
-    invoices: initialInvoices,
-    stockMovements: initialMovements,
+    users,
+    items: [],
+    customers: [],
+    suppliers: [],
+    orders: [],
+    invoices: [],
+    stockMovements: [],
     adjustments: [],
     returns: [],
     quotations: [],
     goodsReceipts: [],
     receipts: [],
     counters: {
-      orderSeq: 1049,
-      invoiceSeq: 45,
-      challanSeq: 22,
-      quoteSeq: 15,
-      grnSeq: 12,
-      adjSeq: 5,
-      cnSeq: 8,
-      receiptSeq: 30,
+      orderSeq: 1,
+      invoiceSeq: 1,
+      challanSeq: 1,
+      quoteSeq: 1,
+      grnSeq: 1,
+      adjSeq: 1,
+      cnSeq: 1,
+      receiptSeq: 1,
     },
   };
 }
