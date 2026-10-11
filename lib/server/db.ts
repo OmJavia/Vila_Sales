@@ -679,19 +679,44 @@ class ServerDatabase {
       const customer = data.customers.find((c) => c.id === params.customerId);
       if (!customer) throw new Error("Customer not found");
 
-      const seq = data.counters.invoiceSeq++;
-      const invoiceNo = `VS/26-27/${seq.toString().padStart(4, "0")}`;
-      const invoiceId = `INV-${seq}`;
+      if (!Array.isArray(params.items) || params.items.length < 1 || params.items.length > 100) {
+        throw new Error("An invoice must contain between 1 and 100 line items.");
+      }
+
+      // Resolve every SKU and price from the server-side catalogue; browser-supplied
+      // names, rates, discounts and tax codes are not authoritative.
+      const seenCodes = new Set<string>();
+      const normalizedItems = params.items.map((input) => {
+        const key = typeof input.itemCode === "string" ? input.itemCode.trim() : "";
+        if (!key) throw new Error("Each invoice line must reference a catalogue item.");
+        if (seenCodes.has(key)) throw new Error("Duplicate invoice items are not accepted; combine quantities.");
+        seenCodes.add(key);
+        if (!Number.isSafeInteger(input.qty) || input.qty <= 0 || input.qty > 100000) {
+          throw new Error("Invoice quantity must be a positive whole number no greater than 100,000.");
+        }
+        const item = data.items.find((candidate) => candidate.code === key || candidate.id === key);
+        if (!item) throw new Error(`Item ${key} not found in catalogue.`);
+        if (!Number.isFinite(item.price) || item.price < 0) throw new Error(`Invalid catalogue price for ${item.code}.`);
+        return {
+          itemId: item.id,
+          itemCode: item.code,
+          itemName: item.name,
+          qty: input.qty,
+          rate: item.price,
+          discountPct: 0,
+          hsnCode: typeof (item as any).hsnCode === "string" ? (item as any).hsnCode : undefined,
+        };
+      });
 
       const gst = calculateGST({
-        items: params.items.map((it) => ({
-          itemId: it.itemCode,
+        items: normalizedItems.map((it) => ({
+          itemId: it.itemId,
           itemCode: it.itemCode,
           itemName: it.itemName,
           qty: it.qty,
           rate: it.rate,
-          discountPct: it.discountPct || 0,
-          hsnCode: it.hsnCode || "40082100",
+          discountPct: it.discountPct,
+          hsnCode: it.hsnCode,
         })),
         customerGstin: customer.gstin,
         customerStateCode: customer.stateCode,
