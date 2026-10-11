@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
+import { requireAuth } from "@/lib/server/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const access = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const db = serverDb.read();
 
