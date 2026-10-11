@@ -80,62 +80,15 @@ export const CANONICAL_COMPANY_CONFIG: CompanyConfig & {
   email: string;
   phone: string;
   bankDetails: {
-    bankName: string;
-    branch: string;
-    accountName: string;
-    beneficiaryName: string;
-    accountNumber: string;
-    ifscCode: string;
-    accountType: string;
-    upiVpa: string;
-    upiQrPayeeName: string;
-  };
-} = {
-  brandName: "Vila Sales",
-  companyName: "Vila Sales",
-  legalEntityName: process.env.VILA_LEGAL_ENTITY_NAME || "Vila Sales",
-  tradeName: process.env.VILA_TRADE_NAME || "Midas Rubber Company",
-  gstin: process.env.VILA_GSTIN?.trim() || "",
-  pan: process.env.VILA_PAN?.trim() || "",
-  stateCode: "27",
-  stateName: "Maharashtra",
-  cin: process.env.VILA_CIN?.trim() || undefined,
-  registeredAddress: {
-    line1: process.env.VILA_ADDRESS_LINE1 || "",
-    line2: process.env.VILA_ADDRESS_LINE2 || undefined,
-    city: process.env.VILA_CITY || "",
-    state: process.env.VILA_STATE_NAME || "",
-    pincode: process.env.VILA_PINCODE || "",
-    country: "India",
-  },
-  contact: {
-    phone: process.env.VILA_PHONE || "",
-    email: process.env.VILA_BILLING_EMAIL || "",
-    supportEmail: process.env.VILA_SUPPORT_EMAIL || "",
-    website: "https://vilasales.vercel.app",
-  },
-  email: process.env.VILA_BILLING_EMAIL || "",
-  phone: process.env.VILA_PHONE || "",
-  banking: {
     bankName: process.env.VILA_BANK_NAME || "",
     branch: process.env.VILA_BANK_BRANCH || "",
     accountName: process.env.VILA_BANK_ACCOUNT_NAME || "",
+    beneficiaryName: process.env.VILA_BANK_BENEFICIARY_NAME || "",
     accountNumber: process.env.VILA_BANK_ACCOUNT_NUMBER || "",
     ifscCode: process.env.VILA_BANK_IFSC || "",
     accountType: "CURRENT",
     upiVpa: process.env.VILA_UPI_VPA || "",
     upiQrPayeeName: process.env.VILA_UPI_PAYEE_NAME || "",
-  },
-  bankDetails: {
-    bankName: "HDFC Bank Ltd",
-    branch: "Andheri East Corporate Branch, Mumbai",
-    accountName: "Vila Sales Private Limited",
-    beneficiaryName: process.env.VILA_BANK_BENEFICIARY_NAME || "",
-    accountNumber: "50200084920193",
-    ifscCode: "HDFC0000128",
-    accountType: "CURRENT",
-    upiVpa: "vilasales@hdfcbank",
-    upiQrPayeeName: "Vila Sales Pvt Ltd",
   },
   godowns: [
     {
