@@ -5,6 +5,7 @@ import { Mail, CheckCircle2, Copy, Send, ExternalLink, X, Eye, FileText } from "
 import { Invoice } from "@/lib/data";
 import { generateInvoiceHtml, SendEmailResult } from "@/lib/invoiceEmail";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { CANONICAL_COMPANY_CONFIG } from "@/lib/companyConfig";
 
 interface EmailInvoiceModalProps {
   isOpen: boolean;
@@ -62,16 +63,18 @@ export function EmailInvoiceModal({
   };
 
   const handleOpenMailto = () => {
-    const subject = encodeURIComponent(`[TradeFlow] Tax Invoice ${invoice.invoiceNo} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`);
+    const subject = encodeURIComponent(`[Vila Sales] Tax Invoice ${invoice.invoiceNo} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`);
+    const host = typeof window !== "undefined" ? window.location.origin : "https://vilasales.vercel.app";
     const body = encodeURIComponent(
       `Dear ${invoice.customerName},\n\nPlease find the details of your Tax Invoice ${invoice.invoiceNo}:\n\n` +
       `Invoice Amount: ₹${invoice.totalAmount.toLocaleString("en-IN")}\n` +
       `Due Date: ${formatDate(invoice.dueDate)}\n` +
-      `A/C No: 00192830192839 (Yes Bank Ltd)\n` +
-      `IFSC: YESB0000019\n` +
-      `UPI ID: tradeflow.ops@yesbank\n\n` +
-      `View invoice online: http://localhost:3001/invoices/${invoice.id}\n\n` +
-      `Regards,\nTradeFlow Fasteners & Hardware Pvt. Ltd.`
+      `Bank: ${CANONICAL_COMPANY_CONFIG.bankDetails.bankName}\n` +
+      `A/C No: ${CANONICAL_COMPANY_CONFIG.bankDetails.accountNumber} (${CANONICAL_COMPANY_CONFIG.bankDetails.accountType})\n` +
+      `IFSC: ${CANONICAL_COMPANY_CONFIG.bankDetails.ifscCode}\n` +
+      `UPI ID: ${CANONICAL_COMPANY_CONFIG.bankDetails.upiVpa}\n\n` +
+      `View invoice online: ${host}/invoices/${invoice.id}\n\n` +
+      `Regards,\n${CANONICAL_COMPANY_CONFIG.legalEntityName}`
     );
     window.open(`mailto:${email}?subject=${subject}&body=${body}`, "_blank");
   };
@@ -240,7 +243,7 @@ export function EmailInvoiceModal({
                   <input
                     type="text"
                     readOnly
-                    value={`[TradeFlow] Tax Invoice ${invoice.invoiceNo} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`}
+                    value={`[Vila Sales] Tax Invoice ${invoice.invoiceNo} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`}
                     className="w-full px-3 py-2 text-xs border border-border rounded-md bg-bg-canvas/50 text-text-secondary font-mono"
                   />
                 </div>

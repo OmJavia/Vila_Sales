@@ -54,15 +54,25 @@ export function ShopHeader() {
   const [phoneInput, setPhoneInput] = useState(customerPhone);
   const [nameInput, setNameInput] = useState(customerName);
 
-  // Check if admin is logged in from localStorage
+  // Check if staff / admin is logged in from server session
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== "undefined") {
-      const logged = localStorage.getItem("tradeflow_admin_logged_in") === "true";
-      setIsAdminLoggedIn(logged);
-    }
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setIsAdminLoggedIn(true);
+        } else if (typeof window !== "undefined") {
+          setIsAdminLoggedIn(localStorage.getItem("tradeflow_admin_logged_in") === "true");
+        }
+      })
+      .catch(() => {
+        if (typeof window !== "undefined") {
+          setIsAdminLoggedIn(localStorage.getItem("tradeflow_admin_logged_in") === "true");
+        }
+      });
   }, []);
 
   const itemCount = mounted ? getCartItemCount() : 0;

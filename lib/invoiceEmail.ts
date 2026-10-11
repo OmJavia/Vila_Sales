@@ -1,19 +1,24 @@
 import { Invoice } from "./data";
 import { formatCurrency, formatDate } from "./utils";
+import { CANONICAL_COMPANY_CONFIG } from "./companyConfig";
 
 export interface SendEmailResult {
   success: boolean;
   messageId: string;
   deliveredTo: string;
   timestamp: string;
-  provider: "resend" | "smtp" | "simulated";
+  provider: "resend" | "smtp" | "sandbox_preview";
   subject: string;
   previewHtml: string;
+  deliveryStatus: "DELIVERED_TO_GATEWAY" | "LOCAL_SANDBOX_PREVIEW" | "FAILED";
   error?: string;
 }
 
 export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
   const isInterState = invoice.igst > 0;
+  const cfg = CANONICAL_COMPANY_CONFIG;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vilasales.vercel.app";
+
   const itemsRows = invoice.items
     .map(
       (item, idx) => `
@@ -40,7 +45,7 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tax Invoice ${invoice.invoiceNo}</title>
+  <title>Tax Invoice ${invoice.invoiceNo} — ${cfg.brandName}</title>
 </head>
 <body style="margin: 0; padding: 24px; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
   <div style="max-width: 680px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
@@ -51,14 +56,14 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         <tr>
           <td style="vertical-align: top;">
             <div style="display: inline-block; background: #2563eb; color: #ffffff; font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;">
-              TradeFlow B2B Operations
+              ${cfg.brandName} · Commercial Operations
             </div>
             <h1 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">
-              TradeFlow Fasteners & Hardware Pvt. Ltd.
+              ${cfg.legalEntityName}
             </h1>
             <p style="margin: 4px 0 0; font-size: 12px; color: #9ca3af; line-height: 1.4;">
-              Plot 14-B, Steel Market Yard, Kalamboli, Navi Mumbai, Maharashtra - 410218<br>
-              <strong>GSTIN:</strong> 27AABCT9981E1Z5 &nbsp;|&nbsp; <strong>State Code:</strong> 27
+              ${cfg.registeredAddress.line1}, ${cfg.registeredAddress.city}, ${cfg.registeredAddress.state} - ${cfg.registeredAddress.pincode}<br>
+              <strong>GSTIN:</strong> ${cfg.gstin} &nbsp;|&nbsp; <strong>State Code:</strong> ${cfg.stateCode} (${cfg.stateName})
             </p>
           </td>
           <td style="text-align: right; vertical-align: top;">
@@ -100,28 +105,20 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="width: 50%; vertical-align: top; padding-right: 16px;">
-            <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #6b7280; letter-spacing: 0.5px; margin-bottom: 4px;">
-              Billed To (Customer):
-            </div>
-            <div style="font-weight: bold; font-size: 14px; color: #111827;">${invoice.customerName}</div>
-            <div style="font-size: 12px; color: #4b5563; margin-top: 4px; line-height: 1.4;">
-              ${invoice.customerAddress}<br>
-              ${invoice.customerCity}, ${invoice.customerState}
-            </div>
-            <div style="font-size: 11px; margin-top: 6px; color: #1f2937;">
-              <strong>GSTIN:</strong> <span style="font-family: monospace;">${invoice.customerGstin}</span><br>
-              <strong>Place of Supply:</strong> ${invoice.placeOfSupply}
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Billed To (Customer):</span>
+            <div style="font-weight: 700; font-size: 14px; color: #111827; margin-top: 4px;">${invoice.customerName}</div>
+            <div style="font-size: 12px; color: #4b5563; margin-top: 4px; line-height: 1.5;">
+              ${invoice.customerAddress || invoice.customerCity}<br>
+              <strong>GSTIN:</strong> ${invoice.customerGstin || "Unregistered / Consumer"}<br>
+              <strong>Place of Supply:</strong> ${invoice.placeOfSupply || invoice.customerState || "27 - Maharashtra"}
             </div>
           </td>
-          <td style="width: 50%; vertical-align: top; padding-left: 16px; border-left: 1px dashed #e5e7eb;">
-            <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #6b7280; letter-spacing: 0.5px; margin-bottom: 4px;">
-              Dispatch & Transport Details:
-            </div>
-            <div style="font-size: 12px; color: #4b5563; line-height: 1.6;">
-              <div><strong>Transporter:</strong> ${invoice.transporter || "Direct Fleet"}</div>
-              <div><strong>Vehicle No:</strong> <span style="font-family: monospace;">${invoice.vehicleNo || "MH-04-G-4412"}</span></div>
-              <div><strong>E-Way Bill:</strong> <span style="font-family: monospace;">${invoice.ewayBillNo || "241828901234"}</span></div>
-              ${invoice.irnNumber ? `<div style="font-size: 10px; color: #6b7280; word-break: break-all;"><strong>IRN:</strong> ${invoice.irnNumber.slice(0, 24)}...</div>` : ""}
+          <td style="width: 50%; vertical-align: top; padding-left: 16px; border-left: 1px solid #f1f5f9;">
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Transport & Delivery:</span>
+            <div style="font-size: 12px; color: #4b5563; line-height: 1.6; margin-top: 4px;">
+              <div><strong>Transporter:</strong> ${invoice.transporter || "Standard Fleet Logistics"}</div>
+              <div><strong>Vehicle No:</strong> <span style="font-family: monospace;">${invoice.vehicleNo || "Direct Fleet"}</span></div>
+              ${invoice.ewayBillNo ? `<div><strong>E-Way Bill:</strong> <span style="font-family: monospace;">${invoice.ewayBillNo}</span></div>` : ""}
             </div>
           </td>
         </tr>
@@ -155,13 +152,13 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         <tr>
           <td style="width: 55%; vertical-align: top; padding-right: 20px;">
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12px;">
-              <strong style="color: #1e293b; display: block; margin-bottom: 6px;">Remittance & Payment Details:</strong>
+              <strong style="color: #1e293b; display: block; margin-bottom: 6px;">Remittance & Banking Details:</strong>
               <div style="color: #475569; line-height: 1.5; font-size: 11px;">
-                Bank: <strong>Yes Bank Ltd</strong> (Corporate Branch)<br>
-                A/C Name: <strong>TradeFlow Fasteners Pvt Ltd</strong><br>
-                A/C No: <strong style="font-family: monospace; color: #2563eb;">00192830192839</strong><br>
-                IFSC: <strong style="font-family: monospace;">YESB0000019</strong><br>
-                UPI ID: <strong style="color: #059669;">tradeflow.ops@yesbank</strong>
+                Bank: <strong>${cfg.banking.bankName}</strong> (${cfg.banking.branch})<br>
+                A/C Name: <strong>${cfg.banking.accountName}</strong><br>
+                A/C No: <strong style="font-family: monospace; color: #2563eb;">${cfg.banking.accountNumber}</strong><br>
+                IFSC: <strong style="font-family: monospace;">${cfg.banking.ifscCode}</strong><br>
+                UPI ID: <strong style="color: #059669;">${cfg.banking.upiVpa}</strong>
               </div>
             </div>
             ${notes ? `<div style="margin-top: 10px; font-size: 11px; color: #6b7280; font-style: italic;">Note: ${notes}</div>` : ""}
@@ -214,19 +211,19 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
 
     <!-- Call to Action Buttons -->
     <div style="padding: 16px 28px; background: #f3f4f6; text-align: center; border-top: 1px solid #e5e7eb;">
-      <a href="http://localhost:3001/invoices/${invoice.id}" 
+      <a href="${appUrl}/invoices/${invoice.id}" 
          style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 10px 24px; border-radius: 6px; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
-        View Invoice in TradeFlow & Pay Online &rarr;
+        View Official Invoice Online &rarr;
       </a>
       <div style="margin-top: 8px; font-size: 11px; color: #6b7280;">
-        Fast online payment available via UPI QR, NetBanking, and Debit/Credit Cards.
+        Fast online payment available via UPI QR, NetBanking, and Direct Bank Transfer.
       </div>
     </div>
 
     <!-- Footer -->
     <div style="padding: 16px 28px; background: #ffffff; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: center; line-height: 1.4;">
-      This is a computer-generated GST Tax Invoice issued by <strong>TradeFlow Fasteners & Hardware Pvt. Ltd.</strong><br>
-      For any billing queries or remittances, contact accounts@tradeflow.in or call +91 22 2742 8899.
+      This is a computer-generated GST Tax Invoice issued by <strong>${cfg.legalEntityName}</strong><br>
+      For any billing queries or remittances, contact ${cfg.contact.email} or call ${cfg.contact.phone}.
     </div>
   </div>
 </body>
@@ -235,24 +232,24 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
 }
 
 /**
- * Dispatches an email to the specified recipient (omjavia18@gmail.com by default).
- * Supports Resend API key if set in process.env.RESEND_API_KEY, otherwise generates full HTML preview
- * and completes with delivery confirmation.
+ * Dispatches an email to the specified recipient using Resend if configured,
+ * or returns a verified sandbox preview when credentials are not configured.
  */
 export async function sendInvoiceEmail({
   invoice,
-  recipientEmail = "omjavia18@gmail.com",
+  recipientEmail,
   subject,
   notes,
 }: {
   invoice: Invoice;
-  recipientEmail?: string;
+  recipientEmail: string;
   subject?: string;
   notes?: string;
 }): Promise<SendEmailResult> {
-  const mailSubject = subject || `[TradeFlow] Tax Invoice ${invoice.invoiceNo} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`;
+  const cfg = CANONICAL_COMPANY_CONFIG;
+  const mailSubject = subject || `[${cfg.brandName}] Tax Invoice ${invoice.invoiceNo} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`;
   const htmlContent = generateInvoiceHtml(invoice, notes);
-  const messageId = `tf_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const messageId = `vs_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const timestamp = new Date().toISOString();
 
   // If RESEND_API_KEY is configured in the environment
@@ -266,7 +263,7 @@ export async function sendInvoiceEmail({
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: "TradeFlow Billing <invoices@tradeflow.in>",
+          from: `${cfg.brandName} Billing <billing@vilasales.in>`,
           to: [recipientEmail],
           subject: mailSubject,
           html: htmlContent,
@@ -281,24 +278,50 @@ export async function sendInvoiceEmail({
           deliveredTo: recipientEmail,
           timestamp,
           provider: "resend",
+          deliveryStatus: "DELIVERED_TO_GATEWAY",
           subject: mailSubject,
           previewHtml: htmlContent,
         };
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        return {
+          success: false,
+          messageId,
+          deliveredTo: recipientEmail,
+          timestamp,
+          provider: "resend",
+          deliveryStatus: "FAILED",
+          subject: mailSubject,
+          previewHtml: htmlContent,
+          error: errData.message || `Resend API returned status ${res.status}`,
+        };
       }
     } catch (err: any) {
-      console.warn("Resend API attempt failed, falling back to simulated dispatch:", err);
+      console.warn("Resend API attempt failed:", err);
+      return {
+        success: false,
+        messageId,
+        deliveredTo: recipientEmail,
+        timestamp,
+        provider: "resend",
+        deliveryStatus: "FAILED",
+        subject: mailSubject,
+        previewHtml: htmlContent,
+        error: err.message,
+      };
     }
   }
 
-  // Simulated email dispatch with delivery receipt
-  console.log(`[TradeFlow Mailer] Invoice ${invoice.invoiceNo} dispatched to ${recipientEmail} at ${timestamp}`);
+  // When no API key is present: honestly report sandbox preview mode (do not lie that email was delivered!)
+  console.log(`[Invoice Mailer Sandbox] Invoice ${invoice.invoiceNo} preview rendered for ${recipientEmail}`);
 
   return {
     success: true,
     messageId,
     deliveredTo: recipientEmail,
     timestamp,
-    provider: "simulated",
+    provider: "sandbox_preview",
+    deliveryStatus: "LOCAL_SANDBOX_PREVIEW",
     subject: mailSubject,
     previewHtml: htmlContent,
   };

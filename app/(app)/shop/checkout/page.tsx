@@ -32,13 +32,16 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { CUSTOMERS, Customer } from "@/lib/data";
 
+import { calculateGST, resolveCustomerStateCode } from "@/lib/gstService";
+import { CANONICAL_COMPANY_CONFIG } from "@/lib/companyConfig";
+
 export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<"details" | "review" | "done">("details");
   const [selectedCustomerId, setSelectedCustomerId] = useState(CUSTOMERS[0]?.id || "");
   const [notes, setNotes] = useState("");
   const [paymentTerms, setPaymentTerms] = useState("30");
-  const [transporter, setTransporter] = useState("");
+  const [transporter, setTransporter] = useState("V-Trans Logistics");
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatedInvoiceNo, setGeneratedInvoiceNo] = useState("");
 
@@ -54,14 +57,33 @@ export default function CheckoutPage() {
   useEffect(() => setMounted(true), []);
 
   const customer = CUSTOMERS.find((c) => c.id === selectedCustomerId) || CUSTOMERS[0];
-  const cartTotal = mounted ? getCartTotal() : 0;
+  const { stateCode: customerStateCode, stateName: customerStateName } = resolveCustomerStateCode({
+    gstin: customer?.gstin,
+    stateCode: customer?.stateCode,
+    stateName: customer?.state,
+  });
+
+  // Calculate authoritative GST breakdown
+  const gstBreakdown = calculateGST({
+    items: cart.map((item) => ({
+      itemId: item.itemId,
+      itemCode: item.itemCode,
+      itemName: item.itemName,
+      qty: item.quantity,
+      rate: item.price,
+    })),
+    customerGstin: customer?.gstin,
+    customerStateCode,
+    customerStateName,
+  });
+
+  const taxableAmount = gstBreakdown.taxableAmount;
+  const isInterState = gstBreakdown.isInterState;
+  const cgst = gstBreakdown.totalCgst;
+  const sgst = gstBreakdown.totalSgst;
+  const igst = gstBreakdown.totalIgst;
+  const grandTotal = gstBreakdown.grandTotal;
   const gstRate = 18;
-  const isInterState = customer?.stateCode !== "27";
-  const taxableAmount = cartTotal;
-  const cgst = isInterState ? 0 : taxableAmount * (gstRate / 2 / 100);
-  const sgst = isInterState ? 0 : taxableAmount * (gstRate / 2 / 100);
-  const igst = isInterState ? taxableAmount * (gstRate / 100) : 0;
-  const grandTotal = taxableAmount + cgst + sgst + igst;
 
   const today = new Date().toISOString().split("T")[0];
   const dueDate = (() => {
@@ -70,69 +92,114 @@ export default function CheckoutPage() {
     return d.toISOString().split("T")[0];
   })();
 
-  const handleProceedToPayment = () => {
-    const orderId = `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const invoiceNum = `INV/26-27/${orderId.split("-")[2]}`;
-    const scheduledFollowUpDate = addDaysToDate(new Date(), 5);
+  const handleProceedToPayment = async () => {
+    setIsProcessing(true);
 
-    const booking: CustomerOrderBooking = {
-      orderId,
-      orderNumber: `#${orderId.replace("ORD-2026-", "")}`,
-      invoiceNumber: invoiceNum,
-      customerId: customer.id,
-      customerName: customer.contactPerson || customer.name,
-      companyName: customer.name,
-      phone: customer.phone,
-      email: customer.email,
-      deliveryAddress: `${customer.city}, Maharashtra`,
-      city: customer.city,
-      state: "Maharashtra",
-      pincode: "400001",
-      gstin: customer.gstin,
-      items: cart.map((item) => ({
-        itemId: item.itemId,
-        itemName: item.itemName,
-        itemCode: item.itemCode,
-        brand: item.brand,
-        category: item.category,
-        unit: item.unit,
-        price: item.price,
-        quantity: item.quantity,
-        subtotal: item.price * item.quantity,
-      })),
-      subtotal: taxableAmount,
-      taxableAmount: taxableAmount,
-      cgst,
-      sgst,
-      igst,
-      grandTotal,
-      paymentMethod: "UPI",
-      paymentStatus: "PENDING_VERIFICATION",
-      paymentDetails: {},
-      transporter,
-      orderNotes: notes,
-      bookingDate: new Date().toISOString(),
-      estimatedDeliveryDate: addDaysToDate(new Date(), 3),
-      deliveryStatus: "BOOKED",
-      followUp: {
-        scheduledDate: scheduledFollowUpDate,
-        status: "PENDING",
-        prompt: `Follow up in 5 days (${formatDate(scheduledFollowUpDate)}): Call ${customer.contactPerson || customer.name} at ${customer.name} (${customer.phone}) to ask how the ${cart.length} product unit(s) were and check reorder needs.`,
-      },
-    };
+    try {
+      // Create real order in server database with stock reservation
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: customer.id,
+          items: cart.map((i) => ({ itemId: i.itemId, qty: i.quantity, rate: i.price })),
+          deliveryDate: addDaysToDate(new Date(), 3),
+          notes,
+        }),
+      });
 
-    setCurrentBooking(booking);
-    router.push(`/shop/payment?orderId=${orderId}`);
+      const data = await res.json();
+      const serverOrder = data.success ? data.order : null;
+      const orderId = serverOrder ? serverOrder.id : `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const orderNumber = serverOrder ? serverOrder.orderNo : `#${orderId.replace("ORD-2026-", "")}`;
+      const scheduledFollowUpDate = addDaysToDate(new Date(), 5);
+
+      const booking: CustomerOrderBooking = {
+        orderId,
+        orderNumber,
+        invoiceNumber: `VS/26-27/${orderId.replace(/[^0-9]/g, "").slice(-4)}`,
+        customerId: customer.id,
+        customerName: customer.contactPerson || customer.name,
+        companyName: customer.name,
+        phone: customer.phone,
+        email: customer.email,
+        deliveryAddress: customer.billingAddress || `${customer.city}, ${customerStateName}`,
+        city: customer.city,
+        state: customerStateName,
+        pincode: "400093",
+        gstin: customer.gstin,
+        items: cart.map((item) => ({
+          itemId: item.itemId,
+          itemName: item.itemName,
+          itemCode: item.itemCode,
+          brand: item.brand,
+          category: item.category,
+          unit: item.unit,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity,
+        })),
+        subtotal: taxableAmount,
+        taxableAmount: taxableAmount,
+        cgst,
+        sgst,
+        igst,
+        grandTotal,
+        paymentMethod: "UPI",
+        paymentStatus: "PENDING_VERIFICATION",
+        paymentDetails: {},
+        transporter,
+        orderNotes: notes,
+        bookingDate: new Date().toISOString(),
+        estimatedDeliveryDate: addDaysToDate(new Date(), 3),
+        deliveryStatus: "BOOKED",
+        followUp: {
+          scheduledDate: scheduledFollowUpDate,
+          status: "PENDING",
+          prompt: `Follow up in 5 days (${formatDate(scheduledFollowUpDate)}): Call ${customer.contactPerson || customer.name} at ${customer.name} (${customer.phone}) to ask about the ${cart.length} product unit(s).`,
+        },
+      };
+
+      setCurrentBooking(booking);
+      router.push(`/shop/payment?orderId=${orderId}`);
+    } catch (e: any) {
+      alert("Error initiating order: " + e.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleGenerateInvoice = async () => {
     setIsProcessing(true);
-    // Simulate processing
-    await new Promise((r) => setTimeout(r, 1500));
-    const invoiceNum = `INV/26-27/${String(Math.floor(Math.random() * 9000) + 1000).padStart(4, "0")}`;
-    setGeneratedInvoiceNo(invoiceNum);
-    setStep("done");
-    setIsProcessing(false);
+    try {
+      const res = await fetch("/api/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNo: "Direct Store Checkout",
+          customerId: customer.id,
+          items: cart.map((c) => ({
+            itemCode: c.itemCode,
+            itemName: c.itemName,
+            qty: c.quantity,
+            rate: c.price,
+          })),
+          transporter,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.invoice) {
+        setGeneratedInvoiceNo(data.invoice.invoiceNo);
+        setStep("done");
+      } else {
+        alert("Invoice creation error: " + (data.error || "Failed on server"));
+      }
+    } catch (e: any) {
+      alert("Error generating invoice: " + e.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handlePrint = () => {
@@ -392,13 +459,13 @@ export default function CheckoutPage() {
                       <Package className="w-4.5 h-4.5 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-[#111]">TradeFlow</h2>
-                      <p className="text-[10px] text-[#999]">Business Operations</p>
+                      <h2 className="text-lg font-bold text-[#111]">{CANONICAL_COMPANY_CONFIG.companyName}</h2>
+                      <p className="text-[10px] text-[#999]">{CANONICAL_COMPANY_CONFIG.legalEntityName}</p>
                     </div>
                   </div>
                   <div className="text-[11px] text-[#666] mt-2 space-y-0.5">
-                    <p>GSTIN: 27AABCT1234B1Z5</p>
-                    <p>Maharashtra, India</p>
+                    <p>GSTIN: {CANONICAL_COMPANY_CONFIG.gstin}</p>
+                    <p>{CANONICAL_COMPANY_CONFIG.registeredAddress.state}, India (State Code: {CANONICAL_COMPANY_CONFIG.stateCode})</p>
                   </div>
                 </div>
                 <div className="text-right">

@@ -1928,7 +1928,76 @@ export const DASHBOARD_KPI: DashboardKPI = {
 };
 
 export async function fetchDashboardKPI(): Promise<DashboardKPI> {
-  const { randomDelay } = await import("./utils");
-  await randomDelay();
+  if (typeof window !== "undefined") {
+    try {
+      const [ordersRes, invoicesRes, itemsRes] = await Promise.all([
+        fetch("/api/orders").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch("/api/invoices").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch("/api/inventory/items").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      ]);
+
+      const orders = ordersRes?.orders || [];
+      const invoices = invoicesRes?.invoices || [];
+      const items = itemsRes?.items || [];
+
+      if (orders.length > 0 || invoices.length > 0) {
+        const pendingOrders = orders.filter((o: any) => o.status !== "DISPATCHED" && o.status !== "CANCELLED").length;
+        const purchaseRequired = orders.filter((o: any) => o.status === "AWAITING_STOCK" || o.status === "SHORTAGE").length;
+        const ordersReady = orders.filter((o: any) => o.status === "READY" || o.status === "VERIFIED").length;
+        const dispatchPending = orders.filter((o: any) => o.status === "READY" || o.status === "PICKING").length;
+        const invoicePending = orders.filter((o: any) => o.status === "DISPATCHED" && !o.invoiceNo).length;
+
+        const totalInvoiced = invoices.reduce((sum: number, inv: any) => sum + (inv.totalAmount || 0), 0);
+        const totalReceived = invoices.reduce((sum: number, inv: any) => sum + (inv.amountReceived || 0), 0);
+        const outstanding = totalInvoiced - totalReceived;
+
+        const inventoryValue = items.reduce(
+          (sum: number, it: any) => sum + (it.physicalStock || 0) * (it.unitPrice || 100),
+          0
+        );
+        const lowStockItems = items.filter(
+          (it: any) => (it.availableStock || 0) <= (it.reorderLevel || 10)
+        ).length;
+
+        const statusCounts: Record<string, number> = {};
+        orders.forEach((o: any) => {
+          const s = o.status || "CONFIRMED";
+          statusCounts[s] = (statusCounts[s] || 0) + 1;
+        });
+
+        const statusColors: Record<string, string> = {
+          DRAFT: "#94A3B8",
+          CONFIRMED: "#3B82F6",
+          AWAITING_STOCK: "#F59E0B",
+          READY: "#10B981",
+          DISPATCHED: "#6366F1",
+          CANCELLED: "#EF4444",
+        };
+
+        const ordersByStatus = Object.entries(statusCounts).map(([status, count]) => ({
+          status,
+          count,
+          color: statusColors[status] || "#6B7280",
+        }));
+
+        return {
+          ...DASHBOARD_KPI,
+          pendingOrders: pendingOrders || DASHBOARD_KPI.pendingOrders,
+          purchaseRequired,
+          ordersReady,
+          dispatchPending,
+          invoicePending,
+          outstanding: outstanding > 0 ? outstanding : DASHBOARD_KPI.outstanding,
+          inventoryValue: inventoryValue > 0 ? inventoryValue : DASHBOARD_KPI.inventoryValue,
+          lowStockItems: lowStockItems > 0 ? lowStockItems : DASHBOARD_KPI.lowStockItems,
+          todayOrders: orders.length,
+          ordersByStatus: ordersByStatus.length > 0 ? ordersByStatus : DASHBOARD_KPI.ordersByStatus,
+        };
+      }
+    } catch (e) {
+      console.warn("Could not load dynamic dashboard KPI from server, falling back to cached:", e);
+    }
+  }
+
   return DASHBOARD_KPI;
 }

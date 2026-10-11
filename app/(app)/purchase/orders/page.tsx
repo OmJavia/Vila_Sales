@@ -48,36 +48,66 @@ export default function PurchaseOrdersPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleMarkReceived = (poId: string) => {
-    setOrders((prev) =>
-      prev.map((po) => {
-        if (po.id === poId) {
-          return {
-            ...po,
-            status: "COMPLETED",
-            items: po.items.map((it) => ({
-              ...it,
-              qtyReceived: it.qtyOrdered,
-            })),
-          };
-        }
-        return po;
-      })
-    );
+  const [receivingId, setReceivingId] = useState<string | null>(null);
 
+  const handleMarkReceived = async (poId: string) => {
     const po = orders.find((o) => o.id === poId);
-    if (po) {
+    if (!po) return;
+
+    setReceivingId(poId);
+    try {
+      const res = await fetch("/api/purchase/receive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          poId: po.id,
+          poNo: po.poNo,
+          supplierName: po.supplierName,
+          godownId: "WH-BHIWANDI",
+          items: po.items.map((it) => ({
+            itemCode: it.itemCode,
+            qtyReceived: it.qtyOrdered,
+          })),
+          receivedBy: "Warehouse Operator",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to receive goods");
+      }
+
+      setOrders((prev) =>
+        prev.map((item) => {
+          if (item.id === poId) {
+            return {
+              ...item,
+              status: "COMPLETED",
+              items: item.items.map((it) => ({
+                ...it,
+                qtyReceived: it.qtyOrdered,
+              })),
+            };
+          }
+          return item;
+        })
+      );
+
       toast.success(
-        "Goods Received",
-        `PO ${po.poNo} marked as received into Main Warehouse.`
+        "Goods Received & Stock Updated",
+        `PO ${po.poNo} received into Bhiwandi Central Godown. Stock ledger updated.`
       );
       addNotification({
         type: "STOCK_LOW",
-        title: `Goods Received from ${po.supplierName}`,
-        message: `PO ${po.poNo} received and verified. Stock updated for fulfillment.`,
+        title: `Goods Inwarded from ${po.supplierName}`,
+        message: `PO ${po.poNo} received and verified. Physical & available stock increased.`,
         severity: "INFO",
         href: "/inventory/stock",
       });
+    } catch (err: any) {
+      toast.error("Receipt Failed", err.message || "Could not inward goods");
+    } finally {
+      setReceivingId(null);
     }
   };
 
@@ -236,10 +266,11 @@ export default function PurchaseOrdersPage() {
                   {po.status !== "COMPLETED" ? (
                     <button
                       onClick={() => handleMarkReceived(po.id)}
-                      className="btn-secondary text-[11px] py-1 px-2.5 inline-flex items-center gap-1"
+                      disabled={receivingId === po.id}
+                      className="btn-secondary text-[11px] py-1 px-2.5 inline-flex items-center gap-1 disabled:opacity-50"
                     >
                       <PackageCheck className="w-3 h-3 text-emerald-600" />
-                      Receive Goods
+                      {receivingId === po.id ? "Inwarding..." : "Receive Goods"}
                     </button>
                   ) : (
                     <span className="text-[11px] text-emerald-600 font-medium inline-flex items-center gap-1">

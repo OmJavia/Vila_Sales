@@ -30,7 +30,7 @@ export function CreateInvoiceModal({
 
   // Email sending option
   const [sendEmail, setSendEmail] = useState(true);
-  const [recipientEmail, setRecipientEmail] = useState("omjavia18@gmail.com");
+  const [recipientEmail, setRecipientEmail] = useState(CUSTOMERS[0]?.email || "procurement@customer.in");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Line items state
@@ -45,23 +45,23 @@ export function CreateInvoiceModal({
     gstRate: number;
   }>>([
     {
-      itemName: "SS-304 HEX BOLT M12×50 (High Tensile)",
-      itemCode: "BLT-M12-50-SS",
-      hsnCode: "73181500",
-      qty: 200,
-      unit: "Pcs",
-      rate: 45,
-      discountPct: 10,
+      itemName: "MIDAS BONDING GUM - FAST CURE 99°C",
+      itemCode: "MDS-BG-FC99",
+      hsnCode: "40082100",
+      qty: 20,
+      unit: "Roll",
+      rate: 3450,
+      discountPct: 5,
       gstRate: 18,
     },
     {
-      itemName: "NYLOC NUT M12 (Grade 8 Zinc Plated)",
-      itemCode: "NUT-NYL-M12-ZP",
-      hsnCode: "73181600",
-      qty: 200,
-      unit: "Pcs",
-      rate: 15,
-      discountPct: 5,
+      itemName: "MIDAS CUSHION REPAIR CEMENT (Fast Dry)",
+      itemCode: "MDS-CC-FD01",
+      hsnCode: "35069190",
+      qty: 15,
+      unit: "Can",
+      rate: 850,
+      discountPct: 0,
       gstRate: 18,
     },
   ]);
@@ -94,12 +94,12 @@ export function CreateInvoiceModal({
     setItems((prev) => [
       ...prev,
       {
-        itemName: "PLAIN WASHER M12 (Zinc Plated)",
-        itemCode: "WSH-PLN-M12-ZP",
-        hsnCode: "73182200",
-        qty: 100,
-        unit: "Pcs",
-        rate: 6,
+        itemName: "MIDAS PRE-CURED TREAD RUBBER (Lug Pattern)",
+        itemCode: "MDS-PTR-LUG11",
+        hsnCode: "40082100",
+        qty: 10,
+        unit: "Roll",
+        rate: 4200,
         discountPct: 0,
         gstRate: 18,
       },
@@ -115,78 +115,61 @@ export function CreateInvoiceModal({
     e.preventDefault();
     setIsSubmitting(true);
 
-    const invoiceNumSeq = Math.floor(485 + Math.random() * 50);
-    const invoiceNo = `INV/26-27/0${invoiceNumSeq}`;
-    const invoiceId = `INV-${Date.now().toString().slice(-4)}`;
+    try {
+      // Create durably on server
+      const res = await fetch("/api/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNo,
+          customerId: currentCustomer.id,
+          items: items.map((it) => ({
+            itemCode: it.itemCode,
+            itemName: it.itemName,
+            qty: it.qty,
+            rate: it.rate,
+            discountPct: it.discountPct,
+            hsnCode: it.hsnCode,
+          })),
+          transporter,
+          vehicleNo,
+          ewayBillNo: ewayBillNo || undefined,
+        }),
+      });
 
-    const fullItems: InvoiceLineItem[] = items.map((it, idx) => {
-      const calc = lineCalculations[idx];
-      return {
-        id: `LI-${idx + 1}`,
-        itemCode: it.itemCode,
-        itemName: it.itemName,
-        hsnCode: it.hsnCode,
-        qty: it.qty,
-        unit: it.unit,
-        rate: it.rate,
-        discountPct: it.discountPct,
-        taxableAmount: Math.round(calc.taxable * 100) / 100,
-        gstRate: it.gstRate,
-        cgstAmount: Math.round(calc.cgst * 100) / 100,
-        sgstAmount: Math.round(calc.sgst * 100) / 100,
-        igstAmount: Math.round(calc.igst * 100) / 100,
-        totalAmount: Math.round(calc.total * 100) / 100,
-      };
-    });
-
-    const newInvoice: Invoice = {
-      id: invoiceId,
-      invoiceNo,
-      orderNo,
-      customerId: currentCustomer.id,
-      customerName: currentCustomer.name,
-      customerGstin: currentCustomer.gstin,
-      customerAddress: currentCustomer.billingAddress || `${currentCustomer.city}, ${currentCustomer.state ?? ""}`,
-      customerCity: currentCustomer.city,
-      customerState: currentCustomer.state ?? "",
-      customerStateCode: currentCustomer.stateCode || "27",
-      invoiceDate,
-      dueDate,
-      placeOfSupply: `${currentCustomer.stateCode || "27"} - ${currentCustomer.state ?? ""}`,
-      ewayBillNo,
-      vehicleNo,
-      transporter,
-      irnNumber: "3b9a71f082c4e129ad7501b892a0149f8721c098e72b381a90c1e4",
-      taxableAmount: Math.round(totalTaxable * 100) / 100,
-      cgst: Math.round(totalCgst * 100) / 100,
-      sgst: Math.round(totalSgst * 100) / 100,
-      igst: Math.round(totalIgst * 100) / 100,
-      totalAmount: grandTotal,
-      paymentStatus: "PENDING",
-      amountReceived: 0,
-      items: fullItems,
-    };
-
-    // If send email option is checked, automatically dispatch to omjavia18@gmail.com
-    if (sendEmail && recipientEmail) {
-      try {
-        await fetch("/api/invoices/send-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            invoice: newInvoice,
-            recipientEmail,
-            notes: "Created and automatically emailed via TradeFlow Operations.",
-          }),
-        });
-      } catch (err) {
-        console.error("Auto email dispatch error:", err);
+      const data = await res.json();
+      if (!data.success) {
+        alert("Failed to create invoice: " + (data.error || "Unknown server error"));
+        setIsSubmitting(false);
+        return;
       }
-    }
 
-    onInvoiceCreated(newInvoice);
-    setIsSubmitting(false);
-    onClose();
+      const createdInvoice: Invoice = data.invoice;
+
+      // Optional email dispatch
+      if (sendEmail && recipientEmail) {
+        try {
+          await fetch("/api/invoices/send-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              invoice: createdInvoice,
+              recipientEmail,
+              notes: "Generated via Vila Sales Commercial Billing.",
+            }),
+          });
+        } catch (mailErr) {
+          console.warn("Email dispatch error:", mailErr);
+        }
+      }
+
+      onInvoiceCreated(createdInvoice);
+      onClose();
+    } catch (err: any) {
+      alert("Error submitting invoice: " + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

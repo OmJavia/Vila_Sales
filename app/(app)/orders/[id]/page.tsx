@@ -85,91 +85,93 @@ export default function OrderDetailPage({ params }: OrderDetailProps) {
   const handlePrimaryAction = async () => {
     if (!primaryAction || !order) return;
     setActionLoading(true);
-    await sleep(600);
 
-    if (primaryAction.nextStatus === "INVOICED") {
-      try {
-        const invoiceNo = `INV/26-27/0${Math.floor(480 + Math.random() * 30)}`;
-        const taxable = order.totalAmount ? Math.round(order.totalAmount / 1.18) : 50000;
-        const halfGst = Math.round(taxable * 0.09);
-        const invoicePayload = {
-          id: `INV-${order.id}`,
-          invoiceNo,
-          orderNo: order.orderNo,
-          customerId: order.customerId,
-          customerName: order.customerName,
-          customerGstin: "27AABCA1234F1Z9",
-          customerAddress: "MIDC Industrial Area, Turbhe, Navi Mumbai",
-          customerCity: "Navi Mumbai",
-          customerState: "Maharashtra",
-          customerStateCode: "27",
-          invoiceDate: new Date().toISOString().split("T")[0],
-          dueDate: new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
-          placeOfSupply: "27 - Maharashtra",
-          ewayBillNo: "241829019284",
-          vehicleNo: "MH-04-AR-2201",
-          transporter: "V-Trans Logistics",
-          taxableAmount: taxable,
-          cgst: halfGst,
-          sgst: halfGst,
-          igst: 0,
-          totalAmount: order.totalAmount || 59000,
-          paymentStatus: "PENDING",
-          amountReceived: 0,
-          items: (order.items || []).map((it, idx) => {
-            const quantity = it.qtyOrdered || 1;
-            return {
-              id: `LI-${idx + 1}`,
-              itemCode: it.itemCode,
-              itemName: it.itemName,
-              hsnCode: "73181500",
-              qty: quantity,
-              unit: it.unit || "Pcs",
-              rate: it.rate,
-              discountPct: 0,
-              taxableAmount: quantity * it.rate,
-              gstRate: 18,
-              cgstAmount: Math.round(quantity * it.rate * 0.09),
-              sgstAmount: Math.round(quantity * it.rate * 0.09),
-              igstAmount: 0,
-              totalAmount: Math.round(quantity * it.rate * 1.18),
-            };
-          }),
-        };
+    try {
+      // 1. Durably update status on server
+      const res = await fetch(`/api/orders/${encodeURIComponent(order.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: primaryAction.nextStatus }),
+      });
 
-        await fetch("/api/invoices/send-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            invoice: invoicePayload,
-            recipientEmail: "omjavia18@gmail.com",
-            notes: `Auto-generated upon dispatch for Order ${order.orderNo}`,
-          }),
-        });
-
-        toast.success(
-          "Tax Invoice Created & Emailed",
-          `Invoice ${invoiceNo} generated & copy emailed to omjavia18@gmail.com`
-        );
-      } catch (e) {
-        console.error("Auto email error:", e);
+      const data = await res.json();
+      if (!data.success) {
+        toast.error("Update Failed", data.error || "Server could not transition status");
+        setActionLoading(false);
+        return;
       }
-    } else {
-      toast.success(`Status updated to ${primaryAction.nextStatus.replace(/_/g, " ")}`);
-    }
 
-    setLocalStatus(primaryAction.nextStatus);
-    setActionLoading(false);
+      setLocalStatus(primaryAction.nextStatus);
+
+      // 2. If nextStatus is INVOICED, create durable invoice in database
+      if (primaryAction.nextStatus === "INVOICED") {
+        try {
+          const invRes = await fetch("/api/invoices", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderNo: order.orderNo,
+              customerId: order.customerId,
+              items: (order.items || []).map((it) => ({
+                itemCode: it.itemCode,
+                itemName: it.itemName,
+                qty: it.qtyOrdered || 1,
+                rate: it.rate,
+              })),
+              transporter: "V-Trans Logistics",
+            }),
+          });
+
+          const invData = await invRes.json();
+          if (invData.success) {
+            toast.success(
+              "Tax Invoice Created",
+              `Invoice ${invData.invoice.invoiceNo} generated for Order ${order.orderNo}`
+            );
+          }
+        } catch (e) {
+          console.error("Auto invoice creation error:", e);
+        }
+      } else {
+        toast.success(`Status updated to ${primaryAction.nextStatus.replace(/_/g, " ")}`);
+      }
+    } catch (err: any) {
+      toast.error("Network Error", err.message);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleCancel = async (reason?: string) => {
+    if (!order) return;
     setActionLoading(true);
-    await sleep(500);
-    setLocalStatus("CANCELLED");
-    setCancelReason(reason || "No reason provided");
-    setShowCancelModal(false);
-    setActionLoading(false);
-    toast.warning("Order cancelled", reason || "Order has been cancelled.");
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(order.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "CANCELLED",
+          cancelReason: reason || "Cancelled by user",
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setLocalStatus("CANCELLED");
+        setCancelReason(reason || "No reason provided");
+        setShowCancelModal(false);
+        toast.warning(
+          "Order Cancelled",
+          "Order has been cancelled. Reserved stock released back to inventory."
+        );
+      } else {
+        toast.error("Cancellation Failed", data.error);
+      }
+    } catch (err: any) {
+      toast.error("Network Error", err.message);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleReinitialize = async () => {

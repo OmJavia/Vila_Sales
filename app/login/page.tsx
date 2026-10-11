@@ -9,7 +9,7 @@ import { ToastContainer } from "@/components/ui/Toast";
 import { sleep } from "@/lib/utils";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("amit@tradeflow.in");
+  const [email, setEmail] = useState("amit@vilasales.in");
   const [password, setPassword] = useState("demo1234");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,19 +23,31 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    await sleep(800);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-    // Demo auth — accept any of these
-    const validEmails = ["amit@tradeflow.in", "priya@tradeflow.in", "raju@tradeflow.in"];
-    if (validEmails.includes(email) && password.length >= 6) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("tradeflow_admin_logged_in", "true");
+      const data = await res.json();
+      if (data.success && data.user) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("vs_user_session", JSON.stringify(data.user));
+          localStorage.setItem("tradeflow_admin_logged_in", "true");
+        }
+        toast.success(
+          `Welcome back, ${data.user.name}!`,
+          `Authenticated as ${data.user.role}. Redirecting...`
+        );
+        await sleep(350);
+        router.push("/dashboard");
+      } else {
+        setError(data.error || "Invalid email or password. Try amit@vilasales.in / demo1234");
+        setLoading(false);
       }
-      toast.success("Welcome back, Amit!", "Redirecting to admin dashboard...");
-      await sleep(400);
-      router.push("/dashboard");
-    } else {
-      setError("Invalid email or password. Try amit@tradeflow.in / demo1234");
+    } catch (err: any) {
+      setError("Network authentication error: " + err.message);
       setLoading(false);
     }
   }
@@ -144,7 +156,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-[#999999] mt-6">
-          Demo: amit@tradeflow.in / demo1234
+          Staff Portal: amit@vilasales.in / demo1234
         </p>
       </motion.div>
     </div>

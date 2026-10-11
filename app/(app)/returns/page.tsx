@@ -93,28 +93,44 @@ export default function ReturnsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleApproveAndRestock = (returnId: string) => {
-    setReturns((prev) =>
-      prev.map((r) =>
-        r.id === returnId
-          ? { ...r, status: "APPROVED", stockRestocked: true }
-          : r
-      )
-    );
-
-    const ret = returns.find((r) => r.id === returnId);
-    if (ret) {
-      toast.success(
-        "Return Approved & Restocked",
-        `Credit Note ${ret.cnNo} issued for ${formatCurrency(ret.amount)}.`
-      );
-      addNotification({
-        type: "STOCK_LOW",
-        title: `Return Restocked: ${ret.cnNo}`,
-        message: `${ret.customerName} return for Order ${ret.orderNo} accepted into warehouse. Credit note posted.`,
-        severity: "INFO",
-        href: "/returns",
+  const handleApproveAndRestock = async (returnId: string) => {
+    try {
+      const res = await fetch(`/api/returns/${encodeURIComponent(returnId)}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ godown: "Main Warehouse (Bhiwandi Logistics Hub)" }),
       });
+
+      const data = await res.json();
+      if (!data.success) {
+        toast.error("Restock Failed", data.error || "Server could not process return");
+        return;
+      }
+
+      setReturns((prev) =>
+        prev.map((r) =>
+          r.id === returnId
+            ? { ...r, status: "APPROVED", stockRestocked: true }
+            : r
+        )
+      );
+
+      const ret = returns.find((r) => r.id === returnId);
+      if (ret) {
+        toast.success(
+          "Return Approved & Restocked",
+          `Credit Note ${ret.cnNo} issued for ${formatCurrency(ret.amount)}. Usable stock increased.`
+        );
+        addNotification({
+          type: "STOCK_LOW",
+          title: `Return Restocked: ${ret.cnNo}`,
+          message: `${ret.customerName} return for Order ${ret.orderNo} accepted into warehouse. Stock ledger credited.`,
+          severity: "INFO",
+          href: "/returns",
+        });
+      }
+    } catch (err: any) {
+      toast.error("Network Error", err.message);
     }
   };
 

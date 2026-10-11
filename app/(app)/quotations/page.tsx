@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Plus, Search, FileText, ArrowRight, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { QUOTATIONS, Quotation } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
 
 export default function QuotationsPage() {
+  const toast = useToast();
   const [quotations, setQuotations] = useState<Quotation[]>(QUOTATIONS);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -19,10 +21,29 @@ export default function QuotationsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleConvert = (id: string) => {
-    setQuotations((prev) =>
-      prev.map((q) => (q.id === id ? { ...q, status: "ACCEPTED" as const } : q))
-    );
+  const handleConvert = async (id: string) => {
+    try {
+      const res = await fetch(`/api/quotations/${encodeURIComponent(id)}/convert`, {
+        method: "POST",
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        toast.error("Conversion Failed", data.error || "Server could not convert quote");
+        return;
+      }
+
+      setQuotations((prev) =>
+        prev.map((q) => (q.id === id ? { ...q, status: "ACCEPTED" as const } : q))
+      );
+
+      toast.success(
+        "Quotation Converted to Order",
+        `Created Sales Order ${data.order.orderNo}. Stock allocated and customer credit reserved.`
+      );
+    } catch (err: any) {
+      toast.error("Network Error", err.message);
+    }
   };
 
   return (

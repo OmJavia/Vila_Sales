@@ -1,0 +1,4401 @@
+{
+  "settings": {
+    "brandName": "Vila Sales",
+    "companyName": "Vila Sales",
+    "legalEntityName": "Vila Sales Private Limited",
+    "tradeName": "Midas Rubber Company (Authorized Distributor)",
+    "gstin": "27AAACV9012K1Z8",
+    "pan": "AAACV9012K",
+    "stateCode": "27",
+    "stateName": "Maharashtra",
+    "cin": "U25190MH2018PTC309182",
+    "registeredAddress": {
+      "line1": "Plot 18-A, MIDC Industrial Area, Andheri East",
+      "line2": "Near SEEPZ Gate No. 3",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "pincode": "400093",
+      "country": "India"
+    },
+    "contact": {
+      "phone": "+91 22 2839 4400",
+      "email": "billing@vilasales.in",
+      "supportEmail": "orders@vilasales.in",
+      "website": "https://vilasales.vercel.app"
+    },
+    "email": "billing@vilasales.in",
+    "phone": "+91 22 2839 4400",
+    "banking": {
+      "bankName": "HDFC Bank Ltd",
+      "branch": "Andheri East Corporate Branch, Mumbai",
+      "accountName": "Vila Sales Private Limited",
+      "accountNumber": "50200084920193",
+      "ifscCode": "HDFC0000128",
+      "accountType": "CURRENT",
+      "upiVpa": "vilasales@hdfcbank",
+      "upiQrPayeeName": "Vila Sales Pvt Ltd"
+    },
+    "bankDetails": {
+      "bankName": "HDFC Bank Ltd",
+      "branch": "Andheri East Corporate Branch, Mumbai",
+      "accountName": "Vila Sales Private Limited",
+      "beneficiaryName": "Vila Sales Private Limited",
+      "accountNumber": "50200084920193",
+      "ifscCode": "HDFC0000128",
+      "accountType": "CURRENT",
+      "upiVpa": "vilasales@hdfcbank",
+      "upiQrPayeeName": "Vila Sales Pvt Ltd"
+    },
+    "godowns": [
+      {
+        "id": "godown-bhw",
+        "name": "Main Warehouse (Bhiwandi Logistics Hub)",
+        "code": "BHW-01",
+        "stateCode": "27",
+        "state": "Maharashtra",
+        "address": "Shed #4, Arihant Logistics Park, Bhiwandi, Thane, MH - 421302",
+        "isPrimaryHub": true
+      },
+      {
+        "id": "godown-ktm",
+        "name": "Midas Central Depot (Kottayam)",
+        "code": "KTM-01",
+        "stateCode": "32",
+        "state": "Kerala",
+        "address": "Midas Treads Industrial Complex, Baker Hill, Kottayam, KL - 686001",
+        "isPrimaryHub": false
+      },
+      {
+        "id": "godown-klm",
+        "name": "Kalamboli Steel & Depot Yard",
+        "code": "KLM-01",
+        "stateCode": "27",
+        "state": "Maharashtra",
+        "address": "Plot 14-B, Steel Yard, Kalamboli, Navi Mumbai, MH - 410218",
+        "isPrimaryHub": false
+      }
+    ],
+    "documentPrefixes": {
+      "invoice": "VS/26-27/",
+      "order": "SO-2026-",
+      "challan": "DC-26-27/",
+      "quotation": "QT-2026-",
+      "creditNote": "CN-26-27/",
+      "goodsReceipt": "GRN-2026-",
+      "adjustment": "ADJ-2026-"
+    },
+    "financialYear": "2026-27"
+  },
+  "users": [
+    {
+      "id": "usr-admin",
+      "name": "Amit Sharma",
+      "email": "amit@vilasales.in",
+      "passwordHash": "demo1234",
+      "role": "ADMIN",
+      "phone": "+91 98201 12345",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "usr-sales",
+      "name": "Priya Nair",
+      "email": "priya@vilasales.in",
+      "passwordHash": "demo1234",
+      "role": "SALES",
+      "phone": "+91 98201 54321",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "usr-accounts",
+      "name": "Raju Merchant",
+      "email": "raju@vilasales.in",
+      "passwordHash": "demo1234",
+      "role": "ACCOUNTS",
+      "phone": "+91 98201 67890",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "usr-warehouse",
+      "name": "Suresh Patil",
+      "email": "warehouse@vilasales.in",
+      "passwordHash": "demo1234",
+      "role": "WAREHOUSE",
+      "phone": "+91 98201 99887",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "items": [
+    {
+      "id": "MIDAS-101",
+      "name": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "code": "MDS-BG-FC99",
+      "brand": "Midas Mileage",
+      "category": "Bonding Gum",
+      "unit": "Roll",
+      "price": 3450,
+      "stock": 270,
+      "minStock": 30,
+      "reservedStock": 19,
+      "allocatedStock": 12,
+      "stockLevel": "OK",
+      "specifications": "Special 99°C fast cure gum to reduce chamber cure time; high tack formulation",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 214,
+          "reserved": 13,
+          "available": 201
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 56,
+          "reserved": 6,
+          "available": 50
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-102",
+      "name": "MIDAS BONDING GUM - REGULAR 100% NATURAL",
+      "code": "MDS-BG-REGULAR",
+      "brand": "Midas Mileage",
+      "category": "Bonding Gum",
+      "unit": "Roll",
+      "price": 3100,
+      "stock": 240,
+      "minStock": 40,
+      "reservedStock": 25,
+      "allocatedStock": 15,
+      "stockLevel": "OK",
+      "specifications": "100% natural rubber formulation for maximum green tack; suitable for precured & hot retreading",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 156,
+          "reserved": 17,
+          "available": 139
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 84,
+          "reserved": 8,
+          "available": 76
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-103",
+      "name": "MIDAS BONDING GUM - BG 22",
+      "code": "MDS-BG-22",
+      "brand": "Midas Mileage",
+      "category": "Bonding Gum",
+      "unit": "Roll",
+      "price": 3250,
+      "stock": 185,
+      "minStock": 35,
+      "reservedStock": 22,
+      "allocatedStock": 14,
+      "stockLevel": "OK",
+      "specifications": "Enhanced temperature tolerance compound with extended shelf life",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 120,
+          "reserved": 15,
+          "available": 105
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 65,
+          "reserved": 7,
+          "available": 58
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-104",
+      "name": "MIDAS BONDING GUM - SP",
+      "code": "MDS-BG-SP",
+      "brand": "Midas Mileage",
+      "category": "Bonding Gum",
+      "unit": "Roll",
+      "price": 3350,
+      "stock": 140,
+      "minStock": 30,
+      "reservedStock": 16,
+      "allocatedStock": 11,
+      "stockLevel": "OK",
+      "specifications": "Special high-adhesion bonding strip gum for heavy duty bias & radial applications",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 91,
+          "reserved": 11,
+          "available": 80
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 49,
+          "reserved": 5,
+          "available": 44
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-105",
+      "name": "MIDAS BONDING GUM - EXTREME TACK (EXPERIMENTAL)",
+      "code": "MDS-BG-EXTREME",
+      "brand": "Midas Mileage",
+      "category": "Bonding Gum",
+      "unit": "Roll",
+      "price": 3600,
+      "stock": 0,
+      "minStock": 25,
+      "reservedStock": 0,
+      "allocatedStock": 0,
+      "stockLevel": "OUT",
+      "specifications": "High-tack experimental bonding compound for extreme load haulage",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-106",
+      "name": "MIDAS SHOULDER STRIP CUSHION GUM 30MM",
+      "code": "MDS-SS-30MM",
+      "brand": "Midas Mileage",
+      "category": "Cushion Gum",
+      "unit": "Roll",
+      "price": 1450,
+      "stock": 190,
+      "minStock": 35,
+      "reservedStock": 22,
+      "allocatedStock": 15,
+      "stockLevel": "OK",
+      "specifications": "Width: 30 mm, Thickness: 1.2 mm; edge protection cushion strip",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 124,
+          "reserved": 15,
+          "available": 109
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 67,
+          "reserved": 7,
+          "available": 60
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-107",
+      "name": "MIDAS SHOULDER STRIP CUSHION GUM 40MM",
+      "code": "MDS-SS-40MM",
+      "brand": "Midas Mileage",
+      "category": "Cushion Gum",
+      "unit": "Roll",
+      "price": 1650,
+      "stock": 175,
+      "minStock": 30,
+      "reservedStock": 21,
+      "allocatedStock": 14,
+      "stockLevel": "OK",
+      "specifications": "Width: 40 mm, Thickness: 1.2 mm; universal radial casing shoulder build-up",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 114,
+          "reserved": 14,
+          "available": 100
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 61,
+          "reserved": 7,
+          "available": 54
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-108",
+      "name": "MIDAS SHOULDER STRIP CUSHION GUM 50MM",
+      "code": "MDS-SS-50MM",
+      "brand": "Midas Mileage",
+      "category": "Cushion Gum",
+      "unit": "Roll",
+      "price": 1850,
+      "stock": 130,
+      "minStock": 25,
+      "reservedStock": 15,
+      "allocatedStock": 10,
+      "stockLevel": "OK",
+      "specifications": "Width: 50 mm, Thickness: 1.2 mm; wide-base truck & bus shoulder reinforcement",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 85,
+          "reserved": 10,
+          "available": 75
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-109",
+      "name": "MIDAS BLACK VULCANIZING SOLUTION - RTU 25L",
+      "code": "MDS-BVS-RTU25",
+      "brand": "Midas Mileage",
+      "category": "Vulcanizing Solution",
+      "unit": "Can",
+      "price": 3800,
+      "stock": 120,
+      "minStock": 25,
+      "reservedStock": 14,
+      "allocatedStock": 9,
+      "stockLevel": "OK",
+      "specifications": "Ready-to-use (RTU) black cement for precured & hot process; 25 Litres sealed drum",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 78,
+          "reserved": 9,
+          "available": 69
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 42,
+          "reserved": 5,
+          "available": 37
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-110",
+      "name": "MIDAS BLACK VULCANIZING SOLUTION - RTU 30L",
+      "code": "MDS-BVS-RTU30",
+      "brand": "Midas Mileage",
+      "category": "Vulcanizing Solution",
+      "unit": "Can",
+      "price": 4450,
+      "stock": 150,
+      "minStock": 30,
+      "reservedStock": 18,
+      "allocatedStock": 12,
+      "stockLevel": "OK",
+      "specifications": "Ready-to-use (RTU) black cement; 30 Litres heavy duty canister",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 98,
+          "reserved": 12,
+          "available": 86
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 53,
+          "reserved": 6,
+          "available": 47
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-111",
+      "name": "MIDAS BLACK VULCANIZING SOLUTION - ULTRA THIN 25L",
+      "code": "MDS-BVS-ULT25",
+      "brand": "Midas Mileage",
+      "category": "Vulcanizing Solution",
+      "unit": "Can",
+      "price": 4100,
+      "stock": 110,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Ultra thin sprayable/brushable fast penetrating vulcanizing solution; 25 Litres",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 72,
+          "reserved": 9,
+          "available": 63
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-112",
+      "name": "MIDAS BLACK VULCANIZING SOLUTION - ULTRA THIN 30L",
+      "code": "MDS-BVS-ULT30",
+      "brand": "Midas Mileage",
+      "category": "Vulcanizing Solution",
+      "unit": "Can",
+      "price": 4800,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Ultra thin fast drying adhesive solution; 30 Litres industrial drum",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-113",
+      "name": "MIDAS BLACK VULCANIZING SOLUTION - ULTRA QUICK DRY 15L",
+      "code": "MDS-BVS-QDRY15",
+      "brand": "Midas Mileage",
+      "category": "Vulcanizing Solution",
+      "unit": "Can",
+      "price": 2950,
+      "stock": 0,
+      "minStock": 20,
+      "reservedStock": 0,
+      "allocatedStock": 0,
+      "stockLevel": "OUT",
+      "specifications": "Fast-evaporating quick bond formula 15L can",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-114",
+      "name": "MIDAS CUSHION REPAIR COMPOUND",
+      "code": "MDS-CRC-CAN",
+      "brand": "Midas Mileage",
+      "category": "Repair Compounds",
+      "unit": "Can",
+      "price": 950,
+      "stock": 210,
+      "minStock": 45,
+      "reservedStock": 25,
+      "allocatedStock": 15,
+      "stockLevel": "OK",
+      "specifications": "Factory fresh sealed can for industrial, agricultural, and submersible pump retreading",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 137,
+          "reserved": 17,
+          "available": 120
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 74,
+          "reserved": 8,
+          "available": 66
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-115",
+      "name": "MIDAS ROPE RUBBER FOR EXTRUDER GUNS",
+      "code": "MDS-RR-COIL",
+      "brand": "Midas Mileage",
+      "category": "Repair Compounds",
+      "unit": "Coil",
+      "price": 2200,
+      "stock": 180,
+      "minStock": 35,
+      "reservedStock": 21,
+      "allocatedStock": 14,
+      "stockLevel": "OK",
+      "specifications": "Extruder gun rope rubber for skive filling and buzz-out repair; superior process safety & tack",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 117,
+          "reserved": 14,
+          "available": 103
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 63,
+          "reserved": 7,
+          "available": 56
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-116",
+      "name": "MIDAS CONVENTIONAL HOT RUBBER - TRACTOR",
+      "code": "MDS-HOT-TRACTOR",
+      "brand": "Midas Mileage",
+      "category": "Conventional Rubber",
+      "unit": "Roll",
+      "price": 4200,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "High scorch safety compound designed for agricultural drive tyres",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-117",
+      "name": "MIDAS CONVENTIONAL HOT RUBBER - 14.00 x 25",
+      "code": "MDS-HOT-140025",
+      "brand": "Midas Mileage",
+      "category": "Conventional Rubber",
+      "unit": "Roll",
+      "price": 6800,
+      "stock": 65,
+      "minStock": 15,
+      "reservedStock": 7,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "OTR heat-resistant conventional retreading compound; 14.00 x 25",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 42,
+          "reserved": 4,
+          "available": 38
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 23,
+          "reserved": 3,
+          "available": 20
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-118",
+      "name": "MIDAS CONVENTIONAL HOT RUBBER - 18.00 x 25",
+      "code": "MDS-HOT-180025",
+      "brand": "Midas Mileage",
+      "category": "Conventional Rubber",
+      "unit": "Roll",
+      "price": 8900,
+      "stock": 50,
+      "minStock": 10,
+      "reservedStock": 6,
+      "allocatedStock": 4,
+      "stockLevel": "OK",
+      "specifications": "Mining & port OTR high abrasion conventional rubber; 18.00 x 25",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 18,
+          "reserved": 2,
+          "available": 16
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-119",
+      "name": "MIDAS CONVENTIONAL HOT RUBBER - 23.5 x 25",
+      "code": "MDS-HOT-23525",
+      "brand": "Midas Mileage",
+      "category": "Conventional Rubber",
+      "unit": "Roll",
+      "price": 11500,
+      "stock": 35,
+      "minStock": 10,
+      "reservedStock": 4,
+      "allocatedStock": 2,
+      "stockLevel": "OK",
+      "specifications": "Earthmover heavy duty cut-resistant conventional slab; 23.5 x 25",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 23,
+          "reserved": 2,
+          "available": 21
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 12,
+          "reserved": 2,
+          "available": 10
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-120",
+      "name": "MIDAS HALF SKIRT ENVELOPE 52 x 28",
+      "code": "MDS-HSE-52x28",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3400,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 14.00 x 25, 14.00 x 24, 14.00 R 24",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-121",
+      "name": "MIDAS HALF SKIRT ENVELOPE 46 x 28",
+      "code": "MDS-HSE-46x28",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3100,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 325/95 R 24, 12.00 R 24",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-122",
+      "name": "MIDAS HALF SKIRT ENVELOPE 46 x 22",
+      "code": "MDS-HSE-46x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2950,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 14.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-123",
+      "name": "MIDAS HALF SKIRT ENVELOPE 44 x 25",
+      "code": "MDS-HSE-44x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2850,
+      "stock": 120,
+      "minStock": 20,
+      "reservedStock": 14,
+      "allocatedStock": 9,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 12 R 24.5, 11 R 24.5, 12.00 x 24, 11.00 R 24, 13 R 22.5, 11.00 R 22, 12.00 R 20, 12.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 78,
+          "reserved": 9,
+          "available": 69
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 42,
+          "reserved": 5,
+          "available": 37
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-124",
+      "name": "MIDAS HALF SKIRT ENVELOPE 43 x 25",
+      "code": "MDS-HSE-43x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2800,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 385/65 R 22.5, 365/80 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-125",
+      "name": "MIDAS HALF SKIRT ENVELOPE 42 x 22",
+      "code": "MDS-HSE-42x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2750,
+      "stock": 160,
+      "minStock": 20,
+      "reservedStock": 19,
+      "allocatedStock": 12,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 315/80 R 22.5, 12 R 22.5, 11.00 R 20, 11.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 104,
+          "reserved": 13,
+          "available": 91
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 56,
+          "reserved": 6,
+          "available": 50
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-126",
+      "name": "MIDAS HALF SKIRT ENVELOPE 42 x 26",
+      "code": "MDS-HSE-42x26",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2750,
+      "stock": 195,
+      "minStock": 20,
+      "reservedStock": 23,
+      "allocatedStock": 15,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 295/80 R 22.5, 11 R 22.5, 295/90 R 20, 10.00 R 20, 10.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 127,
+          "reserved": 16,
+          "available": 111
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 68,
+          "reserved": 7,
+          "available": 61
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-127",
+      "name": "MIDAS HALF SKIRT ENVELOPE 40 x 25",
+      "code": "MDS-HSE-40x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2600,
+      "stock": 130,
+      "minStock": 20,
+      "reservedStock": 15,
+      "allocatedStock": 10,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 275/80 R 22.5, 10 R 22.5, 9.00 R 20, 9.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 85,
+          "reserved": 10,
+          "available": 75
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-128",
+      "name": "MIDAS HALF SKIRT ENVELOPE 38 x 25",
+      "code": "MDS-HSE-38x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 110,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 8.25 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 72,
+          "reserved": 9,
+          "available": 63
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-129",
+      "name": "MIDAS HALF SKIRT ENVELOPE 35 x 20",
+      "code": "MDS-HSE-35x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2400,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 7.50 x 20, 9.00 x 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-130",
+      "name": "MIDAS HALF SKIRT ENVELOPE 32 x 19",
+      "code": "MDS-HSE-32x19",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2250,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 8.25 x 16, 6.50 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-131",
+      "name": "MIDAS HALF SKIRT ENVELOPE 31 x 18",
+      "code": "MDS-HSE-31x18",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2150,
+      "stock": 115,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 9,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 7.50 x 16, 7.00 x 16, F78 x 15, 235/75 R 17.5, 225/75 R 17.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 75,
+          "reserved": 9,
+          "available": 66
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 40,
+          "reserved": 4,
+          "available": 36
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-132",
+      "name": "MIDAS HALF SKIRT ENVELOPE 29 x 19",
+      "code": "MDS-HSE-29x19",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2050,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 6.00 x 16, 7.00 x 15, 6.70 x 15, 195 R 15, 215 R 14, 185/85 R 16, 235 R 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-133",
+      "name": "MIDAS HALF SKIRT ENVELOPE 26 x 17",
+      "code": "MDS-HSE-26x17",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1950,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 185 D 14, 195 R 14, 5.90 x 15, 165/195/205/215/235/70 R 15, 185 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-134",
+      "name": "MIDAS HALF SKIRT ENVELOPE 25 x 16",
+      "code": "MDS-HSE-25x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1850,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 5.20 x 14, 6.70 x 14, 175/80 R 13, 6.40 x 13, 155/175/185/195/215/70 R 14, 165 D 14",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-135",
+      "name": "MIDAS HALF SKIRT ENVELOPE 23 x 13",
+      "code": "MDS-HSE-23x13",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1750,
+      "stock": 100,
+      "minStock": 20,
+      "reservedStock": 12,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 145/80 R 13, 155/80 R 13, 165 D 13, 165/80 R 13, 175/70 R 13, 185/70 R 13, 195/70 R 13, 165/70 R 14, 155/80 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 65,
+          "reserved": 8,
+          "available": 57
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 35,
+          "reserved": 4,
+          "available": 31
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-136",
+      "name": "MIDAS HALF SKIRT ENVELOPE 21 x 12",
+      "code": "MDS-HSE-21x12",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1650,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 4.50/5.65 x 12, 145 R 12, 155/80 D 12, 165/80 D 12, 145/70 R 13, 155/65 R 13, 155/70 R 13, 165/65 R 13",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-137",
+      "name": "MIDAS HALF SKIRT ENVELOPE 19 x 11",
+      "code": "MDS-HSE-19x11",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1550,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 4.50 x 10",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-138",
+      "name": "MIDAS HALF SKIRT ENVELOPE 17 x 08",
+      "code": "MDS-HSE-17x08",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1450,
+      "stock": 0,
+      "minStock": 20,
+      "reservedStock": 0,
+      "allocatedStock": 0,
+      "stockLevel": "OUT",
+      "specifications": "Steam bonder regular half skirt envelope; Suggested tyre: 4.00 x 8",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-139",
+      "name": "MIDAS FULL SKIRT ENVELOPE 52 x 21",
+      "code": "MDS-FSE-52x21",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3550,
+      "stock": 65,
+      "minStock": 20,
+      "reservedStock": 7,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 14.00 x 25, 14.00 x 24, 14.00 R 24",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 42,
+          "reserved": 4,
+          "available": 38
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 23,
+          "reserved": 3,
+          "available": 20
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-140",
+      "name": "MIDAS FULL SKIRT ENVELOPE 46 x 22",
+      "code": "MDS-FSE-46x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3250,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 325/95 R 24, 12.00 R 24, 12.00 x 24",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-141",
+      "name": "MIDAS FULL SKIRT ENVELOPE 46 x 19",
+      "code": "MDS-FSE-46x19",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3100,
+      "stock": 70,
+      "minStock": 20,
+      "reservedStock": 8,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 14.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 25,
+          "reserved": 3,
+          "available": 22
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-142",
+      "name": "MIDAS FULL SKIRT ENVELOPE 44 x 19",
+      "code": "MDS-FSE-44x19",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2950,
+      "stock": 110,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 11.00 R 24, 13 R 22.5, 12.00 R 22, 14/80 R 20, 12.00 R 20, 12.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 72,
+          "reserved": 9,
+          "available": 63
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-143",
+      "name": "MIDAS FULL SKIRT ENVELOPE 44 x 22",
+      "code": "MDS-FSE-44x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2950,
+      "stock": 125,
+      "minStock": 20,
+      "reservedStock": 15,
+      "allocatedStock": 10,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 12 R 24.5, 11 R 24.5, 315/80 R 22.5, 11.00 R 22",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 81,
+          "reserved": 10,
+          "available": 71
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 44,
+          "reserved": 5,
+          "available": 39
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-144",
+      "name": "MIDAS FULL SKIRT ENVELOPE 43 x 20",
+      "code": "MDS-FSE-43x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2900,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 385/65 R 22.5, 365/80 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-145",
+      "name": "MIDAS FULL SKIRT ENVELOPE 42 x 17",
+      "code": "MDS-FSE-42x17",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2850,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 11.00 R 20, 11.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-146",
+      "name": "MIDAS FULL SKIRT ENVELOPE 42 x 19",
+      "code": "MDS-FSE-42x19",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2850,
+      "stock": 180,
+      "minStock": 20,
+      "reservedStock": 21,
+      "allocatedStock": 14,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 295/80 R 22.5, 12 R 22.5, 11 R 22.5, 295/90 R 20, 10.00 R 20, 10.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 117,
+          "reserved": 14,
+          "available": 103
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 63,
+          "reserved": 7,
+          "available": 56
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-147",
+      "name": "MIDAS FULL SKIRT ENVELOPE 40 x 18",
+      "code": "MDS-FSE-40x18",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2700,
+      "stock": 120,
+      "minStock": 20,
+      "reservedStock": 14,
+      "allocatedStock": 9,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 275/80 R 22.5, 10 R 22.5, 9.00 R 20, 9.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 78,
+          "reserved": 9,
+          "available": 69
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 42,
+          "reserved": 5,
+          "available": 37
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-148",
+      "name": "MIDAS FULL SKIRT ENVELOPE 38 x 20",
+      "code": "MDS-FSE-38x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2600,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 8.25 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-149",
+      "name": "MIDAS FULL SKIRT ENVELOPE 35 x 13",
+      "code": "MDS-FSE-35x13",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 9.00 x 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-150",
+      "name": "MIDAS FULL SKIRT ENVELOPE 35 x 16",
+      "code": "MDS-FSE-35x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 105,
+      "minStock": 20,
+      "reservedStock": 12,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 7.50 x 20, 6.50 x 20, 8.25 x 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 68,
+          "reserved": 8,
+          "available": 60
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 37,
+          "reserved": 4,
+          "available": 33
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-151",
+      "name": "MIDAS FULL SKIRT ENVELOPE 32 x 16",
+      "code": "MDS-FSE-32x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2350,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 7.50 x 16, 7.00 x 16, 235/75 R 17.5, 225/75 R 17.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-152",
+      "name": "MIDAS FULL SKIRT ENVELOPE 31 x 14",
+      "code": "MDS-FSE-31x14",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2200,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 7.00 x 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-153",
+      "name": "MIDAS FULL SKIRT ENVELOPE 28 x 16",
+      "code": "MDS-FSE-28x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2100,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 6.00 x 16, F78 x 15, 195 R 15, 195/215 R 14, 215 R 15, 185/85 R 16, 235 R 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-154",
+      "name": "MIDAS FULL SKIRT ENVELOPE 26 x 16",
+      "code": "MDS-FSE-26x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2000,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 5.90 x 15, 165 R 15, 5.20 x 14, 6.00 x 14, 165 R 14, 165 D 14",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-155",
+      "name": "MIDAS FULL SKIRT ENVELOPE 23 x 10",
+      "code": "MDS-FSE-23x10",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1850,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 145/80 R 13, 155/80 R 13, 165 D 13, 165/80 R 13, 175/70 R 13, 185/70 R 13, 195/70 R 13, 165/70 R 14, 155/80 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-156",
+      "name": "MIDAS FULL SKIRT ENVELOPE 22 x 11",
+      "code": "MDS-FSE-22x11",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1750,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 155/80 D 12, 165/80 D 12, 165/65 D 13, 145 R 13, 4.50 x 12, 5.65 x 12, 145 R 12",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-157",
+      "name": "MIDAS FULL SKIRT ENVELOPE 19 x 09",
+      "code": "MDS-FSE-19x09",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1600,
+      "stock": 70,
+      "minStock": 20,
+      "reservedStock": 8,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 4.50 x 10",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 25,
+          "reserved": 3,
+          "available": 22
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-158",
+      "name": "MIDAS FULL SKIRT ENVELOPE 17 x 08",
+      "code": "MDS-FSE-17x08",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1500,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Electric chamber regular full skirt envelope; Suggested tyre: 4.00 x 8",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-159",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 46 x 15",
+      "code": "MDS-ARC-46x15",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3200,
+      "stock": 65,
+      "minStock": 20,
+      "reservedStock": 7,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 325/95 R 24, 12.00 R 24",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 42,
+          "reserved": 4,
+          "available": 38
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 23,
+          "reserved": 3,
+          "available": 20
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-160",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 44 x 16",
+      "code": "MDS-ARC-44x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3000,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 12 R 24.5, 11 R 24.5, 315/80 R 22.5, 10.00 R 22",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-161",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 44 x 14",
+      "code": "MDS-ARC-44x14",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2950,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 11.00 R 24, 13 R 22.5, 11.00 R 22, 14/80 R 20, 11.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-162",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 44 x 13",
+      "code": "MDS-ARC-44x13",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2900,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 12.00 R 22, 12.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-163",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 43 x 14",
+      "code": "MDS-ARC-43x14",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2850,
+      "stock": 70,
+      "minStock": 20,
+      "reservedStock": 8,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 385/65 R 22.5, 365/80 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 25,
+          "reserved": 3,
+          "available": 22
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-164",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 42 x 14",
+      "code": "MDS-ARC-42x14",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2800,
+      "stock": 140,
+      "minStock": 20,
+      "reservedStock": 16,
+      "allocatedStock": 11,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 315/75 R 22.5, 295/80 R 22.5, 295/75 R 22.5, 12 R 22.5, 295/90 R 20, 10.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 91,
+          "reserved": 11,
+          "available": 80
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 49,
+          "reserved": 5,
+          "available": 44
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-165",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 42 x 15",
+      "code": "MDS-ARC-42x15",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2800,
+      "stock": 110,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 315/70 R 22.5, 305/75 R 22.5, 305/70 R 22.5, 275/80 R 22.5, 11 R 22.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 72,
+          "reserved": 9,
+          "available": 63
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-166",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 40 x 13",
+      "code": "MDS-ARC-40x13",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2650,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 275/70 R 22.5, 265/70 R 22.5, 10 R 22.5, 9.00 R 20, 305/70 R 19.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-167",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 35 x 12 RC",
+      "code": "MDS-ARC-35x12RC",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2550,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 7.50 R 20, 285/70 R 19.5, 265/70 R 19.5, 9.00 R 16, 8.25 R 16, 8.25 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-168",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 35 x 12 ST",
+      "code": "MDS-ARC-35x12ST",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 7.00 R 20, 6.50 R 20, 245/70 R 19.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-169",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 32 x 11",
+      "code": "MDS-ARC-32x11",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2400,
+      "stock": 105,
+      "minStock": 20,
+      "reservedStock": 12,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 245/65 R 19.5, 235/70 R 19.5, 245/70 R 17.5, 235/75 R 17.5, 9.5 R 17.5, 10 R 16.5, 265/75 R 16, 245/75 R 16, 235/85 R 16, 215/85 R 16, 7.50 R 16, 7.50 R 15, 10.00 R 15 LT",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 68,
+          "reserved": 8,
+          "available": 60
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 37,
+          "reserved": 4,
+          "available": 33
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-170",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 32 x 13",
+      "code": "MDS-ARC-32x13",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2400,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 225/70 R 19.5, 225/75 R 17.5, 215/75 R 17.5, 205/75 R 17.5, 7.00 R 16, 7.00 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-171",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 23 x 07",
+      "code": "MDS-ARC-23x07",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1850,
+      "stock": 65,
+      "minStock": 20,
+      "reservedStock": 7,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 6.50-10",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 42,
+          "reserved": 4,
+          "available": 38
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 23,
+          "reserved": 3,
+          "available": 20
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-172",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 22 x 09",
+      "code": "MDS-ARC-22x09",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1750,
+      "stock": 60,
+      "minStock": 20,
+      "reservedStock": 7,
+      "allocatedStock": 4,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 6.00-9",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 21,
+          "reserved": 3,
+          "available": 18
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-173",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 19 x 07",
+      "code": "MDS-ARC-19x07",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1650,
+      "stock": 55,
+      "minStock": 20,
+      "reservedStock": 6,
+      "allocatedStock": 4,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 4.50-10, 5.00-8",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 36,
+          "reserved": 4,
+          "available": 32
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 19,
+          "reserved": 2,
+          "available": 17
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-174",
+      "name": "MIDAS ARC SNAP SEAL ENVELOPE 17 x 06",
+      "code": "MDS-ARC-17x06",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 1550,
+      "stock": 0,
+      "minStock": 20,
+      "reservedStock": 0,
+      "allocatedStock": 0,
+      "stockLevel": "OUT",
+      "specifications": "ARC / Snap Seal / Flex Seal System Outer Envelope (2.0 in skirt below bead); Suggested tyre: 4.00-8",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 0,
+          "reserved": 0,
+          "available": 0
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-175",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 52 x 28",
+      "code": "MDS-DEO-52x28",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3450,
+      "stock": 60,
+      "minStock": 20,
+      "reservedStock": 7,
+      "allocatedStock": 4,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 14.00 R 24",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 21,
+          "reserved": 3,
+          "available": 18
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-176",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 46 x 22",
+      "code": "MDS-DEO-46x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3300,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 445/65 R 22.5, 425/65 R 22.5, 14.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-177",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 44 x 22",
+      "code": "MDS-DEO-44x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3100,
+      "stock": 110,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 325/95 R 24, 12.00 R 24, 11.00 R 24, 12.00 R 22",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 72,
+          "reserved": 9,
+          "available": 63
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-178",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 44 x 25",
+      "code": "MDS-DEO-44x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3150,
+      "stock": 125,
+      "minStock": 20,
+      "reservedStock": 15,
+      "allocatedStock": 10,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 12 R 24.5, 13 R 22.5, 14/80 R 20, 12.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 81,
+          "reserved": 10,
+          "available": 71
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 44,
+          "reserved": 5,
+          "available": 39
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-179",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 44 x 19",
+      "code": "MDS-DEO-44x19",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 3000,
+      "stock": 65,
+      "minStock": 20,
+      "reservedStock": 7,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 445/65 R 19.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 42,
+          "reserved": 4,
+          "available": 38
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 23,
+          "reserved": 3,
+          "available": 20
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-180",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 43 x 25",
+      "code": "MDS-DEO-43x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2950,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 385/65 R 22.5, 365/80 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-181",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 42 x 22",
+      "code": "MDS-DEO-42x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2900,
+      "stock": 165,
+      "minStock": 20,
+      "reservedStock": 19,
+      "allocatedStock": 13,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 11 R 24.5, 315/80 R 22.5, 315/75 R 22.5, 315/70 R 22.5, 12 R 22.5, 11.00 R 22, 11.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 107,
+          "reserved": 13,
+          "available": 94
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 58,
+          "reserved": 6,
+          "available": 52
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-182",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 42 x 25",
+      "code": "MDS-DEO-42x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2900,
+      "stock": 140,
+      "minStock": 20,
+      "reservedStock": 16,
+      "allocatedStock": 11,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 295/80 R 22.5, 11 R 22.5, 10.00 R 22",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 91,
+          "reserved": 11,
+          "available": 80
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 49,
+          "reserved": 5,
+          "available": 44
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-183",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 40 x 18",
+      "code": "MDS-DEO-40x18",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2800,
+      "stock": 130,
+      "minStock": 20,
+      "reservedStock": 15,
+      "allocatedStock": 10,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 305/75 R 22.5, 305/70 R 22.5, 295/75 R 22.5, 295/90 R 20, 10.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 85,
+          "reserved": 10,
+          "available": 75
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-184",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 40 x 21",
+      "code": "MDS-DEO-40x21",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2800,
+      "stock": 115,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 9,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 275/80 R 22.5, 275/70 R 22.5, 10 R 22.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 75,
+          "reserved": 9,
+          "available": 66
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 40,
+          "reserved": 4,
+          "available": 36
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-185",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 40 x 25",
+      "code": "MDS-DEO-40x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2750,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 9.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-186",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 38 x 22",
+      "code": "MDS-DEO-38x22",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2650,
+      "stock": 70,
+      "minStock": 20,
+      "reservedStock": 8,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 10.00 R 15, TR/LB",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 25,
+          "reserved": 3,
+          "available": 22
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-187",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 38 x 25",
+      "code": "MDS-DEO-38x25",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2650,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 265/70 R 22.5, 8.25 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-188",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 35 x 20",
+      "code": "MDS-DEO-35x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 7.50 R 20, 7.00 R 20, 6.50 R 20, 265/70 R 19.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-189",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 35 x 16",
+      "code": "MDS-DEO-35x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 285/70 R 19.5, 9.00 R 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-190",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 32 x 16",
+      "code": "MDS-DEO-32x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2350,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 245/70 R 19.5, 9.5 R 17.5, 10 R 16.5, 265/75 R 16, 8.25 R 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-191",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 32 x 19",
+      "code": "MDS-DEO-32x19",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2350,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 245/65 R 19.5, 235/70 R 19.5, 225/70 R 19.5, 245/75 R 16, 235/85 R 16, 215/85 R 16, 10.00 R 15 LT, 8.25 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-192",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 31 x 18",
+      "code": "MDS-DEO-31x18",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2250,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 245/70 R 17.5, 235/75 R 17.5, 225/75 R 17.5, 215/75 R 17.5, 205/75 R 17.5, 7.50 R 16, 7.00 R 16, 7.50 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-193",
+      "name": "MIDAS DOUBLE ENVELOPE OUTER 28 x 16",
+      "code": "MDS-DEO-28x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2150,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system outer sleeve; Suggested tyre: 225/75 R 16, 215/75 R 16, 6.50 R 16, 6.00 R 16, 7.00 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-194",
+      "name": "MIDAS DOUBLE ENVELOPE INNER 1300 x 610",
+      "code": "MDS-DEI-1300x610",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2800,
+      "stock": 70,
+      "minStock": 20,
+      "reservedStock": 8,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system inner tube; Suggested tyre: 12.00 R 24, 325/95 R 24, 13.00 R 24, 14.00 R 24, 11 R 24.5, 12 R 24.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 25,
+          "reserved": 3,
+          "available": 22
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-195",
+      "name": "MIDAS DOUBLE ENVELOPE INNER 1100 x 480",
+      "code": "MDS-DEI-1100x480",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2600,
+      "stock": 125,
+      "minStock": 20,
+      "reservedStock": 15,
+      "allocatedStock": 10,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system inner tube; Suggested tyre: 385/65 R 22.5, 385/55 R 22.5, 315/80 R 22.5, 315/75 R 22.5, 13 R 22.5, 12 R 22.5, 11.00 R 22, 12.00 R 20, 11.00 R 20, 425/55 R 19.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 81,
+          "reserved": 10,
+          "available": 71
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 44,
+          "reserved": 5,
+          "available": 39
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-196",
+      "name": "MIDAS DOUBLE ENVELOPE INNER 1060 x 480 M",
+      "code": "MDS-DEI-1060x480M",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 135,
+      "minStock": 20,
+      "reservedStock": 16,
+      "allocatedStock": 10,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system inner tube; Suggested tyre: 315/70 R 22.5, 305/70 R 22.5, 295/80 R 22.5, 295/75 R 22.5, 11 R 22.5, 10.00 R 22, 295/90 R 20, 10.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 88,
+          "reserved": 11,
+          "available": 77
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 47,
+          "reserved": 5,
+          "available": 42
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-197",
+      "name": "MIDAS DOUBLE ENVELOPE INNER 1060 x 480 U",
+      "code": "MDS-DEI-1060x480U",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 110,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system inner tube; Suggested tyre: 275/80 R 22.5, 275/70 R 22.5, 10 R 22.5, 275/80 R 20, 9.00 R 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 72,
+          "reserved": 9,
+          "available": 63
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-198",
+      "name": "MIDAS DOUBLE ENVELOPE INNER 780 x 400",
+      "code": "MDS-DEI-780x400",
+      "brand": "Midas Mileage",
+      "category": "Curing Envelopes",
+      "unit": "Pcs",
+      "price": 2200,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Double envelope system inner tube; Suggested tyre: 9 R 17.5, 8.5 R 17.5, 8 R 17.5, 235/75 R 17.5, 225/75 R 17.5, 215/75 R 17.5, 205/75 R 17.5, 265/70 R 17.5, 245/70 R 17.5, 205/65 R 17.5, 8.25 R 16, 7.50 R 16, 7.00 R 16, 235/85 R 16, 215/85 R 16, 225/75 R 16, 215/75 R 16, 245/70 R 16, 255/75 R 15, 7.50 R 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-199",
+      "name": "MIDAS WICKING PAD - DOUBLE ENVELOPE (1250 x 175)",
+      "code": "MDS-WP-1250175",
+      "brand": "Midas Mileage",
+      "category": "Wicking Pads",
+      "unit": "Pcs",
+      "price": 420,
+      "stock": 260,
+      "minStock": 50,
+      "reservedStock": 25,
+      "allocatedStock": 15,
+      "stockLevel": "OK",
+      "specifications": "Double Envelope System continuous air evacuation wicking pad (1250 x 175 mm)",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 169,
+          "reserved": 17,
+          "available": 152
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 91,
+          "reserved": 8,
+          "available": 83
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-200",
+      "name": "MIDAS WICKING PAD - ARC / FLEX SEAL (520 x 175)",
+      "code": "MDS-WP-520175",
+      "brand": "Midas Mileage",
+      "category": "Wicking Pads",
+      "unit": "Pcs",
+      "price": 310,
+      "stock": 290,
+      "minStock": 50,
+      "reservedStock": 25,
+      "allocatedStock": 15,
+      "stockLevel": "OK",
+      "specifications": "ARC / Snap Seal / Flex Seal & Rim and Tube System wicking pad (520 x 175 mm)",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 189,
+          "reserved": 17,
+          "available": 172
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 102,
+          "reserved": 8,
+          "available": 94
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-201",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 16.9 x 28",
+      "code": "MDS-CB-169x28",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 5200,
+      "stock": 45,
+      "minStock": 20,
+      "reservedStock": 5,
+      "allocatedStock": 3,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 16.9 x 28",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 29,
+          "reserved": 3,
+          "available": 26
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 16,
+          "reserved": 2,
+          "available": 14
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-202",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 14.9 x 28",
+      "code": "MDS-CB-149x28",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 4900,
+      "stock": 40,
+      "minStock": 20,
+      "reservedStock": 4,
+      "allocatedStock": 3,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 14.9 x 28",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 26,
+          "reserved": 2,
+          "available": 24
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 14,
+          "reserved": 2,
+          "available": 12
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-203",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 13.6 x 28",
+      "code": "MDS-CB-136x28",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 4600,
+      "stock": 50,
+      "minStock": 20,
+      "reservedStock": 6,
+      "allocatedStock": 4,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 13.6 x 28",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 18,
+          "reserved": 2,
+          "available": 16
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-204",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 12.4 x 28",
+      "code": "MDS-CB-124x28",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 4300,
+      "stock": 45,
+      "minStock": 20,
+      "reservedStock": 5,
+      "allocatedStock": 3,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 12.4 x 28",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 29,
+          "reserved": 3,
+          "available": 26
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 16,
+          "reserved": 2,
+          "available": 14
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-205",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 14.00 x 24/25",
+      "code": "MDS-CB-1400x2425",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 4800,
+      "stock": 55,
+      "minStock": 20,
+      "reservedStock": 6,
+      "allocatedStock": 4,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 14.00 x 24/25",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 36,
+          "reserved": 4,
+          "available": 32
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 19,
+          "reserved": 2,
+          "available": 17
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-206",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 12.00 x 24",
+      "code": "MDS-CB-1200x24",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 4200,
+      "stock": 65,
+      "minStock": 20,
+      "reservedStock": 7,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 12.00 x 24",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 42,
+          "reserved": 4,
+          "available": 38
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 23,
+          "reserved": 3,
+          "available": 20
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-207",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 12 R 22.5",
+      "code": "MDS-CB-12R225",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 3400,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 12 R 22.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-208",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 11 R 22.5",
+      "code": "MDS-CB-11R225",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 3200,
+      "stock": 95,
+      "minStock": 20,
+      "reservedStock": 11,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 11 R 22.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 62,
+          "reserved": 7,
+          "available": 55
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 33,
+          "reserved": 4,
+          "available": 29
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-209",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 315/80 R 22.5",
+      "code": "MDS-CB-31580R225",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 3500,
+      "stock": 140,
+      "minStock": 20,
+      "reservedStock": 16,
+      "allocatedStock": 11,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 315/80 R 22.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 91,
+          "reserved": 11,
+          "available": 80
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 49,
+          "reserved": 5,
+          "available": 44
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-210",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 295/80 R 22.5",
+      "code": "MDS-CB-29580R225",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 3300,
+      "stock": 150,
+      "minStock": 20,
+      "reservedStock": 18,
+      "allocatedStock": 12,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 295/80 R 22.5",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 98,
+          "reserved": 12,
+          "available": 86
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 53,
+          "reserved": 6,
+          "available": 47
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-211",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 12.00 x 20",
+      "code": "MDS-CB-1200x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 3200,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 12.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-212",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 11.00 x 20",
+      "code": "MDS-CB-1100x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 3000,
+      "stock": 110,
+      "minStock": 20,
+      "reservedStock": 13,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 11.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 72,
+          "reserved": 9,
+          "available": 63
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 39,
+          "reserved": 4,
+          "available": 35
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-213",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 10.00 x 20",
+      "code": "MDS-CB-1000x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 2850,
+      "stock": 180,
+      "minStock": 20,
+      "reservedStock": 21,
+      "allocatedStock": 14,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 10.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 117,
+          "reserved": 14,
+          "available": 103
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 63,
+          "reserved": 7,
+          "available": 56
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-214",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 9.00 x 20",
+      "code": "MDS-CB-900x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 2700,
+      "stock": 120,
+      "minStock": 20,
+      "reservedStock": 14,
+      "allocatedStock": 9,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 9.00 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 78,
+          "reserved": 9,
+          "available": 69
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 42,
+          "reserved": 5,
+          "available": 37
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-215",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 8.25 x 20",
+      "code": "MDS-CB-825x20",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 2500,
+      "stock": 85,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 8.25 x 20",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 55,
+          "reserved": 7,
+          "available": 48
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 30,
+          "reserved": 3,
+          "available": 27
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-216",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 8.25 x 16",
+      "code": "MDS-CB-825x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 2400,
+      "stock": 90,
+      "minStock": 20,
+      "reservedStock": 10,
+      "allocatedStock": 7,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 8.25 x 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 59,
+          "reserved": 7,
+          "available": 52
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 31,
+          "reserved": 3,
+          "available": 28
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-217",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 7.50 x 16",
+      "code": "MDS-CB-750x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 2250,
+      "stock": 105,
+      "minStock": 20,
+      "reservedStock": 12,
+      "allocatedStock": 8,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 7.50 x 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 68,
+          "reserved": 8,
+          "available": 60
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 37,
+          "reserved": 4,
+          "available": 33
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-218",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 7.00 x 15",
+      "code": "MDS-CB-700x15",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 2100,
+      "stock": 75,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 7.00 x 15",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 49,
+          "reserved": 6,
+          "available": 43
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 26,
+          "reserved": 3,
+          "available": 23
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-219",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 6.00 x 16",
+      "code": "MDS-CB-600x16",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 1950,
+      "stock": 80,
+      "minStock": 20,
+      "reservedStock": 9,
+      "allocatedStock": 6,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 6.00 x 16",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 52,
+          "reserved": 6,
+          "available": 46
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 28,
+          "reserved": 3,
+          "available": 25
+        }
+      ]
+    },
+    {
+      "id": "MIDAS-220",
+      "name": "MIDAS HEAT RESISTANT CURING BAG 6.00 x 14",
+      "code": "MDS-CB-600x14",
+      "brand": "Midas Mileage",
+      "category": "Curing Bags",
+      "unit": "Pcs",
+      "price": 1850,
+      "stock": 70,
+      "minStock": 20,
+      "reservedStock": 8,
+      "allocatedStock": 5,
+      "stockLevel": "OK",
+      "specifications": "Heavy duty autoclave curing bag for uniform pressure transfer; Size: 6.00 x 14",
+      "suggestedSupplier": "Midas Treads (India) Pvt. Ltd.",
+      "godownStock": [
+        {
+          "godown": "Kottayam Central Warehouse",
+          "physical": 46,
+          "reserved": 5,
+          "available": 41
+        },
+        {
+          "godown": "Bhiwandi Logistics Hub",
+          "physical": 25,
+          "reserved": 3,
+          "available": 22
+        }
+      ]
+    }
+  ],
+  "customers": [
+    {
+      "id": "C001",
+      "name": "ABC Industries Pvt. Ltd.",
+      "city": "Mumbai",
+      "gstin": "27AABCA1234B1Z5",
+      "creditLimit": 500000,
+      "creditUsed": 329200,
+      "paymentTerms": 30,
+      "phone": "+91 98765 43210",
+      "email": "accounts@abcindustries.in",
+      "contactPerson": "Rajesh Mehta",
+      "outstandingAmount": 341000,
+      "totalOrders": 50,
+      "lastOrderDate": "2026-10-11",
+      "state": "Gujarat",
+      "stateCode": "27",
+      "billingAddress": "Mumbai, Maharashtra, India"
+    },
+    {
+      "id": "C002",
+      "name": "Sunrise Traders",
+      "city": "Pune",
+      "gstin": "27BBBST5678C2Z3",
+      "creditLimit": 200000,
+      "creditUsed": 87500,
+      "paymentTerms": 15,
+      "phone": "+91 98765 11111",
+      "email": "purchase@sunrisetraders.in",
+      "contactPerson": "Sunil Patil",
+      "outstandingAmount": 87500,
+      "totalOrders": 31,
+      "lastOrderDate": "2026-09-28",
+      "state": "Gujarat",
+      "stateCode": "27",
+      "billingAddress": "Pune, Maharashtra, India"
+    },
+    {
+      "id": "C003",
+      "name": "Metro Hardware Co.",
+      "city": "Nashik",
+      "gstin": "27CCCMH9012D3Z1",
+      "creditLimit": 300000,
+      "creditUsed": 44800,
+      "paymentTerms": 45,
+      "phone": "+91 98765 22222",
+      "email": "orders@metrohardware.in",
+      "contactPerson": "Mohan Gupta",
+      "outstandingAmount": 44800,
+      "totalOrders": 19,
+      "lastOrderDate": "2026-09-25",
+      "state": "Gujarat",
+      "stateCode": "27",
+      "billingAddress": "Nashik, Maharashtra, India"
+    },
+    {
+      "id": "C004",
+      "name": "Bharat Steel Works",
+      "city": "Nagpur",
+      "gstin": "27DDDBS3456E4Z8",
+      "creditLimit": 750000,
+      "creditUsed": 62500,
+      "paymentTerms": 60,
+      "phone": "+91 98765 33333",
+      "email": "procurement@bharatsteel.in",
+      "contactPerson": "Vikram Singh",
+      "outstandingAmount": 62500,
+      "totalOrders": 62,
+      "lastOrderDate": "2026-09-29",
+      "state": "Gujarat",
+      "stateCode": "27",
+      "billingAddress": "Nagpur, Maharashtra, India"
+    },
+    {
+      "id": "C005",
+      "name": "Excellent Builders",
+      "city": "Aurangabad",
+      "gstin": "27EEEEL7890F5Z6",
+      "creditLimit": 150000,
+      "creditUsed": 127000,
+      "paymentTerms": 7,
+      "phone": "+91 98765 44444",
+      "email": "site@excellentbuilders.in",
+      "contactPerson": "Anil Deshmukh",
+      "outstandingAmount": 127000,
+      "totalOrders": 14,
+      "lastOrderDate": "2026-09-27",
+      "state": "Gujarat",
+      "stateCode": "27",
+      "billingAddress": "Aurangabad, Maharashtra, India"
+    }
+  ],
+  "suppliers": [
+    {
+      "id": "SUP-001",
+      "name": "Apex Forgings & Fasteners Ltd.",
+      "contactPerson": "Dinesh Khandelwal",
+      "phone": "+91 98200 44211",
+      "email": "sales@apexforgings.in",
+      "city": "Ludhiana",
+      "state": "Punjab",
+      "gstin": "03AABCA7890B1Z2",
+      "paymentTerms": 45,
+      "balancePayable": 420000,
+      "openOrdersCount": 2,
+      "rating": 4.8
+    },
+    {
+      "id": "SUP-002",
+      "name": "Tata Precision Metals",
+      "contactPerson": "Kavita Rao",
+      "phone": "+91 98211 99882",
+      "email": "procure@tataprecision.com",
+      "city": "Jamshedpur",
+      "state": "Jharkhand",
+      "gstin": "20AABCT1234F1Z8",
+      "paymentTerms": 30,
+      "balancePayable": 685000,
+      "openOrdersCount": 3,
+      "rating": 4.9
+    },
+    {
+      "id": "SUP-003",
+      "name": "Maxgrip Industrial Fasteners",
+      "contactPerson": "Suresh Agarwal",
+      "phone": "+91 98330 11223",
+      "email": "suresh@maxgripfasteners.co.in",
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "gstin": "24AABCM9988D1Z4",
+      "paymentTerms": 15,
+      "balancePayable": 112000,
+      "openOrdersCount": 1,
+      "rating": 4.2
+    },
+    {
+      "id": "SUP-004",
+      "name": "Sterling Stainless Components",
+      "contactPerson": "Gaurav Malhotra",
+      "phone": "+91 98450 77665",
+      "email": "orders@sterlingstainless.com",
+      "city": "Faridabad",
+      "state": "Haryana",
+      "gstin": "06AABCS4455C1Z1",
+      "paymentTerms": 30,
+      "balancePayable": 215000,
+      "openOrdersCount": 1,
+      "rating": 4.5
+    },
+    {
+      "id": "SUP-005",
+      "name": "Midas Treads (India) Pvt. Ltd.",
+      "contactPerson": "Sivaramakrishnan / Ramnath R.",
+      "phone": "+91 481 2561215",
+      "email": "sales@midastreads.com",
+      "city": "Kottayam",
+      "state": "Kerala",
+      "gstin": "32AABCM1969M1Z5",
+      "paymentTerms": 30,
+      "balancePayable": 185000,
+      "openOrdersCount": 2,
+      "rating": 4.95
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-2026-1050",
+      "orderNo": "SO-2026-1050",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CANCELLED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 2,
+          "qtyAvailable": 191,
+          "qtyReserved": 0,
+          "qtyAllocated": 0,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 6900,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 8142,
+      "notes": "",
+      "assignedTo": "Automated QA Test",
+      "createdBy": "Automated QA Test",
+      "workflow": [
+        {
+          "id": "wf-1791706746359",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Automated QA Test"
+        },
+        {
+          "id": "wf-1791706746360",
+          "label": "Status changed to CANCELLED: Customer requested cancellation",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "QA Test Suite"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2026-1049",
+      "orderNo": "SO-2026-1049",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "CANCELLED",
+      "priority": "NORMAL",
+      "orderDate": "2026-10-11",
+      "deliveryDate": "2026-10-16",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 2,
+          "qtyAvailable": 141,
+          "qtyReserved": 0,
+          "qtyAllocated": 0,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 6900,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 8142,
+      "notes": "",
+      "assignedTo": "Automated QA Test",
+      "createdBy": "Automated QA Test",
+      "workflow": [
+        {
+          "id": "wf-1791706692105",
+          "label": "Order Created & Confirmed",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "Automated QA Test"
+        },
+        {
+          "id": "wf-1791706692106",
+          "label": "Status changed to CANCELLED: Customer requested cancellation",
+          "status": "COMPLETED",
+          "completedAt": "2026-10-11",
+          "completedBy": "QA Test Suite"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2026-1048",
+      "orderNo": "SO-2026-1048",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "status": "ALLOCATED",
+      "priority": "HIGH",
+      "orderDate": "2026-09-28",
+      "deliveryDate": "2026-10-02",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "qtyOrdered": 20,
+          "qtyAvailable": 160,
+          "qtyReserved": 20,
+          "qtyAllocated": 20,
+          "qtyShort": 0,
+          "rate": 3450,
+          "amount": 69000,
+          "unit": "Roll"
+        }
+      ],
+      "totalAmount": 81420,
+      "notes": "Urgent batch required for Kalyan Tyre Retreaders depot",
+      "assignedTo": "Amit Sharma",
+      "createdBy": "Priya Nair",
+      "workflow": [
+        {
+          "id": "wf-1",
+          "label": "Order Created",
+          "status": "COMPLETED",
+          "completedAt": "2026-09-28",
+          "completedBy": "Priya Nair"
+        },
+        {
+          "id": "wf-2",
+          "label": "Credit & Stock Approved",
+          "status": "COMPLETED",
+          "completedAt": "2026-09-28",
+          "completedBy": "Amit Sharma"
+        },
+        {
+          "id": "wf-3",
+          "label": "Stock Reserved in Bhiwandi",
+          "status": "COMPLETED",
+          "completedAt": "2026-09-29",
+          "completedBy": "Suresh Patil"
+        }
+      ]
+    }
+  ],
+  "invoices": [
+    {
+      "id": "INV-46",
+      "invoiceNo": "VS/26-27/0046",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 5000,
+      "cgst": 450,
+      "sgst": 450,
+      "igst": 0,
+      "totalAmount": 5900,
+      "paymentStatus": "PAID",
+      "amountReceived": 5900,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 5,
+          "unit": "Roll",
+          "rate": 1000,
+          "discountPct": 0,
+          "taxableAmount": 5000,
+          "gstRate": 18,
+          "cgstAmount": 450,
+          "sgstAmount": 450,
+          "igstAmount": 0,
+          "totalAmount": 5900
+        }
+      ]
+    },
+    {
+      "id": "INV-45",
+      "invoiceNo": "VS/26-27/0045",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234B1Z5",
+      "customerAddress": "Mumbai, Maharashtra, India",
+      "customerCity": "Mumbai",
+      "customerState": "Gujarat",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-10-11",
+      "dueDate": "2026-11-10",
+      "placeOfSupply": "27 - Maharashtra",
+      "taxableAmount": 5000,
+      "cgst": 450,
+      "sgst": 450,
+      "igst": 0,
+      "totalAmount": 5900,
+      "paymentStatus": "PAID",
+      "amountReceived": 5900,
+      "items": [
+        {
+          "id": "LI-1",
+          "hsnCode": "40082100",
+          "qty": 5,
+          "unit": "Roll",
+          "rate": 1000,
+          "discountPct": 0,
+          "taxableAmount": 5000,
+          "gstRate": 18,
+          "cgstAmount": 450,
+          "sgstAmount": 450,
+          "igstAmount": 0,
+          "totalAmount": 5900
+        }
+      ]
+    },
+    {
+      "id": "INV-1044",
+      "invoiceNo": "VS/26-27/0044",
+      "orderNo": "SO-2026-1044",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "customerGstin": "27AABCA1234A1Z5",
+      "customerAddress": "Plot C-12, MIDC Andheri East, Mumbai, MH - 400093",
+      "customerCity": "Mumbai",
+      "customerState": "Maharashtra",
+      "customerStateCode": "27",
+      "invoiceDate": "2026-09-26",
+      "dueDate": "2026-10-11",
+      "placeOfSupply": "27 - Maharashtra",
+      "ewayBillNo": "241828901234",
+      "vehicleNo": "MH-04-G-4412",
+      "transporter": "V-Trans Logistics",
+      "taxableAmount": 114000,
+      "cgst": 10260,
+      "sgst": 10260,
+      "igst": 0,
+      "totalAmount": 134520,
+      "paymentStatus": "PENDING",
+      "amountReceived": 0,
+      "items": [
+        {
+          "id": "LI-1",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "hsnCode": "40082100",
+          "qty": 30,
+          "unit": "Roll",
+          "rate": 3450,
+          "discountPct": 0,
+          "taxableAmount": 103500,
+          "gstRate": 18,
+          "cgstAmount": 9315,
+          "sgstAmount": 9315,
+          "igstAmount": 0,
+          "totalAmount": 122130
+        }
+      ]
+    }
+  ],
+  "stockMovements": [
+    {
+      "id": "MOV-1791706746363-a5to",
+      "timestamp": "2026-10-11T08:19:06.363Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Main Warehouse (Bhiwandi Logistics Hub)",
+      "changeQty": 10,
+      "balanceAfter": 270,
+      "direction": "IN",
+      "type": "PHYSICAL_ADJUSTMENT",
+      "referenceType": "ADJ",
+      "referenceId": "ADJ-2026-005",
+      "reason": "Quarterly physical stock audit surplus",
+      "actor": "Internal Audit Team"
+    },
+    {
+      "id": "MOV-1791706746361-3tj2",
+      "timestamp": "2026-10-11T08:19:06.361Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Main Warehouse (Bhiwandi Logistics Hub)",
+      "changeQty": 50,
+      "balanceAfter": 260,
+      "direction": "IN",
+      "type": "PURCHASE_RECEIPT",
+      "referenceType": "PO",
+      "referenceId": "PO-2026-081",
+      "reason": "Goods receipt against PO PO-2026-081 (GRN-2026-0013)",
+      "actor": "Suresh Patil (Warehouse Head)"
+    },
+    {
+      "id": "MOV-1791706746360-egxh",
+      "timestamp": "2026-10-11T08:19:06.360Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": 2,
+      "balanceAfter": 191,
+      "direction": "IN",
+      "type": "PHYSICAL_ADJUSTMENT",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1050",
+      "reason": "Released reservation upon Order Cancellation: Customer requested cancellation",
+      "actor": "QA Test Suite"
+    },
+    {
+      "id": "MOV-1791706746356-p3g8",
+      "timestamp": "2026-10-11T08:19:06.357Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -2,
+      "balanceAfter": 189,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1050",
+      "reason": "Reserved for Sales Order SO-2026-1050",
+      "actor": "Automated QA Test"
+    },
+    {
+      "id": "MOV-1791706692108-jgfg",
+      "timestamp": "2026-10-11T08:18:12.108Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Main Warehouse (Bhiwandi Logistics Hub)",
+      "changeQty": 50,
+      "balanceAfter": 210,
+      "direction": "IN",
+      "type": "PURCHASE_RECEIPT",
+      "referenceType": "PO",
+      "referenceId": "PO-2026-081",
+      "reason": "Goods receipt against PO PO-2026-081 (GRN-2026-0012)",
+      "actor": "Suresh Patil (Warehouse Head)"
+    },
+    {
+      "id": "MOV-1791706692106-n9h2",
+      "timestamp": "2026-10-11T08:18:12.106Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": 2,
+      "balanceAfter": 141,
+      "direction": "IN",
+      "type": "PHYSICAL_ADJUSTMENT",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1049",
+      "reason": "Released reservation upon Order Cancellation: Customer requested cancellation",
+      "actor": "QA Test Suite"
+    },
+    {
+      "id": "MOV-1791706692102-lq22",
+      "timestamp": "2026-10-11T08:18:12.102Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Kottayam Central Warehouse",
+      "changeQty": -2,
+      "balanceAfter": 139,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1049",
+      "reason": "Reserved for Sales Order SO-2026-1049",
+      "actor": "Automated QA Test"
+    },
+    {
+      "id": "MOV-001",
+      "timestamp": "2026-09-28T10:00:00.000Z",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Main Warehouse (Bhiwandi Logistics Hub)",
+      "changeQty": -20,
+      "balanceAfter": 140,
+      "direction": "OUT",
+      "type": "ORDER_ALLOCATION",
+      "referenceType": "SO",
+      "referenceId": "SO-2026-1048",
+      "reason": "Reserved for Sales Order SO-2026-1048",
+      "actor": "Suresh Patil"
+    }
+  ],
+  "adjustments": [
+    {
+      "id": "ADJ-5",
+      "adjNo": "ADJ-2026-005",
+      "date": "2026-10-11",
+      "itemId": "MIDAS-101",
+      "itemCode": "MDS-BG-FC99",
+      "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+      "godown": "Main Warehouse (Bhiwandi Logistics Hub)",
+      "systemQty": 260,
+      "physicalQty": 270,
+      "difference": 10,
+      "reason": "Quarterly physical stock audit surplus",
+      "approvedBy": "Internal Audit Team",
+      "createdAt": "2026-10-11T08:19:06.363Z"
+    }
+  ],
+  "returns": [],
+  "quotations": [],
+  "goodsReceipts": [
+    {
+      "id": "GRN-13",
+      "grnNo": "GRN-2026-0013",
+      "poNo": "PO-2026-081",
+      "supplierId": "SUP-001",
+      "supplierName": "Apex Forgings & Fasteners Ltd.",
+      "godown": "Main Warehouse (Bhiwandi Logistics Hub)",
+      "receivedDate": "2026-10-11",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "orderedQty": 50,
+          "receivedQty": 50,
+          "unit": "Roll"
+        }
+      ],
+      "transporter": "V-Trans Logistics",
+      "vehicleNo": "MH-04-GP-8812",
+      "receivedBy": "Suresh Patil (Warehouse Head)",
+      "createdAt": "2026-10-11T08:19:06.361Z"
+    },
+    {
+      "id": "GRN-12",
+      "grnNo": "GRN-2026-0012",
+      "poNo": "PO-2026-081",
+      "supplierId": "SUP-001",
+      "supplierName": "Apex Forgings & Fasteners Ltd.",
+      "godown": "Main Warehouse (Bhiwandi Logistics Hub)",
+      "receivedDate": "2026-10-11",
+      "items": [
+        {
+          "itemId": "MIDAS-101",
+          "itemCode": "MDS-BG-FC99",
+          "itemName": "MIDAS BONDING GUM - FAST CURE 99°C",
+          "orderedQty": 50,
+          "receivedQty": 50,
+          "unit": "Roll"
+        }
+      ],
+      "transporter": "V-Trans Logistics",
+      "vehicleNo": "MH-04-GP-8812",
+      "receivedBy": "Suresh Patil (Warehouse Head)",
+      "createdAt": "2026-10-11T08:18:12.108Z"
+    }
+  ],
+  "receipts": [
+    {
+      "id": "RCT-31",
+      "receiptNo": "RCT-26-27/0031",
+      "invoiceId": "INV-46",
+      "invoiceNo": "VS/26-27/0046",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "amount": 5900,
+      "paymentMode": "NEFT_RTGS",
+      "transactionRef": "HDFC9821739218",
+      "paymentDate": "2026-10-11",
+      "status": "VERIFIED",
+      "verifiedBy": "Accounts Reconciler",
+      "notes": "Bank statement verified",
+      "createdAt": "2026-10-11T08:19:06.363Z"
+    },
+    {
+      "id": "RCT-30",
+      "receiptNo": "RCT-26-27/0030",
+      "invoiceId": "INV-45",
+      "invoiceNo": "VS/26-27/0045",
+      "customerId": "C001",
+      "customerName": "ABC Industries Pvt. Ltd.",
+      "amount": 5900,
+      "paymentMode": "NEFT_RTGS",
+      "transactionRef": "HDFC9821739218",
+      "paymentDate": "2026-10-11",
+      "status": "VERIFIED",
+      "verifiedBy": "Accounts Reconciler",
+      "notes": "Bank statement verified",
+      "createdAt": "2026-10-11T08:18:12.109Z"
+    }
+  ],
+  "counters": {
+    "orderSeq": 1051,
+    "invoiceSeq": 47,
+    "challanSeq": 22,
+    "quoteSeq": 15,
+    "grnSeq": 14,
+    "adjSeq": 6,
+    "cnSeq": 8,
+    "receiptSeq": 32
+  }
+}

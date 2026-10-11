@@ -7,6 +7,8 @@ import { ArrowLeft, Plus, Trash2, AlertTriangle, CheckCircle, Calculator } from 
 import { CUSTOMERS, ITEMS, Customer, Item } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
 
+import { useToast } from "@/components/ui/Toast";
+
 interface LineItem {
   itemId: string;
   itemCode: string;
@@ -21,6 +23,7 @@ interface LineItem {
 
 export default function NewOrderPage() {
   const router = useRouter();
+  const toast = useToast();
 
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("C001");
   const [priority, setPriority] = useState<"NORMAL" | "HIGH" | "URGENT">("NORMAL");
@@ -116,14 +119,49 @@ export default function NewOrderPage() {
   const hasAnyShortage = calculations.some((c) => c.isShortage);
   const willExceedCredit = grandTotal > creditAvailable;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (lines.length === 0) {
+      toast.error("Invalid Order", "Please add at least one line item.");
+      return;
+    }
 
-    setTimeout(() => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: selectedCustomerId,
+          items: lines.map((l) => ({
+            itemId: l.itemId,
+            qty: l.qty,
+            rate: l.rate,
+            discountPct: l.discountPct,
+          })),
+          priority,
+          deliveryDate,
+          notes,
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        toast.error("Creation Failed", data.error || "Failed to create order on server");
+        setIsSubmitting(false);
+        return;
+      }
+
+      toast.success(
+        "Sales Order Created",
+        `Order ${data.order.orderNo} created with ₹${data.order.totalAmount.toLocaleString("en-IN")} value. Stock reserved.`
+      );
+      router.push(`/orders/${data.order.id}`);
+    } catch (err: any) {
+      toast.error("Network Error", err.message);
+    } finally {
       setIsSubmitting(false);
-      router.push("/orders");
-    }, 600);
+    }
   };
 
   return (

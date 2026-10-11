@@ -40,6 +40,8 @@ import {
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { CUSTOMERS } from "@/lib/data";
+import { generateDynamicUpiQr } from "@/lib/paymentService";
+import { CANONICAL_COMPANY_CONFIG } from "@/lib/companyConfig";
 
 function PaymentContent() {
   const router = useRouter();
@@ -222,11 +224,30 @@ function PaymentContent() {
     finalizeBooking();
   };
 
-  const finalizeBooking = () => {
+  const finalizeBooking = async () => {
     if (!bookingData) return;
 
     const todayDate = new Date();
     const scheduledFollowUpDate = addDaysToDate(todayDate, 5);
+    const utrRef = activeMethod === "UPI" ? upiUtr : activeMethod === "NEFT_RTGS" ? neftUtr : "CARD_PENDING";
+
+    // Call server payment verification API
+    try {
+      await fetch("/api/payments/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "MANUAL_UTR_SUBMISSION",
+          orderId: bookingData.orderId,
+          utrNumber: utrRef,
+          amount: bookingData.grandTotal,
+          senderBank,
+          accountHolder,
+        }),
+      });
+    } catch (e) {
+      console.warn("Server payment registration error:", e);
+    }
 
     const updatedBooking: CustomerOrderBooking = {
       ...bookingData,
@@ -234,20 +255,11 @@ function PaymentContent() {
       paymentStatus:
         activeMethod === "COD"
           ? "COD_CONFIRMED"
-          : activeMethod === "NEFT_RTGS"
-          ? "PENDING_VERIFICATION"
-          : "PAID",
+          : "PENDING_VERIFICATION",
       paymentDetails: {
         ...bookingData.paymentDetails,
-        transactionId:
-          activeMethod === "UPI"
-            ? upiUtr
-            : activeMethod === "NEFT_RTGS"
-            ? neftUtr
-            : activeMethod === "CARD"
-            ? "CRD-" + Math.floor(100000 + Math.random() * 900000)
-            : undefined,
-        upiId: activeMethod === "UPI" ? "tradeflow.orders@hdfcbank" : undefined,
+        transactionId: utrRef,
+        upiId: activeMethod === "UPI" ? CANONICAL_COMPANY_CONFIG.banking.upiVpa : undefined,
         appUsed: activeMethod === "UPI" ? upiApp : undefined,
         senderBank: activeMethod === "NEFT_RTGS" ? senderBank || "State Bank" : undefined,
         accountHolder: activeMethod === "NEFT_RTGS" ? accountHolder : undefined,
@@ -277,8 +289,10 @@ function PaymentContent() {
     setIsSuccess(true);
 
     toast.success(
-      activeMethod === "COD" ? "Order Confirmed!" : "Payment Confirmed!",
-      `Order ${updatedBooking.orderNumber} placed successfully.`
+      activeMethod === "COD" ? "Order Confirmed!" : "Payment Reference Submitted!",
+      activeMethod === "COD"
+        ? `Order ${updatedBooking.orderNumber} placed via Cash on Delivery.`
+        : `Order ${updatedBooking.orderNumber} placed. Status: Pending Accounts Verification.`
     );
   };
 
@@ -600,80 +614,25 @@ function PaymentContent() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center p-4 bg-[#F9F9FB] rounded-xl border border-[#E8E8EE] mb-5">
-                  {/* Visual QR Code Display */}
+                  {/* Real Dynamic Scannable QR Code Display */}
                   <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-[#E0E0E0] shadow-xs">
-                    <div className="relative w-44 h-44 bg-white p-2 rounded-lg border border-gray-100 flex items-center justify-center">
-                      {/* SVG Stylized QR Code Pattern */}
-                      <svg
-                        viewBox="0 0 100 100"
-                        className="w-full h-full text-[#111]"
-                        fill="currentColor"
-                      >
-                        {/* Corner 1 */}
-                        <rect x="5" y="5" width="26" height="26" rx="3" fill="#111" />
-                        <rect x="9" y="9" width="18" height="18" rx="2" fill="#fff" />
-                        <rect x="13" y="13" width="10" height="10" rx="1" fill="#111" />
-                        {/* Corner 2 */}
-                        <rect x="69" y="5" width="26" height="26" rx="3" fill="#111" />
-                        <rect x="73" y="9" width="18" height="18" rx="2" fill="#fff" />
-                        <rect x="77" y="13" width="10" height="10" rx="1" fill="#111" />
-                        {/* Corner 3 */}
-                        <rect x="5" y="69" width="26" height="26" rx="3" fill="#111" />
-                        <rect x="9" y="73" width="18" height="18" rx="2" fill="#fff" />
-                        <rect x="13" y="77" width="10" height="10" rx="1" fill="#111" />
-                        {/* Data dots */}
-                        <rect x="36" y="8" width="6" height="6" />
-                        <rect x="46" y="8" width="6" height="6" />
-                        <rect x="56" y="8" width="6" height="6" />
-                        <rect x="36" y="18" width="6" height="6" />
-                        <rect x="46" y="18" width="6" height="6" />
-                        <rect x="56" y="18" width="6" height="6" />
-                        <rect x="36" y="28" width="6" height="6" />
-                        <rect x="46" y="28" width="6" height="6" />
-                        <rect x="56" y="28" width="6" height="6" />
-                        <rect x="8" y="36" width="6" height="6" />
-                        <rect x="18" y="36" width="6" height="6" />
-                        <rect x="28" y="36" width="6" height="6" />
-                        <rect x="68" y="36" width="6" height="6" />
-                        <rect x="78" y="36" width="6" height="6" />
-                        <rect x="88" y="36" width="6" height="6" />
-                        <rect x="8" y="46" width="6" height="6" />
-                        <rect x="18" y="46" width="6" height="6" />
-                        <rect x="28" y="46" width="6" height="6" />
-                        <rect x="68" y="46" width="6" height="6" />
-                        <rect x="78" y="46" width="6" height="6" />
-                        <rect x="88" y="46" width="6" height="6" />
-                        <rect x="36" y="36" width="26" height="26" rx="2" fill="#2563EB" />
-                        <rect x="44" y="44" width="10" height="10" fill="#fff" rx="1" />
-                        <rect x="36" y="68" width="6" height="6" />
-                        <rect x="46" y="68" width="6" height="6" />
-                        <rect x="56" y="68" width="6" height="6" />
-                        <rect x="68" y="68" width="6" height="6" />
-                        <rect x="78" y="68" width="6" height="6" />
-                        <rect x="88" y="68" width="6" height="6" />
-                        <rect x="36" y="78" width="6" height="6" />
-                        <rect x="46" y="78" width="6" height="6" />
-                        <rect x="56" y="78" width="6" height="6" />
-                        <rect x="68" y="78" width="6" height="6" />
-                        <rect x="78" y="78" width="6" height="6" />
-                        <rect x="88" y="78" width="6" height="6" />
-                        <rect x="36" y="88" width="6" height="6" />
-                        <rect x="46" y="88" width="6" height="6" />
-                        <rect x="56" y="88" width="6" height="6" />
-                        <rect x="68" y="88" width="6" height="6" />
-                        <rect x="78" y="88" width="6" height="6" />
-                        <rect x="88" y="88" width="6" height="6" />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-[9px] font-black tracking-widest text-white bg-blue-600 px-1 py-0.5 rounded shadow">
-                          TRADEFLOW
-                        </span>
-                      </div>
+                    <div className="relative w-44 h-44 bg-white p-2 rounded-lg border border-gray-100 flex items-center justify-center overflow-hidden">
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        dangerouslySetInnerHTML={{
+                          __html: generateDynamicUpiQr({
+                            amount: bookingData?.grandTotal || 0,
+                            orderId: bookingData?.orderId || "SO-1048",
+                            orderNumber: bookingData?.orderNumber,
+                            note: `Vila Sales Order ${bookingData?.orderNumber || ""}`,
+                          }).qrSvg,
+                        }}
+                      />
                     </div>
                     <span className="text-xs font-bold text-[#111] mt-2">
-                      Amount: {formatCurrency(order.grandTotal)}
+                      Amount: {formatCurrency(bookingData?.grandTotal || 0)}
                     </span>
-                    <span className="text-[10px] text-[#888]">Order #{order.orderNumber}</span>
+                    <span className="text-[10px] text-[#888]">Order #{bookingData?.orderNumber}</span>
                   </div>
 
                   {/* UPI Details & App Launchers */}
@@ -684,10 +643,10 @@ function PaymentContent() {
                       </span>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 bg-white border border-[#EAEAEA] rounded-lg px-3 py-2 font-mono text-xs font-bold text-[#111] select-all">
-                          tradeflow.orders@hdfcbank
+                          {CANONICAL_COMPANY_CONFIG.banking.upiVpa}
                         </div>
                         <button
-                          onClick={() => handleCopy("tradeflow.orders@hdfcbank", "upiId")}
+                          onClick={() => handleCopy(CANONICAL_COMPANY_CONFIG.banking.upiVpa, "upiId")}
                           className="btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5 flex-shrink-0"
                           title="Copy UPI ID"
                         >
@@ -827,11 +786,11 @@ function PaymentContent() {
                       <span className="text-[#888] block text-[10px]">Beneficiary Name</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="font-semibold text-[#111]">
-                          TradeFlow Fasteners & Supplies Pvt Ltd
+                          {CANONICAL_COMPANY_CONFIG.bankDetails.beneficiaryName}
                         </span>
                         <button
                           onClick={() =>
-                            handleCopy("TradeFlow Fasteners & Supplies Pvt Ltd", "bName")
+                            handleCopy(CANONICAL_COMPANY_CONFIG.bankDetails.beneficiaryName, "bName")
                           }
                           className="text-[#888] hover:text-[#111]"
                           title="Copy Name"
@@ -849,10 +808,10 @@ function PaymentContent() {
                       <span className="text-[#888] block text-[10px]">Current Account Number</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="font-mono font-bold text-[#111] text-sm">
-                          50200084920194
+                          {CANONICAL_COMPANY_CONFIG.bankDetails.accountNumber}
                         </span>
                         <button
-                          onClick={() => handleCopy("50200084920194", "acNum")}
+                          onClick={() => handleCopy(CANONICAL_COMPANY_CONFIG.bankDetails.accountNumber, "acNum")}
                           className="text-[#888] hover:text-[#111]"
                           title="Copy Account Number"
                         >
@@ -868,16 +827,16 @@ function PaymentContent() {
                     <div>
                       <span className="text-[#888] block text-[10px]">Bank Name & Branch</span>
                       <span className="font-medium text-[#111] block mt-0.5">
-                        HDFC Bank Ltd • Nariman Point Branch, Mumbai
+                        {CANONICAL_COMPANY_CONFIG.bankDetails.bankName} • {CANONICAL_COMPANY_CONFIG.bankDetails.branch}
                       </span>
                     </div>
 
                     <div>
                       <span className="text-[#888] block text-[10px]">IFSC Code</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="font-mono font-bold text-[#111]">HDFC0000060</span>
+                        <span className="font-mono font-bold text-[#111]">{CANONICAL_COMPANY_CONFIG.bankDetails.ifscCode}</span>
                         <button
-                          onClick={() => handleCopy("HDFC0000060", "ifsc")}
+                          onClick={() => handleCopy(CANONICAL_COMPANY_CONFIG.bankDetails.ifscCode, "ifsc")}
                           className="text-[#888] hover:text-[#111]"
                           title="Copy IFSC"
                         >

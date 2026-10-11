@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -21,6 +21,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { PaymentGatewayModal } from "@/components/ui/PaymentGatewayModal";
 import { EmailInvoiceModal } from "@/components/invoices/EmailInvoiceModal";
 import { useToast } from "@/components/ui/Toast";
+import { CANONICAL_COMPANY_CONFIG } from "@/lib/companyConfig";
 
 export default function InvoiceDetailPage() {
   const params = useParams();
@@ -32,6 +33,18 @@ export default function InvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice>(initialInvoice);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/invoices")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.invoices)) {
+          const found = data.invoices.find((i: Invoice) => i.id === id || i.invoiceNo === id);
+          if (found) setInvoice(found);
+        }
+      })
+      .catch((err) => console.error("Error fetching invoice:", err));
+  }, [id]);
 
   const handlePaymentSuccess = (details: { transactionId: string; mode: string }) => {
     setInvoice((prev) => ({
@@ -47,7 +60,7 @@ export default function InvoiceDetailPage() {
         invoice.invoiceDate
       )} for ₹${invoice.totalAmount.toLocaleString(
         "en-IN"
-      )}. You can remit via NEFT or pay instantly online. Thank you! — TradeFlow Fasteners`
+      )}. You can remit via NEFT or pay instantly online. Thank you! — ${CANONICAL_COMPANY_CONFIG.companyName}`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
@@ -129,14 +142,14 @@ export default function InvoiceDetailPage() {
         <div className="border-b-2 border-[#111111] pb-4 flex items-start justify-between">
           <div>
             <div className="text-xl font-black tracking-tight text-text-primary uppercase">
-              TradeFlow Fasteners & Hardware Pvt. Ltd.
+              {CANONICAL_COMPANY_CONFIG.legalEntityName}
             </div>
             <div className="text-text-muted text-[11px] mt-1 space-y-0.5">
-              <div>Plot 14-B, Steel Market Yard, Kalamboli, Navi Mumbai, Maharashtra - 410218</div>
+              <div>{CANONICAL_COMPANY_CONFIG.registeredAddress.line1}, {CANONICAL_COMPANY_CONFIG.registeredAddress.city}, {CANONICAL_COMPANY_CONFIG.registeredAddress.state} - {CANONICAL_COMPANY_CONFIG.registeredAddress.pincode}</div>
               <div>
-                <strong>GSTIN:</strong> 27AABCT9981E1Z5 &nbsp;|&nbsp; <strong>PAN:</strong> AABCT9981E &nbsp;|&nbsp; <strong>State Code:</strong> 27 (Maharashtra)
+                <strong>GSTIN:</strong> {CANONICAL_COMPANY_CONFIG.gstin} &nbsp;|&nbsp; <strong>PAN:</strong> {CANONICAL_COMPANY_CONFIG.pan} &nbsp;|&nbsp; <strong>State Code:</strong> {CANONICAL_COMPANY_CONFIG.stateCode} ({CANONICAL_COMPANY_CONFIG.stateName})
               </div>
-              <div>Email: accounts@tradeflow.in &nbsp;|&nbsp; Contact: +91 22 2742 8899</div>
+              <div>Email: {CANONICAL_COMPANY_CONFIG.email} &nbsp;|&nbsp; Contact: {CANONICAL_COMPANY_CONFIG.phone}</div>
             </div>
           </div>
 
@@ -293,19 +306,19 @@ export default function InvoiceDetailPage() {
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
                 <div>
                   <span className="text-text-muted block font-sans">Beneficiary:</span>
-                  <span className="font-bold">TradeFlow Fasteners Pvt Ltd</span>
+                  <span className="font-bold">{CANONICAL_COMPANY_CONFIG.bankDetails.beneficiaryName}</span>
                 </div>
                 <div>
                   <span className="text-text-muted block font-sans">Bank Name:</span>
-                  <span>Yes Bank Ltd, Corporate Branch</span>
+                  <span>{CANONICAL_COMPANY_CONFIG.bankDetails.bankName}, {CANONICAL_COMPANY_CONFIG.bankDetails.branch}</span>
                 </div>
                 <div>
                   <span className="text-text-muted block font-sans">Account No:</span>
-                  <span className="font-bold text-brand-primary">00192830192839</span>
+                  <span className="font-bold text-brand-primary">{CANONICAL_COMPANY_CONFIG.bankDetails.accountNumber}</span>
                 </div>
                 <div>
                   <span className="text-text-muted block font-sans">IFSC Code:</span>
-                  <span className="font-bold">YESB0000019</span>
+                  <span className="font-bold">{CANONICAL_COMPANY_CONFIG.bankDetails.ifscCode}</span>
                 </div>
               </div>
             </div>
@@ -317,7 +330,7 @@ export default function InvoiceDetailPage() {
               <div className="text-[11px] space-y-0.5">
                 <div className="font-bold text-text-primary">Scan to Pay via UPI</div>
                 <div className="text-text-muted text-[10px]">
-                  UPI ID: <strong>tradeflow.ops@yesbank</strong>
+                  UPI ID: <strong>{CANONICAL_COMPANY_CONFIG.bankDetails.upiVpa}</strong>
                 </div>
                 <div className="text-text-muted text-[10px]">
                   Supports GPay, PhonePe, Paytm, BHIM & All Banks
@@ -365,7 +378,7 @@ export default function InvoiceDetailPage() {
 
           <div className="text-right space-y-8">
             <div className="font-bold text-text-primary">
-              For TradeFlow Fasteners & Hardware Pvt. Ltd.
+              For {CANONICAL_COMPANY_CONFIG.legalEntityName}
             </div>
             <div className="text-text-muted text-[10px] border-t border-border/80 pt-1 inline-block min-w-[200px]">
               Authorised Signatory

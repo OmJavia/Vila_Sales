@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Receipt, Download, FileText, CheckCircle, CreditCard, ArrowRight, Eye, Plus, Mail } from "lucide-react";
 import { INVOICES, Invoice } from "@/lib/data";
@@ -18,6 +18,24 @@ export default function InvoicesPage() {
   const [activePaymentInvoice, setActivePaymentInvoice] = useState<Invoice | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeEmailInvoice, setActiveEmailInvoice] = useState<Invoice | null>(null);
+
+  const fetchInvoices = async () => {
+    try {
+      const res = await fetch("/api/invoices");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.invoices) && data.invoices.length > 0) {
+          setInvoices(data.invoices);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load server invoices:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
 
   const filtered = invoices.filter((inv) => {
     const matchesSearch =
@@ -42,6 +60,7 @@ export default function InvoicesPage() {
       )
     );
     toast.success("Payment recorded successfully", `Invoice ${activePaymentInvoice.invoiceNo} marked as PAID`);
+    fetchInvoices();
   };
 
   const handleInvoiceCreated = (newInvoice: Invoice) => {
@@ -50,6 +69,7 @@ export default function InvoicesPage() {
       "Invoice Created Successfully",
       `Invoice ${newInvoice.invoiceNo} generated and emailed to omjavia18@gmail.com`
     );
+    fetchInvoices();
   };
 
   return (

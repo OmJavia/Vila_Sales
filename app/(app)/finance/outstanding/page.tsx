@@ -23,7 +23,7 @@ export default function OutstandingPage() {
 
   const handleWhatsAppReminder = (record: OutstandingRecord) => {
     const text = encodeURIComponent(
-      `Dear ${record.contactPerson}, Greetings from TradeFlow! This is a gentle reminder regarding your outstanding balance of ₹${record.totalOutstanding.toLocaleString(
+      `Dear ${record.contactPerson}, Greetings from Vila Sales! This is a gentle reminder regarding your outstanding balance of ₹${record.totalOutstanding.toLocaleString(
         "en-IN"
       )}. Kindly process the payment at your earliest convenience. Thank you!`
     );
