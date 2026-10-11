@@ -491,6 +491,8 @@ class ServerDatabase {
         rate,
         amount: Math.round(qtyOrdered * rate * 100) / 100,
         unit: item.unit,
+        hsnCode: item.hsnCode,
+        gstRate: item.gstRate,
       }));
 
       const gstCalc = calculateGST({
@@ -500,8 +502,8 @@ class ServerDatabase {
           itemName: line.itemName,
           qty: line.qtyOrdered,
           rate: line.rate,
-          gstRate: normalized.find((n) => n.item.id === line.itemId)?.item.gstRate,
-          hsnCode: normalized.find((n) => n.item.id === line.itemId)?.item.hsnCode,
+          gstRate: line.gstRate,
+          hsnCode: line.hsnCode,
         })),
         customerGstin: customer.gstin,
         customerStateCode: customer.stateCode,
@@ -788,8 +790,8 @@ class ServerDatabase {
           qty: input.qty,
           rate: orderedLine.rate,
           discountPct: 0,
-          hsnCode: item.hsnCode.trim(),
-          gstRate: item.gstRate,
+          hsnCode: orderedLine.hsnCode.trim(),
+          gstRate: orderedLine.gstRate,
         };
       });
 
