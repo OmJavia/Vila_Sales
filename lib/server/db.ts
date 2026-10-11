@@ -966,21 +966,19 @@ class ServerDatabase {
       }
       const targetGodown = item.godownStock.find((g) => g.godown === params.godown);
       if (!targetGodown) throw new Error("The selected warehouse is not configured for this item.");
-      if (params.physicalCount < (Number(item.reservedStock) || 0)) {
-        throw new Error("Physical stock cannot be lower than the quantity already reserved against orders.");
+      if (params.physicalCount < (Number(targetGodown.reserved) || 0)) {
+        throw new Error("Physical count for this warehouse cannot be lower than its reserved quantity.");
       }
 
       const seq = data.counters.adjSeq++;
       const adjNo = `ADJ-2026-${seq.toString().padStart(3, "0")}`;
-      const systemQty = item.stock;
+      // The physical count is for the selected warehouse, not the whole SKU across all godowns.
+      const systemQty = Number(targetGodown.physical) || 0;
       const difference = params.physicalCount - systemQty;
 
-      // Adjust master stock
-      item.stock = params.physicalCount;
-
-      // Adjust godown stock
-      targetGodown.physical = Math.max(0, targetGodown.physical + difference);
-      targetGodown.available = Math.max(0, targetGodown.physical - targetGodown.reserved);
+      targetGodown.physical = params.physicalCount;
+      targetGodown.available = Math.max(0, targetGodown.physical - (Number(targetGodown.reserved) || 0));
+      item.stock = Math.max(0, (Number(item.stock) || 0) + difference);
 
       // Ledger Entry
       data.stockMovements.unshift({
