@@ -166,7 +166,7 @@ export function calculateGST(params: {
       throw new Error(`Unsupported GST rate for item ${item.itemCode}. Correct the item master before invoicing.`);
     }
     const hsnCode = (item.hsnCode || "").trim();
-    if (!/^\\d{4,8}$/.test(hsnCode)) {
+    if (!/^\d{4,8}$/.test(hsnCode)) {
       throw new Error(`HSN code is missing or invalid for item ${item.itemCode}. Configure the verified product tax master before generating commercial documents.`);
     }
 
