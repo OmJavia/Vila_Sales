@@ -504,6 +504,10 @@ class ServerDatabase {
         throw new Error("Order exceeds the customer's available credit limit. Record/reconcile payments or obtain an authorised credit-limit change first.");
       }
 
+      const seq = data.counters.orderSeq++;
+      const orderNo = `SO-2026-${seq}`;
+      const orderId = `ORD-2026-${seq}`;
+
       // Only now reserve inventory and append ledger entries. A rejected order has no side effects.
       for (const line of normalized) {
         line.item.reservedStock = (Number(line.item.reservedStock) || 0) + line.qtyReserved;
@@ -520,25 +524,13 @@ class ServerDatabase {
             direction: "OUT",
             type: "ORDER_ALLOCATION",
             referenceType: "SO",
-            referenceId: "PENDING_ORDER",
-            reason: "Reserved for a new sales order",
+            referenceId: orderNo,
+            reason: `Reserved for Sales Order ${orderNo}`,
             actor: params.actor,
           });
         }
       }
 
-      const seq = data.counters.orderSeq++;
-      const orderNo = `SO-2026-${seq}`;
-      const orderId = `ORD-2026-${seq}`;
-
-      // Link this reservation ledger batch to the generated order number.
-      for (const movement of data.stockMovements) {
-        if (movement.referenceId === "PENDING_ORDER" && movement.actor === params.actor) {
-          movement.referenceId = orderNo;
-          movement.reason = `Reserved for Sales Order ${orderNo}`;
-          break;
-        }
-      }
 
       const newOrder: Order = {
         id: orderId,
