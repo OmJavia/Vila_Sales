@@ -3,7 +3,7 @@
  * Handles Place of Supply, CGST / SGST / IGST breakdown, decimal-safe rounding, and HSN validation.
  */
 
-import { CANONICAL_COMPANY_CONFIG, INDIAN_STATE_CODES, getStateCodeFromGstin } from "./companyConfig";
+import { CANONICAL_COMPANY_CONFIG, INDIAN_STATE_CODES, getStateCodeFromGstin, isValidGstin } from "./companyConfig";
 
 export interface GSTLineItemInput {
   itemId: string;
@@ -81,8 +81,11 @@ export function resolveCustomerStateCode(params: {
   stateCode?: string;
   stateName?: string;
 }): { stateCode: string; stateName: string } {
-  // 1. From GSTIN
+  // A supplied GSTIN is authoritative; never silently ignore an invalid one.
   if (params.gstin) {
+    if (!isValidGstin(params.gstin)) {
+      throw new Error("Customer GSTIN is invalid or fails its checksum. Correct the customer master before calculating GST.");
+    }
     const fromGst = getStateCodeFromGstin(params.gstin);
     if (fromGst) {
       return {
@@ -90,6 +93,7 @@ export function resolveCustomerStateCode(params: {
         stateName: INDIAN_STATE_CODES[fromGst] || "Unknown",
       };
     }
+    throw new Error("Customer GSTIN contains an unknown state code.");
   }
 
   // 2. From explicit stateCode (pad to 2 digits)
@@ -113,11 +117,7 @@ export function resolveCustomerStateCode(params: {
     }
   }
 
-  // Default to seller state (Maharashtra)
-  return {
-    stateCode: CANONICAL_COMPANY_CONFIG.stateCode,
-    stateName: CANONICAL_COMPANY_CONFIG.stateName,
-  };
+  throw new Error("Customer place of supply is missing or invalid. Provide a valid GSTIN, state code, or state name.");
 }
 
 /**
@@ -130,8 +130,12 @@ export function calculateGST(params: {
   customerStateName?: string;
   sellerStateCode?: string;
 }): GSTCalculationResult {
+  if (!isValidGstin(CANONICAL_COMPANY_CONFIG.gstin)) {
+    throw new Error("Seller GSTIN is missing or invalid. Configure the actual registered GSTIN before generating orders or invoices.");
+  }
   const sellerCode = params.sellerStateCode || CANONICAL_COMPANY_CONFIG.stateCode;
-  const sellerName = INDIAN_STATE_CODES[sellerCode] || CANONICAL_COMPANY_CONFIG.stateName;
+  const sellerName = INDIAN_STATE_CODES[sellerCode];
+  if (!sellerName) throw new Error("Seller state code is invalid.");
 
   const { stateCode: custCode, stateName: custName } = resolveCustomerStateCode({
     gstin: params.customerGstin,
@@ -157,7 +161,10 @@ export function calculateGST(params: {
     const discAmount = round2((gross * discPct) / 100);
     const taxable = round2(gross - discAmount);
 
-    const gstRate = item.gstRate !== undefined ? item.gstRate : 18; // default 18% if unspecified
+    const gstRate = item.gstRate !== undefined ? item.gstRate : 18;
+    if (![0, 5, 12, 18, 28].includes(gstRate)) {
+      throw new Error(`Unsupported GST rate for item ${item.itemCode}. Correct the item master before invoicing.`);
+    }
     let cgstRate = 0;
     let cgstAmount = 0;
     let sgstRate = 0;
