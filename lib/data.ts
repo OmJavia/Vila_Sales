@@ -79,6 +79,9 @@ export interface OrderItem {
   rate: number;
   amount: number;
   unit: string;
+  /** Product tax classification copied from the verified SKU master at order time. */
+  hsnCode?: string;
+  gstRate?: number;
 }
 
 export interface Order {
