@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
       return {
         ...c,
         outstandingAmount: actualOutstanding,
-        creditUsed: Math.min(c.creditLimit, actualOutstanding),
+        // Credit exposure is held at order creation and released only by cancellation/receipts;
+        // invoice-only balances would omit open orders that have not been invoiced yet.
+        creditUsed: Number(c.creditUsed) || 0,
       };
     });
 
