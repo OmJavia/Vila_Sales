@@ -40,13 +40,22 @@ async function readValidSession(token: string, secret: string): Promise<SessionP
       false,
       ["verify"]
     );
-    const validSignature = await crypto.subtle.verify(
+    // Recompute the base64url signature and compare the canonical representation.
+    // This keeps the Edge middleware token format byte-for-byte aligned with the
+    // Node-side crypto.createHmac(...).digest("base64url") implementation.
+    const expectedSignatureBytes = await crypto.subtle.sign(
       "HMAC",
       key,
-      decodeBase64Url(encodedSignature),
       new TextEncoder().encode(encodedPayload)
     );
-    if (!validSignature) return null;
+    const binarySignature = Array.from(new Uint8Array(expectedSignatureBytes))
+      .map((byte) => String.fromCharCode(byte))
+      .join("");
+    const expectedSignature = btoa(binarySignature)
+      .replace(/\\+/g, "-")
+      .replace(/\\//g, "_")
+      .replace(/=+$/g, "");
+    if (expectedSignature !== encodedSignature) return null;
 
     const payload = JSON.parse(new TextDecoder().decode(decodeBase64Url(encodedPayload))) as SessionPayload;
     if (
