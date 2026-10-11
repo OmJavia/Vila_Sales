@@ -6,7 +6,6 @@
 
 import crypto from "crypto";
 import { CANONICAL_COMPANY_CONFIG } from "./companyConfig";
-import { generateQrSvg } from "./qrGenerator";
 
 export type PaymentRail = "UPI_QR" | "UPI_INTENT" | "RAZORPAY" | "CASHFREE" | "NEFT_RTGS" | "COD";
 
@@ -60,16 +59,29 @@ export function buildUpiPaymentUri(params: {
   vpa?: string;
   payeeName?: string;
 }): string {
-  const vpa = params.vpa || CANONICAL_COMPANY_CONFIG.banking.upiVpa;
-  const payeeName = params.payeeName || CANONICAL_COMPANY_CONFIG.banking.upiQrPayeeName;
-  const note = params.note || `Payment for ${params.orderNumber || params.orderId}`;
-  const amountStr = params.amount.toFixed(2);
-  const txnRef = params.orderId.replace(/[^a-zA-Z0-9]/g, "");
+  const vpa = (params.vpa || CANONICAL_COMPANY_CONFIG.banking.upiVpa || "").trim();
+  const payeeName = (params.payeeName || CANONICAL_COMPANY_CONFIG.banking.upiQrPayeeName || "").trim();
+  if (!Number.isFinite(params.amount) || params.amount <= 0 || Math.round(params.amount * 100) !== params.amount * 100) {
+    throw new Error("A valid positive INR amount with no more than two decimals is required.");
+  }
+  if (typeof params.orderId !== "string" || !params.orderId.trim() || params.orderId.length > 100) {
+    throw new Error("A persisted order reference is required for a payment URI.");
+  }
+  if (!/^[A-Za-z0-9._-]{2,128}@[A-Za-z0-9.-]{2,64}$/.test(vpa)) {
+    throw new Error("A verified UPI VPA must be configured before creating a payment URI.");
+  }
+  if (!payeeName || payeeName.length > 100) {
+    throw new Error("A verified payee name must be configured before creating a payment URI.");
+  }
+
+  const note = (params.note || `Payment for ${params.orderNumber || params.orderId}`).slice(0, 80);
+  const txnRef = params.orderId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 35);
+  if (!txnRef) throw new Error("The order reference cannot be represented as a UPI transaction reference.");
 
   const query = new URLSearchParams({
     pa: vpa,
     pn: payeeName,
-    am: amountStr,
+    am: params.amount.toFixed(2),
     tr: txnRef,
     tn: note,
     cu: "INR",
@@ -79,17 +91,17 @@ export function buildUpiPaymentUri(params: {
 }
 
 /**
- * Generates dynamic, order-linked UPI QR SVG
+ * Disabled until the QR encoder is replaced with a vetted implementation and
+ * generated images pass independent decoding tests. Never render a hand-rolled
+ * QR matrix on an invoice or payment page.
  */
-export function generateDynamicUpiQr(params: {
+export function generateDynamicUpiQr(_params: {
   amount: number;
   orderId: string;
   orderNumber?: string;
   note?: string;
 }): { upiUri: string; qrSvg: string } {
-  const upiUri = buildUpiPaymentUri(params);
-  const qrSvg = generateQrSvg(upiUri, 280);
-  return { upiUri, qrSvg };
+  throw new Error("UPI QR generation is disabled until a vetted encoder and end-to-end payment reconciliation are configured.");
 }
 
 /**
@@ -112,10 +124,9 @@ export function verifyRazorpaySignature(params: {
     .update(`${params.orderId}|${params.paymentId}`)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, "utf-8"),
-    Buffer.from(params.signature, "utf-8")
-  );
+  const expected = Buffer.from(generatedSignature, "utf-8");
+  const actual = Buffer.from(params.signature || "", "utf-8");
+  return actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
 }
 
 /**
@@ -137,10 +148,9 @@ export function verifyRazorpayWebhookSignature(params: {
     .update(params.body)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, "utf-8"),
-    Buffer.from(params.signature, "utf-8")
-  );
+  const expected = Buffer.from(generatedSignature, "utf-8");
+  const actual = Buffer.from(params.signature || "", "utf-8");
+  return actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
 }
 
 /**
@@ -161,10 +171,9 @@ export function verifyCashfreeSignature(params: {
     .update(data)
     .digest("base64");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, "utf-8"),
-    Buffer.from(params.signature, "utf-8")
-  );
+  const expected = Buffer.from(generatedSignature, "utf-8");
+  const actual = Buffer.from(params.signature || "", "utf-8");
+  return actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
 }
 
 /**

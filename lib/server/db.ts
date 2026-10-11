@@ -9,8 +9,7 @@ import fs from "fs";
 import path from "path";
 import { CANONICAL_COMPANY_CONFIG, CompanyConfig } from "../companyConfig";
 import { calculateGST } from "../gstService";
-import { MIDAS_ITEMS } from "../midasData";
-import { CUSTOMERS, SUPPLIERS, Item, Customer, Supplier, Order, Invoice, StockMovement } from "../data";
+import { Item, Customer, Supplier, Order, Invoice, StockMovement } from "../data";
 
 export type Role = "ADMIN" | "SALES" | "ACCOUNTS" | "WAREHOUSE" | "DISPATCH" | "BUYER";
 
@@ -61,6 +60,8 @@ export interface StockAdjustmentRecord {
 
 export interface SalesReturnRecord {
   id: string;
+  itemId?: string;
+  qty?: number;
   cnNo: string;
   date: string;
   orderNo: string;
@@ -187,185 +188,48 @@ const DB_FILE = path.join(DATA_DIR, "vilasales-db.json");
  * Seed data generator
  */
 function getInitialSeedData(): DatabaseSchema {
-  const initialItems: Item[] = (MIDAS_ITEMS && MIDAS_ITEMS.length > 0)
-    ? MIDAS_ITEMS.slice(0, 120) // Seed top 120 Midas Rubber SKU items
-    : [];
-
-  const initialCustomers: Customer[] = CUSTOMERS.map((c) => ({
-    ...c,
-    state: c.state || (c.stateCode === "27" ? "Maharashtra" : "Gujarat"),
-    stateCode: c.stateCode || "27",
-    billingAddress: c.billingAddress || `${c.city}, Maharashtra, India`,
-  }));
-
-  const initialUsers: UserAccount[] = [
-    {
-      id: "usr-admin",
-      name: "Amit Sharma",
-      email: "amit@vilasales.in",
-      passwordHash: "demo1234", // in real production compare with scrypt/argon2
-      role: "ADMIN",
-      phone: "+91 98201 12345",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-    {
-      id: "usr-sales",
-      name: "Priya Nair",
-      email: "priya@vilasales.in",
-      passwordHash: "demo1234",
-      role: "SALES",
-      phone: "+91 98201 54321",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-    {
-      id: "usr-accounts",
-      name: "Raju Merchant",
-      email: "raju@vilasales.in",
-      passwordHash: "demo1234",
-      role: "ACCOUNTS",
-      phone: "+91 98201 67890",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-    {
-      id: "usr-warehouse",
-      name: "Suresh Patil",
-      email: "warehouse@vilasales.in",
-      passwordHash: "demo1234",
-      role: "WAREHOUSE",
-      phone: "+91 98201 99887",
-      isActive: true,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-  ];
-
-  const initialOrders: Order[] = [
-    {
-      id: "ORD-2026-1048",
-      orderNo: "SO-2026-1048",
-      customerId: "C001",
-      customerName: "ABC Industries Pvt. Ltd.",
-      status: "ALLOCATED",
-      priority: "HIGH",
-      orderDate: "2026-09-28",
-      deliveryDate: "2026-10-02",
-      items: [
-        {
-          itemId: initialItems[0]?.id || "MIDAS-101",
-          itemCode: initialItems[0]?.code || "MDS-BG-FC99",
-          itemName: initialItems[0]?.name || "MIDAS BONDING GUM - FAST CURE 99°C",
-          qtyOrdered: 20,
-          qtyAvailable: 160,
-          qtyReserved: 20,
-          qtyAllocated: 20,
-          qtyShort: 0,
-          rate: initialItems[0]?.price || 3450,
-          amount: 69000,
-          unit: "Roll",
-        },
-      ],
-      totalAmount: 81420,
-      notes: "Urgent batch required for Kalyan Tyre Retreaders depot",
-      assignedTo: "Amit Sharma",
-      createdBy: "Priya Nair",
-      workflow: [
-        { id: "wf-1", label: "Order Created", status: "COMPLETED", completedAt: "2026-09-28", completedBy: "Priya Nair" },
-        { id: "wf-2", label: "Credit & Stock Approved", status: "COMPLETED", completedAt: "2026-09-28", completedBy: "Amit Sharma" },
-        { id: "wf-3", label: "Stock Reserved in Bhiwandi", status: "COMPLETED", completedAt: "2026-09-29", completedBy: "Suresh Patil" },
-      ],
-    },
-  ];
-
-  const initialInvoices: Invoice[] = [
-    {
-      id: "INV-1044",
-      invoiceNo: "VS/26-27/0044",
-      orderNo: "SO-2026-1044",
-      customerId: "C001",
-      customerName: "ABC Industries Pvt. Ltd.",
-      customerGstin: "27AABCA1234A1Z5",
-      customerAddress: "Plot C-12, MIDC Andheri East, Mumbai, MH - 400093",
-      customerCity: "Mumbai",
-      customerState: "Maharashtra",
-      customerStateCode: "27",
-      invoiceDate: "2026-09-26",
-      dueDate: "2026-10-11",
-      placeOfSupply: "27 - Maharashtra",
-      ewayBillNo: "241828901234",
-      vehicleNo: "MH-04-G-4412",
-      transporter: "V-Trans Logistics",
-      taxableAmount: 114000,
-      cgst: 10260,
-      sgst: 10260,
-      igst: 0,
-      totalAmount: 134520,
-      paymentStatus: "PENDING",
-      amountReceived: 0,
-      items: [
-        {
-          id: "LI-1",
-          itemCode: "MDS-BG-FC99",
-          itemName: "MIDAS BONDING GUM - FAST CURE 99°C",
-          hsnCode: "40082100",
-          qty: 30,
-          unit: "Roll",
-          rate: 3450,
-          discountPct: 0,
-          taxableAmount: 103500,
-          gstRate: 18,
-          cgstAmount: 9315,
-          sgstAmount: 9315,
-          igstAmount: 0,
-          totalAmount: 122130,
-        },
-      ],
-    },
-  ];
-
-  const initialMovements: StockLedgerEntry[] = [
-    {
-      id: "MOV-001",
-      timestamp: "2026-09-28T10:00:00.000Z",
-      itemId: "MIDAS-101",
-      itemCode: "MDS-BG-FC99",
-      itemName: "MIDAS BONDING GUM - FAST CURE 99°C",
-      godown: "Main Warehouse (Bhiwandi Logistics Hub)",
-      changeQty: -20,
-      balanceAfter: 140,
-      direction: "OUT",
-      type: "ORDER_ALLOCATION",
-      referenceType: "SO",
-      referenceId: "SO-2026-1048",
-      reason: "Reserved for Sales Order SO-2026-1048",
-      actor: "Suresh Patil",
-    },
-  ];
+  // Never recreate mock customers, invoices, UTRs, credit balances or stock counts
+  // when the local store is empty. Business masters must be imported from verified
+  // company records after a durable database is configured.
+  const bootstrapEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const bootstrapPasswordHash = process.env.ADMIN_PASSWORD_HASH?.trim();
+  const users: UserAccount[] =
+    bootstrapEmail && bootstrapPasswordHash?.startsWith("scrypt$")
+      ? [{
+          id: "usr-admin-bootstrap",
+          name: process.env.ADMIN_NAME?.trim() || "Administrator",
+          email: bootstrapEmail,
+          passwordHash: bootstrapPasswordHash,
+          role: "ADMIN",
+          phone: process.env.ADMIN_PHONE || "",
+          isActive: true,
+          createdAt: new Date().toISOString(),
+        }]
+      : [];
 
   return {
     settings: CANONICAL_COMPANY_CONFIG,
-    users: initialUsers,
-    items: initialItems,
-    customers: initialCustomers,
-    suppliers: SUPPLIERS || [],
-    orders: initialOrders,
-    invoices: initialInvoices,
-    stockMovements: initialMovements,
+    users,
+    items: [],
+    customers: [],
+    suppliers: [],
+    orders: [],
+    invoices: [],
+    stockMovements: [],
     adjustments: [],
     returns: [],
     quotations: [],
     goodsReceipts: [],
     receipts: [],
     counters: {
-      orderSeq: 1049,
-      invoiceSeq: 45,
-      challanSeq: 22,
-      quoteSeq: 15,
-      grnSeq: 12,
-      adjSeq: 5,
-      cnSeq: 8,
-      receiptSeq: 30,
+      orderSeq: 1,
+      invoiceSeq: 1,
+      challanSeq: 1,
+      quoteSeq: 1,
+      grnSeq: 1,
+      adjSeq: 1,
+      cnSeq: 1,
+      receiptSeq: 1,
     },
   };
 }
@@ -383,35 +247,57 @@ class ServerDatabase {
     }
   }
 
+  /**
+   * The JSON adapter is for local development only. Vercel/serverless deployments
+   * need a managed transactional database shared by all instances. Fail closed
+   * rather than serving seed data or claiming writes were persisted.
+   */
+  private assertLocalStorageOnly() {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "Persistent storage is not configured. The JSON-file adapter is development-only; configure a shared transactional database before production use."
+      );
+    }
+  }
+
   public read(): DatabaseSchema {
-    if (this.cache) return this.cache;
+    this.assertLocalStorageOnly();
+    if (this.cache) return structuredClone(this.cache);
 
     this.ensureDir();
     if (fs.existsSync(DB_FILE)) {
       try {
         const raw = fs.readFileSync(DB_FILE, "utf-8");
-        this.cache = JSON.parse(raw);
-        return this.cache!;
+        const parsed = JSON.parse(raw) as DatabaseSchema;
+        if (!parsed || !Array.isArray(parsed.users) || !Array.isArray(parsed.items)) {
+          throw new Error("Database file has an invalid shape");
+        }
+        this.cache = parsed;
+        return structuredClone(parsed);
       } catch (err) {
-        console.error("Failed to read database file, seeding default:", err);
+        console.error("Failed to read database file:", err);
+        throw new Error("Local database could not be read safely. Restore a valid backup before continuing.");
       }
     }
 
     const seeded = getInitialSeedData();
     this.write(seeded);
-    this.cache = seeded;
-    return seeded;
+    return structuredClone(seeded);
   }
 
   public write(data: DatabaseSchema): void {
-    this.cache = data;
+    this.assertLocalStorageOnly();
     this.ensureDir();
+    const tmpFile = `${DB_FILE}.tmp.${Date.now()}`;
     try {
-      const tmpFile = `${DB_FILE}.tmp.${Date.now()}`;
-      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
+      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), { encoding: "utf-8", mode: 0o600 });
       fs.renameSync(tmpFile, DB_FILE);
+      // Publish to memory only after the disk write succeeds.
+      this.cache = structuredClone(data);
     } catch (err) {
-      console.error("Failed to durably write to database file:", err);
+      try { if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile); } catch { /* best-effort cleanup */ }
+      console.error("Failed to persist local database:", err);
+      throw new Error("The transaction was not persisted. No success should be reported until storage succeeds.");
     }
   }
 
@@ -420,7 +306,7 @@ class ServerDatabase {
   public async transaction<T>(callback: (db: DatabaseSchema) => Promise<T> | T): Promise<T> {
     const release = await acquireLock();
     try {
-      const data = this.read();
+      const data = structuredClone(this.read());
       const result = await callback(data);
       this.write(data);
       return result;
@@ -442,35 +328,98 @@ class ServerDatabase {
     return this.transaction((data) => {
       const customer = data.customers.find((c) => c.id === params.customerId);
       if (!customer) throw new Error("Customer not found");
+      if (!Array.isArray(params.items) || params.items.length < 1 || params.items.length > 100) {
+        throw new Error("An order must contain between 1 and 100 line items.");
+      }
+
+      // Validate all line items before mutating stock or sequence counters.
+      const seenItems = new Set<string>();
+      const normalized = params.items.map((input) => {
+        if (!input || typeof input.itemId !== "string" || !input.itemId.trim()) {
+          throw new Error("Each order line must reference a valid catalogue item.");
+        }
+        if (!Number.isSafeInteger(input.qty) || input.qty <= 0 || input.qty > 100000) {
+          throw new Error("Quantity must be a positive whole number no greater than 100,000.");
+        }
+        const requestedKey = input.itemId.trim();
+        if (seenItems.has(requestedKey)) {
+          throw new Error("Duplicate catalogue items are not accepted; combine their quantities into one line.");
+        }
+        seenItems.add(requestedKey);
+
+        const item = data.items.find((candidate) => candidate.id === requestedKey || candidate.code === requestedKey);
+        if (!item) throw new Error(`Item ${requestedKey} not found in catalog`);
+        const rate = Number(item.price);
+        if (!Number.isFinite(rate) || rate < 0) {
+          throw new Error(`Catalogue price is invalid for item ${item.code}; correct the item master before ordering.`);
+        }
+        if (![0, 5, 12, 18, 28].includes(item.gstRate as number)) {
+          throw new Error(`GST rate is missing or invalid for item ${item.code}; configure the verified product tax master before ordering.`);
+        }
+        if (typeof item.hsnCode !== "string" || !/^\d{4,8}$/.test(item.hsnCode.trim())) {
+          throw new Error(`HSN code is missing or invalid for item ${item.code}; configure the verified product tax master before ordering.`);
+        }
+        const stock = Number(item.stock) || 0;
+        const reservedStock = Number(item.reservedStock) || 0;
+        const available = Math.max(0, stock - reservedStock);
+        const qtyReserved = Math.min(input.qty, available);
+        return { item, qtyOrdered: input.qty, rate, available, qtyReserved };
+      });
+
+      const orderItems = normalized.map(({ item, qtyOrdered, rate, available, qtyReserved }) => ({
+        itemId: item.id,
+        itemCode: item.code,
+        itemName: item.name,
+        qtyOrdered,
+        qtyAvailable: available,
+        qtyReserved,
+        qtyAllocated: qtyReserved,
+        qtyShort: Math.max(0, qtyOrdered - available),
+        rate,
+        amount: Math.round(qtyOrdered * rate * 100) / 100,
+        unit: item.unit,
+        hsnCode: item.hsnCode,
+        gstRate: item.gstRate,
+      }));
+
+      const gstCalc = calculateGST({
+        items: orderItems.map((line) => ({
+          itemId: line.itemId,
+          itemCode: line.itemCode,
+          itemName: line.itemName,
+          qty: line.qtyOrdered,
+          rate: line.rate,
+          gstRate: line.gstRate,
+          hsnCode: line.hsnCode,
+        })),
+        customerGstin: customer.gstin,
+        customerStateCode: customer.stateCode,
+        customerStateName: customer.state,
+      });
+
+      const currentlyUsed = Number(customer.creditUsed) || 0;
+      const limit = Number(customer.creditLimit);
+      if (!Number.isFinite(limit) || limit < 0 || currentlyUsed + gstCalc.grandTotal > limit) {
+        throw new Error("Order exceeds the customer's available credit limit. Record/reconcile payments or obtain an authorised credit-limit change first.");
+      }
 
       const seq = data.counters.orderSeq++;
       const orderNo = `SO-2026-${seq}`;
       const orderId = `ORD-2026-${seq}`;
 
-      const orderItems = params.items.map((it) => {
-        const item = data.items.find((i) => i.id === it.itemId || i.code === it.itemId);
-        if (!item) throw new Error(`Item ${it.itemId} not found in catalog`);
-
-        const rate = it.rate !== undefined ? it.rate : item.price;
-        const available = Math.max(0, item.stock - item.reservedStock);
-        const qtyOrdered = it.qty;
-        const qtyReserved = Math.min(qtyOrdered, available);
-        const qtyShort = Math.max(0, qtyOrdered - available);
-
-        // Atomically reserve stock in inventory
-        item.reservedStock += qtyReserved;
-
-        // Record stock movement ledger entry if reserved
-        if (qtyReserved > 0) {
+      // Only now reserve inventory and append ledger entries. A rejected order has no side effects.
+      for (const line of normalized) {
+        line.item.reservedStock = (Number(line.item.reservedStock) || 0) + line.qtyReserved;
+        if (line.qtyReserved > 0) {
           data.stockMovements.unshift({
             id: `MOV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
             timestamp: new Date().toISOString(),
-            itemId: item.id,
-            itemCode: item.code,
-            itemName: item.name,
-            godown: item.godownStock[0]?.godown || "Main Warehouse (Bhiwandi Logistics Hub)",
-            changeQty: -qtyReserved,
-            balanceAfter: item.stock - item.reservedStock,
+            itemId: line.item.id,
+            itemCode: line.item.code,
+            itemName: line.item.name,
+            godown: line.item.godownStock?.[0]?.godown || "Main Warehouse",
+            changeQty: -line.qtyReserved,
+            balanceAfter: (Number(line.item.stock) || 0) - line.item.reservedStock,
             direction: "OUT",
             type: "ORDER_ALLOCATION",
             referenceType: "SO",
@@ -479,35 +428,8 @@ class ServerDatabase {
             actor: params.actor,
           });
         }
+      }
 
-        return {
-          itemId: item.id,
-          itemCode: item.code,
-          itemName: item.name,
-          qtyOrdered,
-          qtyAvailable: available,
-          qtyReserved,
-          qtyAllocated: qtyReserved,
-          qtyShort,
-          rate,
-          amount: Math.round(qtyOrdered * rate),
-          unit: item.unit,
-        };
-      });
-
-      // Calculate GST
-      const gstCalc = calculateGST({
-        items: orderItems.map((oi) => ({
-          itemId: oi.itemId,
-          itemCode: oi.itemCode,
-          itemName: oi.itemName,
-          qty: oi.qtyOrdered,
-          rate: oi.rate,
-        })),
-        customerGstin: customer.gstin,
-        customerStateCode: customer.stateCode,
-        customerStateName: customer.state,
-      });
 
       const newOrder: Order = {
         id: orderId,
@@ -523,22 +445,18 @@ class ServerDatabase {
         notes: params.notes || "",
         assignedTo: params.actor,
         createdBy: params.actor,
-        workflow: [
-          {
-            id: `wf-${Date.now()}`,
-            label: "Order Created & Confirmed",
-            status: "COMPLETED",
-            completedAt: new Date().toISOString().split("T")[0],
-            completedBy: params.actor,
-          },
-        ],
+        workflow: [{
+          id: `wf-${Date.now()}`,
+          label: "Order Created & Confirmed",
+          status: "COMPLETED",
+          completedAt: new Date().toISOString().split("T")[0],
+          completedBy: params.actor,
+        }],
       };
 
-      // Update customer credit & order count
       customer.totalOrders = (customer.totalOrders || 0) + 1;
       customer.lastOrderDate = newOrder.orderDate;
-      customer.creditUsed = Math.min(customer.creditLimit, customer.creditUsed + newOrder.totalAmount);
-
+      customer.creditUsed = currentlyUsed + newOrder.totalAmount;
       data.orders.unshift(newOrder);
       return newOrder;
     });
@@ -555,6 +473,48 @@ class ServerDatabase {
       if (!order) throw new Error("Order not found");
 
       const prevStatus = order.status;
+      if (newStatus === "INVOICED" || newStatus === "PAYMENT_DONE") {
+        throw new Error("Invoice and payment statuses are controlled by invoice creation and reconciled receipts, not manual order-status edits.");
+      }
+
+      const transitions: Record<Order["status"], Order["status"][]> = {
+        DRAFT: ["CONFIRMED", "CANCELLED"],
+        CONFIRMED: ["STOCK_CHECK", "PURCHASE_REQUIRED", "CANCELLED"],
+        STOCK_CHECK: ["ALLOCATED", "PURCHASE_REQUIRED", "CANCELLED"],
+        PURCHASE_REQUIRED: ["STOCK_CHECK", "CANCELLED"],
+        ALLOCATED: ["VERIFIED", "CANCELLED"],
+        VERIFIED: ["CHALLAN_READY", "CANCELLED"],
+        CHALLAN_READY: ["DISPATCHED", "CANCELLED"],
+        DISPATCHED: [],
+        INVOICED: [],
+        PAYMENT_DONE: ["CLOSED"],
+        CLOSED: [],
+        CANCELLED: [],
+      };
+      if (prevStatus === newStatus || !transitions[prevStatus].includes(newStatus)) {
+        throw new Error(`Invalid order transition from ${prevStatus} to ${newStatus}.`);
+      }
+
+      if (newStatus === "DISPATCHED") {
+        const notReady = order.items.find((line) => {
+          const inventoryItem = data.items.find((item) => item.id === line.itemId || item.code === line.itemCode);
+          return !inventoryItem ||
+            line.qtyReserved < line.qtyOrdered ||
+            inventoryItem.stock < line.qtyOrdered ||
+            inventoryItem.reservedStock < line.qtyOrdered;
+        });
+        if (notReady) {
+          throw new Error(`Cannot dispatch ${order.orderNo}: SKU ${notReady.itemCode} is not fully reserved and available.`);
+        }
+      }
+
+      if (newStatus === "CLOSED") {
+        const linkedInvoices = data.invoices.filter((invoice) => invoice.orderNo === order.orderNo);
+        if (prevStatus !== "PAYMENT_DONE" || linkedInvoices.length === 0 || linkedInvoices.some((invoice) => invoice.paymentStatus !== "PAID")) {
+          throw new Error("An order can only be closed after all linked invoices are fully paid and reconciled.");
+        }
+      }
+
       order.status = newStatus;
 
       order.workflow.push({
@@ -660,53 +620,115 @@ class ServerDatabase {
       const customer = data.customers.find((c) => c.id === params.customerId);
       if (!customer) throw new Error("Customer not found");
 
-      const seq = data.counters.invoiceSeq++;
-      const invoiceNo = `VS/26-27/${seq.toString().padStart(4, "0")}`;
-      const invoiceId = `INV-${seq}`;
+      const order = data.orders.find((candidate) =>
+        candidate.orderNo === params.orderNo || candidate.id === params.orderNo
+      );
+      if (!order) throw new Error("Invoice must reference a real sales order. Direct or fabricated invoices are not accepted.");
+      if (order.customerId !== customer.id) throw new Error("The invoice customer does not match the sales order customer.");
+      if (order.status === "CANCELLED") throw new Error("A cancelled order cannot be invoiced.");
+
+      if (!Array.isArray(params.items) || params.items.length < 1 || params.items.length > 100) {
+        throw new Error("An invoice must contain between 1 and 100 line items.");
+      }
+
+      const previouslyInvoiced = new Map<string, number>();
+      for (const existing of data.invoices.filter((invoice) => invoice.orderNo === order.orderNo)) {
+        for (const line of existing.items || []) {
+          previouslyInvoiced.set(
+            line.itemCode,
+            (previouslyInvoiced.get(line.itemCode) || 0) + Number(line.qty || 0)
+          );
+        }
+      }
+
+      const seenCodes = new Set<string>();
+      const normalizedItems = params.items.map((input) => {
+        const key = typeof input.itemCode === "string" ? input.itemCode.trim() : "";
+        if (!key) throw new Error("Each invoice line must reference a catalogue item.");
+        if (seenCodes.has(key)) throw new Error("Duplicate invoice items are not accepted; combine quantities.");
+        seenCodes.add(key);
+        if (!Number.isSafeInteger(input.qty) || input.qty <= 0 || input.qty > 100000) {
+          throw new Error("Invoice quantity must be a positive whole number no greater than 100,000.");
+        }
+
+        const orderedLine = order.items.find((line) => line.itemCode === key || line.itemId === key);
+        if (!orderedLine) throw new Error(`Item ${key} was not ordered on ${order.orderNo}.`);
+        const qtyAlreadyInvoiced = previouslyInvoiced.get(orderedLine.itemCode) || 0;
+        if (qtyAlreadyInvoiced + input.qty > orderedLine.qtyOrdered) {
+          throw new Error(`Invoice quantity for ${orderedLine.itemCode} exceeds the uninvoiced order balance.`);
+        }
+
+        const item = data.items.find((candidate) => candidate.code === orderedLine.itemCode || candidate.id === orderedLine.itemId);
+        if (!item) throw new Error(`Item ${orderedLine.itemCode} is missing from the current item master.`);
+        if (!Number.isFinite(orderedLine.rate) || orderedLine.rate < 0) {
+          throw new Error(`The stored order rate for ${orderedLine.itemCode} is invalid.`);
+        }
+        if (typeof orderedLine.gstRate !== "number" || ![0, 5, 12, 18, 28].includes(orderedLine.gstRate)) {
+          throw new Error(`Stored order GST rate is missing or invalid for item ${item.code}; legacy orders must be corrected before invoicing.`);
+        }
+        if (typeof orderedLine.hsnCode !== "string" || !/^\d{4,8}$/.test(orderedLine.hsnCode.trim())) {
+          throw new Error(`Stored order HSN is missing or invalid for item ${item.code}; legacy orders must be corrected before invoicing.`);
+        }
+
+        return {
+          itemId: item.id,
+          itemCode: item.code,
+          itemName: item.name,
+          qty: input.qty,
+          rate: orderedLine.rate,
+          discountPct: 0,
+          hsnCode: orderedLine.hsnCode.trim(),
+          gstRate: orderedLine.gstRate,
+        };
+      });
 
       const gst = calculateGST({
-        items: params.items.map((it) => ({
-          itemId: it.itemCode,
-          itemCode: it.itemCode,
-          itemName: it.itemName,
-          qty: it.qty,
-          rate: it.rate,
-          discountPct: it.discountPct || 0,
-          hsnCode: it.hsnCode || "40082100",
+        items: normalizedItems.map((item) => ({
+          itemId: item.itemId,
+          itemCode: item.itemCode,
+          itemName: item.itemName,
+          qty: item.qty,
+          rate: item.rate,
+          discountPct: item.discountPct,
+          hsnCode: item.hsnCode,
+          gstRate: item.gstRate,
         })),
         customerGstin: customer.gstin,
         customerStateCode: customer.stateCode,
         customerStateName: customer.state,
       });
 
-      const fullLineItems = gst.lineItems.map((li, idx) => ({
-        id: `LI-${idx + 1}`,
-        itemCode: li.itemCode,
-        itemName: li.itemName,
-        hsnCode: li.hsnCode,
-        qty: li.qty,
-        unit: "Roll",
-        rate: li.rate,
-        discountPct: li.discountPct,
-        taxableAmount: li.taxableAmount,
-        gstRate: li.gstRate,
-        cgstAmount: li.cgstAmount,
-        sgstAmount: li.sgstAmount,
-        igstAmount: li.igstAmount,
-        totalAmount: li.totalAmount,
+      const fullLineItems = gst.lineItems.map((line, index) => ({
+        id: `LI-${index + 1}`,
+        itemCode: line.itemCode,
+        itemName: line.itemName,
+        hsnCode: line.hsnCode,
+        qty: line.qty,
+        unit: data.items.find((item) => item.code === line.itemCode)?.unit || "Unit",
+        rate: line.rate,
+        discountPct: line.discountPct,
+        taxableAmount: line.taxableAmount,
+        gstRate: line.gstRate,
+        cgstAmount: line.cgstAmount,
+        sgstAmount: line.sgstAmount,
+        igstAmount: line.igstAmount,
+        totalAmount: line.totalAmount,
       }));
 
+      const seq = data.counters.invoiceSeq++;
+      const invoiceNo = `VS/26-27/${seq.toString().padStart(4, "0")}`;
+      const invoiceId = `INV-${seq}`;
       const newInvoice: Invoice = {
         id: invoiceId,
         invoiceNo,
-        orderNo: params.orderNo,
+        orderNo: order.orderNo,
         customerId: customer.id,
         customerName: customer.name,
         customerGstin: customer.gstin,
         customerAddress: customer.billingAddress || `${customer.city}, ${customer.state}`,
         customerCity: customer.city,
-        customerState: customer.state || "Maharashtra",
-        customerStateCode: customer.stateCode || "27",
+        customerState: customer.state || "",
+        customerStateCode: customer.stateCode || "",
         invoiceDate: new Date().toISOString().split("T")[0],
         dueDate: new Date(Date.now() + (customer.paymentTerms || 30) * 86400000).toISOString().split("T")[0],
         placeOfSupply: gst.placeOfSupply,
@@ -723,10 +745,16 @@ class ServerDatabase {
         items: fullLineItems,
       };
 
-      // Add to customer's outstanding balance
       customer.outstandingAmount = (customer.outstandingAmount || 0) + gst.grandTotal;
-
       data.invoices.unshift(newInvoice);
+
+      const allOrderLinesInvoiced = order.items.every((orderLine) => {
+        const prior = previouslyInvoiced.get(orderLine.itemCode) || 0;
+        const current = normalizedItems.find((line) => line.itemCode === orderLine.itemCode)?.qty || 0;
+        return prior + current >= orderLine.qtyOrdered;
+      });
+      if (allOrderLinesInvoiced) order.status = "INVOICED";
+
       return newInvoice;
     });
   }
@@ -743,33 +771,71 @@ class ServerDatabase {
       const invoice = data.invoices.find((i) => i.id === params.invoiceId || i.invoiceNo === params.invoiceId);
       if (!invoice) throw new Error("Invoice not found");
 
-      const customer = data.customers.find((c) => c.id === invoice.customerId);
-      const seq = data.counters.receiptSeq++;
-      const receiptNo = `RCT-26-27/${seq.toString().padStart(4, "0")}`;
+      const amount = Number(params.amount);
+      const amountRounded = Math.round(amount * 100) / 100;
+      if (!Number.isFinite(amount) || amount <= 0 || Math.abs(amount - amountRounded) > 0.000001) {
+        throw new Error("Payment amount must be a positive valid INR amount with no more than two decimal places.");
+      }
 
-      invoice.amountReceived = Math.min(invoice.totalAmount, (invoice.amountReceived || 0) + params.amount);
+      const transactionRef = typeof params.transactionRef === "string" ? params.transactionRef.trim() : "";
+      if (transactionRef.length < 3 || transactionRef.length > 120) {
+        throw new Error("A valid payment reference is required.");
+      }
+      const referenceKey = transactionRef.toLowerCase();
+      if (data.receipts.some((receipt) => (receipt.transactionRef || "").trim().toLowerCase() === referenceKey)) {
+        throw new Error("This transaction reference has already been recorded. Duplicate payments are blocked.");
+      }
+
+      const validModes: PaymentReceiptRecord["paymentMode"][] = ["UPI", "NEFT_RTGS", "CHEQUE", "GATEWAY_CARD", "CASH"];
+      if (!validModes.includes(params.paymentMode)) throw new Error("Unsupported payment mode.");
+
+      const amountReceived = Number(invoice.amountReceived) || 0;
+      const outstanding = Math.round(Math.max(0, invoice.totalAmount - amountReceived) * 100) / 100;
+      if (outstanding <= 0) throw new Error("This invoice is already fully paid.");
+      if (amount > outstanding + 0.000001) {
+        throw new Error(`Payment exceeds the outstanding invoice balance of ₹${outstanding.toFixed(2)}.`);
+      }
+
+      const customer = data.customers.find((c) => c.id === invoice.customerId);
+      invoice.amountReceived = Math.round((amountReceived + amount) * 100) / 100;
       if (invoice.amountReceived >= invoice.totalAmount) {
+        invoice.amountReceived = invoice.totalAmount;
         invoice.paymentStatus = "PAID";
-      } else if (invoice.amountReceived > 0) {
+      } else {
         invoice.paymentStatus = "PARTIAL";
       }
 
-      // Reconcile customer outstanding & credit used
       if (customer) {
-        customer.outstandingAmount = Math.max(0, (customer.outstandingAmount || 0) - params.amount);
-        customer.creditUsed = Math.max(0, (customer.creditUsed || 0) - params.amount);
+        customer.outstandingAmount = Math.round(Math.max(0, (Number(customer.outstandingAmount) || 0) - amount) * 100) / 100;
+        customer.creditUsed = Math.round(Math.max(0, (Number(customer.creditUsed) || 0) - amount) * 100) / 100;
       }
 
+      const linkedOrder = data.orders.find((order) => order.orderNo === invoice.orderNo);
+      if (linkedOrder && linkedOrder.status === "INVOICED") {
+        const linkedInvoices = data.invoices.filter((entry) => entry.orderNo === linkedOrder.orderNo);
+        if (linkedInvoices.length > 0 && linkedInvoices.every((entry) => entry.paymentStatus === "PAID")) {
+          linkedOrder.status = "PAYMENT_DONE";
+          linkedOrder.workflow.push({
+            id: `wf-${Date.now()}`,
+            label: "All linked invoices paid and reconciled",
+            status: "COMPLETED",
+            completedAt: new Date().toISOString().split("T")[0],
+            completedBy: params.actor,
+          });
+        }
+      }
+
+      const seq = data.counters.receiptSeq++;
       const receipt: PaymentReceiptRecord = {
         id: `RCT-${seq}`,
-        receiptNo,
+        receiptNo: `RCT-26-27/${seq.toString().padStart(4, "0")}`,
         invoiceId: invoice.id,
         invoiceNo: invoice.invoiceNo,
         customerId: invoice.customerId,
         customerName: invoice.customerName,
-        amount: params.amount,
+        amount,
         paymentMode: params.paymentMode,
-        transactionRef: params.transactionRef,
+        transactionRef,
         paymentDate: new Date().toISOString().split("T")[0],
         status: "VERIFIED",
         verifiedBy: params.actor,
@@ -795,25 +861,41 @@ class ServerDatabase {
     remarks?: string;
   }): Promise<GoodsReceiptRecord> {
     return this.transaction((data) => {
+      if (typeof params.poNo !== "string" || !params.poNo.trim()) throw new Error("A purchase order reference is required.");
+      if (typeof params.godown !== "string" || !params.godown.trim()) throw new Error("A receiving warehouse is required.");
+      if (!Array.isArray(params.items) || params.items.length < 1 || params.items.length > 100) {
+        throw new Error("A goods receipt must contain between 1 and 100 line items.");
+      }
+
+      const seen = new Set<string>();
+      const normalized = params.items.map((line) => {
+        const key = typeof line?.itemId === "string" ? line.itemId.trim() : "";
+        if (!key) throw new Error("Every goods receipt line must reference a catalogue item.");
+        if (seen.has(key)) throw new Error("Duplicate receipt items are not accepted; combine quantities.");
+        seen.add(key);
+        if (!Number.isSafeInteger(line.receivedQty) || line.receivedQty <= 0 || line.receivedQty > 100000) {
+          throw new Error("Received quantity must be a positive whole number no greater than 100,000.");
+        }
+        const item = data.items.find((candidate) => candidate.id === key || candidate.code === key);
+        if (!item) throw new Error(`Item ${key} not found.`);
+        return { key, qty: line.receivedQty, item };
+      });
+
       const supplier = data.suppliers.find((s) => s.id === params.supplierId);
+      if (!supplier) throw new Error("Supplier not found. Select a registered supplier.");
       const seq = data.counters.grnSeq++;
       const grnNo = `GRN-2026-${seq.toString().padStart(4, "0")}`;
 
-      const receivedItemsDetail = params.items.map((it) => {
-        const item = data.items.find((i) => i.id === it.itemId || i.code === it.itemId);
-        if (!item) throw new Error(`Item ${it.itemId} not found`);
-
-        const qty = Math.max(0, it.receivedQty);
+      const receivedItemsDetail = normalized.map(({ item, qty }) => {
 
         // Atomically increase usable stock
         item.stock += qty;
 
         // Increase godown stock
-        const targetGodown = item.godownStock.find((g) => g.godown === params.godown) || item.godownStock[0];
-        if (targetGodown) {
-          targetGodown.physical += qty;
-          targetGodown.available += qty;
-        }
+        const targetGodown = item.godownStock.find((g) => g.godown === params.godown);
+        if (!targetGodown) throw new Error(`Warehouse ${params.godown} is not configured for item ${item.code}.`);
+        targetGodown.physical += qty;
+        targetGodown.available += qty;
 
         // Ledger Entry
         data.stockMovements.unshift({
@@ -876,21 +958,27 @@ class ServerDatabase {
     return this.transaction((data) => {
       const item = data.items.find((i) => i.id === params.itemId || i.code === params.itemId);
       if (!item) throw new Error("Item not found");
+      if (!Number.isSafeInteger(params.physicalCount) || params.physicalCount < 0 || params.physicalCount > 100000000) {
+        throw new Error("Physical stock count must be a whole number between 0 and 100,000,000.");
+      }
+      if (typeof params.reason !== "string" || params.reason.trim().length < 3 || params.reason.length > 500) {
+        throw new Error("A clear stock adjustment reason (3–500 characters) is required.");
+      }
+      const targetGodown = item.godownStock.find((g) => g.godown === params.godown);
+      if (!targetGodown) throw new Error("The selected warehouse is not configured for this item.");
+      if (params.physicalCount < (Number(targetGodown.reserved) || 0)) {
+        throw new Error("Physical count for this warehouse cannot be lower than its reserved quantity.");
+      }
 
       const seq = data.counters.adjSeq++;
       const adjNo = `ADJ-2026-${seq.toString().padStart(3, "0")}`;
-      const systemQty = item.stock;
+      // The physical count is for the selected warehouse, not the whole SKU across all godowns.
+      const systemQty = Number(targetGodown.physical) || 0;
       const difference = params.physicalCount - systemQty;
 
-      // Adjust master stock
-      item.stock = params.physicalCount;
-
-      // Adjust godown stock
-      const targetGodown = item.godownStock.find((g) => g.godown === params.godown) || item.godownStock[0];
-      if (targetGodown) {
-        targetGodown.physical = Math.max(0, targetGodown.physical + difference);
-        targetGodown.available = Math.max(0, targetGodown.physical - targetGodown.reserved);
-      }
+      targetGodown.physical = params.physicalCount;
+      targetGodown.available = Math.max(0, targetGodown.physical - (Number(targetGodown.reserved) || 0));
+      item.stock = Math.max(0, (Number(item.stock) || 0) + difference);
 
       // Ledger Entry
       data.stockMovements.unshift({
@@ -906,7 +994,7 @@ class ServerDatabase {
         type: "PHYSICAL_ADJUSTMENT",
         referenceType: "ADJ",
         referenceId: adjNo,
-        reason: params.reason,
+        reason: params.reason.trim(),
         actor: params.approvedBy,
       });
 
@@ -939,58 +1027,48 @@ class ServerDatabase {
     actor: string;
   }): Promise<SalesReturnRecord> {
     return this.transaction((data) => {
-      let ret = data.returns.find((r) => r.id === params.returnId || r.cnNo === params.returnId);
+      const ret = data.returns.find((r) => r.id === params.returnId || r.cnNo === params.returnId);
       if (!ret) {
-        // If not in DB yet, create from sample or seed
-        const seq = data.counters.cnSeq++;
-        ret = {
-          id: params.returnId,
-          cnNo: `CN-2026-${seq.toString().padStart(3, "0")}`,
-          date: new Date().toISOString().split("T")[0],
-          orderNo: "SO-2026-1048",
-          customerId: "C001",
-          customerName: "ABC Industries Pvt. Ltd.",
-          amount: 3450,
-          reason: "Approved return lot",
-          stockRestocked: false,
-          status: "APPROVED",
-          createdAt: new Date().toISOString(),
-        };
-        data.returns.unshift(ret);
+        throw new Error("Return record not found. Create and inspect a return with a specific SKU and quantity before approval.");
+      }
+      if (ret.stockRestocked) {
+        throw new Error("This return has already been restocked; duplicate stock increases are blocked.");
+      }
+      if (!ret.itemId || !Number.isSafeInteger(ret.qty) || (ret.qty as number) <= 0) {
+        throw new Error("This return is missing a verified SKU or positive whole-number quantity. Correct the return record before restocking.");
       }
 
+      const item = data.items.find((candidate) => candidate.id === ret.itemId || candidate.code === ret.itemId);
+      if (!item) throw new Error("The returned SKU is not present in the item master.");
+      const godownStock = item.godownStock.find((entry) => entry.godown === params.godown);
+      if (!godownStock) throw new Error("The selected warehouse is not configured for the returned SKU.");
+
+      const qty = ret.qty as number;
+      // Every mutation is specific to the recorded return SKU/quantity and guarded against replay.
+      item.stock += qty;
+      godownStock.physical += qty;
+      godownStock.available += qty;
       ret.status = "APPROVED";
       ret.stockRestocked = true;
       ret.restockedGodown = params.godown;
       ret.processedBy = params.actor;
 
-      // Find first item or relevant item to restock
-      const defaultItem = data.items[0];
-      if (defaultItem) {
-        defaultItem.stock += 1;
-        const g = defaultItem.godownStock.find((x) => x.godown === params.godown) || defaultItem.godownStock[0];
-        if (g) {
-          g.physical += 1;
-          g.available += 1;
-        }
-
-        data.stockMovements.unshift({
-          id: `MOV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          timestamp: new Date().toISOString(),
-          itemId: defaultItem.id,
-          itemCode: defaultItem.code,
-          itemName: defaultItem.name,
-          godown: params.godown,
-          changeQty: 1,
-          balanceAfter: defaultItem.stock,
-          direction: "IN",
-          type: "RETURN_RESTOCK",
-          referenceType: "CN",
-          referenceId: ret.cnNo,
-          reason: `Restocked after Quality Verification: ${ret.reason}`,
-          actor: params.actor,
-        });
-      }
+      data.stockMovements.unshift({
+        id: `MOV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        timestamp: new Date().toISOString(),
+        itemId: item.id,
+        itemCode: item.code,
+        itemName: item.name,
+        godown: params.godown,
+        changeQty: qty,
+        balanceAfter: item.stock,
+        direction: "IN",
+        type: "RETURN_RESTOCK",
+        referenceType: "CN",
+        referenceId: ret.cnNo,
+        reason: `Restocked return of ${qty} units after quality verification: ${ret.reason}`,
+        actor: params.actor,
+      });
 
       return ret;
     });
@@ -1002,53 +1080,69 @@ class ServerDatabase {
     quotationId: string;
     actor: string;
   }): Promise<{ quotation: QuotationRecord; order: Order }> {
-    return this.transaction(async (data) => {
-      let quote = data.quotations.find((q) => q.id === params.quotationId || q.quotationNo === params.quotationId);
-      if (!quote) {
-        // Synthesize quote if from sample
-        quote = {
-          id: params.quotationId,
-          quotationNo: "QT-2026-001",
-          customerId: "C001",
-          customerName: "ABC Industries Pvt. Ltd.",
-          contactPerson: "Ramesh Sharma",
-          date: new Date().toISOString().split("T")[0],
-          validUntil: new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
-          items: [
-            {
-              itemId: data.items[0]?.id || "MIDAS-101",
-              itemCode: data.items[0]?.code || "MDS-BG-FC99",
-              itemName: data.items[0]?.name || "MIDAS BONDING GUM - FAST CURE 99°C",
-              qty: 10,
-              unit: "Roll",
-              rate: 3450,
-              taxable: 34500,
-              gstRate: 18,
-              total: 40710,
-            },
-          ],
-          taxableAmount: 34500,
-          gstAmount: 6210,
-          totalAmount: 40710,
-          status: "ACCEPTED",
-          createdAt: new Date().toISOString(),
-        };
-        data.quotations.unshift(quote);
+    const claimId = `PENDING-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    // Claim the accepted quote under the transaction lock to stop concurrent duplicate conversion.
+    const quote = await this.transaction((data) => {
+      const found = data.quotations.find((candidate) =>
+        candidate.id === params.quotationId || candidate.quotationNo === params.quotationId
+      );
+      if (!found) throw new Error("Quotation not found. Create and save a real quotation before converting it.");
+      if (found.status === "CONVERTED" || found.convertedOrderId) {
+        throw new Error("This quotation has already been converted.");
+      }
+      if (found.status !== "ACCEPTED") {
+        throw new Error("Only an accepted quotation can be converted to an order.");
+      }
+      if (found.validUntil && found.validUntil < new Date().toISOString().split("T")[0]) {
+        throw new Error("This quotation has expired. Renew it before converting it.");
+      }
+      if (!Array.isArray(found.items) || found.items.length === 0) {
+        throw new Error("This quotation has no line items.");
       }
 
-      const order = await this.createOrder({
+      found.status = "CONVERTED";
+      found.convertedOrderId = claimId;
+      return structuredClone(found);
+    });
+
+    let order: Order;
+    try {
+      // Intentionally outside the quote transaction: createOrder acquires its own lock.
+      // Calling it from inside transaction() would deadlock the in-memory mutex.
+      order = await this.createOrder({
         customerId: quote.customerId,
-        items: quote.items.map((i) => ({ itemId: i.itemId, qty: i.qty, rate: i.rate })),
+        items: quote.items.map((line) => ({ itemId: line.itemId, qty: line.qty })),
         notes: `Converted from Quotation ${quote.quotationNo}`,
         actor: params.actor,
       });
+    } catch (error) {
+      await this.transaction((data) => {
+        const found = data.quotations.find((candidate) =>
+          candidate.id === params.quotationId || candidate.quotationNo === params.quotationId
+        );
+        if (found?.convertedOrderId === claimId) {
+          found.status = "ACCEPTED";
+          found.convertedOrderId = undefined;
+        }
+      });
+      throw error;
+    }
 
-      quote.status = "CONVERTED";
-      quote.convertedOrderId = order.orderNo;
-
-      return { quotation: quote, order };
+    const finalizedQuote = await this.transaction((data) => {
+      const found = data.quotations.find((candidate) =>
+        candidate.id === params.quotationId || candidate.quotationNo === params.quotationId
+      );
+      if (!found || found.convertedOrderId !== claimId) {
+        throw new Error("The quotation conversion claim changed unexpectedly. Do not retry blindly; reconcile the created order.");
+      }
+      found.convertedOrderId = order.orderNo;
+      return structuredClone(found);
     });
+
+    return { quotation: finalizedQuote, order };
   }
+
 }
 
 export const serverDb = new ServerDatabase();

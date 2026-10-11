@@ -93,49 +93,49 @@ export const CANONICAL_COMPANY_CONFIG: CompanyConfig & {
 } = {
   brandName: "Vila Sales",
   companyName: "Vila Sales",
-  legalEntityName: "Vila Sales Private Limited",
-  tradeName: "Midas Rubber Company (Authorized Distributor)",
-  gstin: "27AAACV9012K1Z8",
-  pan: "AAACV9012K",
-  stateCode: "27",
-  stateName: "Maharashtra",
-  cin: "U25190MH2018PTC309182",
+  legalEntityName: process.env.VILA_LEGAL_ENTITY_NAME?.trim() || "Vila Sales",
+  tradeName: process.env.VILA_TRADE_NAME?.trim() || "",
+  gstin: process.env.VILA_GSTIN?.trim() || "",
+  pan: process.env.VILA_PAN?.trim() || "",
+  stateCode: process.env.VILA_STATE_CODE?.trim() || "",
+  stateName: process.env.VILA_STATE_NAME?.trim() || "",
+  cin: process.env.VILA_CIN?.trim() || undefined,
   registeredAddress: {
-    line1: "Plot 18-A, MIDC Industrial Area, Andheri East",
-    line2: "Near SEEPZ Gate No. 3",
-    city: "Mumbai",
-    state: "Maharashtra",
-    pincode: "400093",
+    line1: process.env.VILA_ADDRESS_LINE1?.trim() || "",
+    line2: process.env.VILA_ADDRESS_LINE2?.trim() || undefined,
+    city: process.env.VILA_CITY?.trim() || "",
+    state: process.env.VILA_STATE_NAME?.trim() || "",
+    pincode: process.env.VILA_PINCODE?.trim() || "",
     country: "India",
   },
   contact: {
-    phone: "+91 22 2839 4400",
-    email: "billing@vilasales.in",
-    supportEmail: "orders@vilasales.in",
+    phone: process.env.VILA_PHONE?.trim() || "",
+    email: process.env.VILA_BILLING_EMAIL?.trim() || "",
+    supportEmail: process.env.VILA_SUPPORT_EMAIL?.trim() || "",
     website: "https://vilasales.vercel.app",
   },
-  email: "billing@vilasales.in",
-  phone: "+91 22 2839 4400",
+  email: process.env.VILA_BILLING_EMAIL?.trim() || "",
+  phone: process.env.VILA_PHONE?.trim() || "",
   banking: {
-    bankName: "HDFC Bank Ltd",
-    branch: "Andheri East Corporate Branch, Mumbai",
-    accountName: "Vila Sales Private Limited",
-    accountNumber: "50200084920193",
-    ifscCode: "HDFC0000128",
+    bankName: process.env.VILA_BANK_NAME?.trim() || "",
+    branch: process.env.VILA_BANK_BRANCH?.trim() || "",
+    accountName: process.env.VILA_BANK_ACCOUNT_NAME?.trim() || "",
+    accountNumber: process.env.VILA_BANK_ACCOUNT_NUMBER?.trim() || "",
+    ifscCode: process.env.VILA_BANK_IFSC?.trim() || "",
     accountType: "CURRENT",
-    upiVpa: "vilasales@hdfcbank",
-    upiQrPayeeName: "Vila Sales Pvt Ltd",
+    upiVpa: process.env.VILA_UPI_VPA?.trim() || "",
+    upiQrPayeeName: process.env.VILA_UPI_PAYEE_NAME?.trim() || "",
   },
   bankDetails: {
-    bankName: "HDFC Bank Ltd",
-    branch: "Andheri East Corporate Branch, Mumbai",
-    accountName: "Vila Sales Private Limited",
-    beneficiaryName: "Vila Sales Private Limited",
-    accountNumber: "50200084920193",
-    ifscCode: "HDFC0000128",
+    bankName: process.env.VILA_BANK_NAME?.trim() || "",
+    branch: process.env.VILA_BANK_BRANCH?.trim() || "",
+    accountName: process.env.VILA_BANK_ACCOUNT_NAME?.trim() || "",
+    beneficiaryName: process.env.VILA_BANK_BENEFICIARY_NAME?.trim() || "",
+    accountNumber: process.env.VILA_BANK_ACCOUNT_NUMBER?.trim() || "",
+    ifscCode: process.env.VILA_BANK_IFSC?.trim() || "",
     accountType: "CURRENT",
-    upiVpa: "vilasales@hdfcbank",
-    upiQrPayeeName: "Vila Sales Pvt Ltd",
+    upiVpa: process.env.VILA_UPI_VPA?.trim() || "",
+    upiQrPayeeName: process.env.VILA_UPI_PAYEE_NAME?.trim() || "",
   },
   godowns: [
     {
@@ -227,7 +227,25 @@ export function isValidGstin(gstin: string): boolean {
   if (!gstin) return false;
   const cleaned = gstin.trim().toUpperCase();
   const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-  return regex.test(cleaned);
+  if (!regex.test(cleaned)) return false;
+
+  const valueOf = (character: string) =>
+    character >= "0" && character <= "9"
+      ? character.charCodeAt(0) - 48
+      : character.charCodeAt(0) - 55;
+  const characterOf = (value: number) =>
+    value < 10 ? String(value) : String.fromCharCode(value + 55);
+
+  let factor = 2;
+  let sum = 0;
+  for (let index = cleaned.length - 2; index >= 0; index--) {
+    const product = valueOf(cleaned[index]) * factor;
+    sum += Math.floor(product / 36) + (product % 36);
+    factor = factor === 2 ? 1 : 2;
+  }
+
+  const checkValue = (36 - (sum % 36)) % 36;
+  return characterOf(checkValue) === cleaned[14];
 }
 
 /**

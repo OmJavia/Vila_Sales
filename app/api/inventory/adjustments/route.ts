@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
 export async function GET(req: NextRequest) {
+  const access = requireAuth(req, ["ADMIN", "WAREHOUSE", "ACCOUNTS"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const db = serverDb.read();
     return NextResponse.json({ success: true, adjustments: db.adjustments });
@@ -16,8 +18,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    const approvedBy = session ? session.name : "Warehouse Supervisor";
+    const access = requireAuth(req, ["ADMIN", "WAREHOUSE"]);
+    if ("errorResponse" in access) return access.errorResponse;
+    const approvedBy = access.session.name;
 
     const body = await req.json();
     const { itemId, godown, physicalCount, reason } = body;

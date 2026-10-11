@@ -3,7 +3,7 @@
  * Handles Place of Supply, CGST / SGST / IGST breakdown, decimal-safe rounding, and HSN validation.
  */
 
-import { CANONICAL_COMPANY_CONFIG, INDIAN_STATE_CODES, getStateCodeFromGstin } from "./companyConfig";
+import { CANONICAL_COMPANY_CONFIG, INDIAN_STATE_CODES, getStateCodeFromGstin, isValidGstin } from "./companyConfig";
 
 export interface GSTLineItemInput {
   itemId: string;
@@ -74,15 +74,18 @@ export function round2(num: number): number {
  * 1. Customer GSTIN first 2 digits (authoritative)
  * 2. Explicitly passed stateCode
  * 3. Inferred state from State Name
- * 4. Default to Seller state ("27" - Maharashtra) if entirely unknown
+ * 4. Reject unknown or incomplete state identity; never infer a seller/customer state silently
  */
 export function resolveCustomerStateCode(params: {
   gstin?: string;
   stateCode?: string;
   stateName?: string;
 }): { stateCode: string; stateName: string } {
-  // 1. From GSTIN
+  // A supplied GSTIN is authoritative; never silently ignore an invalid one.
   if (params.gstin) {
+    if (!isValidGstin(params.gstin)) {
+      throw new Error("Customer GSTIN is invalid or fails its checksum. Correct the customer master before calculating GST.");
+    }
     const fromGst = getStateCodeFromGstin(params.gstin);
     if (fromGst) {
       return {
@@ -90,6 +93,7 @@ export function resolveCustomerStateCode(params: {
         stateName: INDIAN_STATE_CODES[fromGst] || "Unknown",
       };
     }
+    throw new Error("Customer GSTIN contains an unknown state code.");
   }
 
   // 2. From explicit stateCode (pad to 2 digits)
@@ -113,11 +117,7 @@ export function resolveCustomerStateCode(params: {
     }
   }
 
-  // Default to seller state (Maharashtra)
-  return {
-    stateCode: CANONICAL_COMPANY_CONFIG.stateCode,
-    stateName: CANONICAL_COMPANY_CONFIG.stateName,
-  };
+  throw new Error("Customer place of supply is missing or invalid. Provide a valid GSTIN, state code, or state name.");
 }
 
 /**
@@ -130,8 +130,18 @@ export function calculateGST(params: {
   customerStateName?: string;
   sellerStateCode?: string;
 }): GSTCalculationResult {
+  if (!isValidGstin(CANONICAL_COMPANY_CONFIG.gstin)) {
+    throw new Error("Seller GSTIN is missing or invalid. Configure the actual registered GSTIN before generating orders or invoices.");
+  }
+  const sellerStateFromGstin = getStateCodeFromGstin(CANONICAL_COMPANY_CONFIG.gstin);
+  if (!sellerStateFromGstin) {
+    throw new Error("Seller GSTIN has no recognised state code. Correct the company registration details before calculating GST.");
+  }
   const sellerCode = params.sellerStateCode || CANONICAL_COMPANY_CONFIG.stateCode;
-  const sellerName = INDIAN_STATE_CODES[sellerCode] || CANONICAL_COMPANY_CONFIG.stateName;
+  const sellerName = INDIAN_STATE_CODES[sellerCode];
+  if (!sellerName || sellerCode !== sellerStateFromGstin) {
+    throw new Error("Seller state code does not match the first two digits of the registered seller GSTIN.");
+  }
 
   const { stateCode: custCode, stateName: custName } = resolveCustomerStateCode({
     gstin: params.customerGstin,
@@ -150,14 +160,32 @@ export function calculateGST(params: {
   let totalIgst = 0;
 
   const calculatedItems: CalculatedGSTLineItem[] = params.items.map((item) => {
-    const qty = Math.max(0, item.qty);
-    const rate = Math.max(0, item.rate);
+    if (!Number.isSafeInteger(item.qty) || item.qty <= 0 || item.qty > 100000) {
+      throw new Error(`Quantity must be a positive whole number no greater than 100,000 for item ${item.itemCode}.`);
+    }
+    if (!Number.isFinite(item.rate) || item.rate < 0) {
+      throw new Error(`A valid non-negative catalogue rate is required for item ${item.itemCode}.`);
+    }
+
+    const qty = item.qty;
+    const rate = item.rate;
     const gross = round2(qty * rate);
-    const discPct = Math.min(100, Math.max(0, item.discountPct || 0));
+    const discPct = item.discountPct === undefined ? 0 : item.discountPct;
+    if (!Number.isFinite(discPct) || discPct < 0 || discPct > 100) {
+      throw new Error(`Discount must be between 0 and 100 percent for item ${item.itemCode}.`);
+    }
     const discAmount = round2((gross * discPct) / 100);
     const taxable = round2(gross - discAmount);
 
-    const gstRate = item.gstRate !== undefined ? item.gstRate : 18; // default 18% if unspecified
+    const gstRate = item.gstRate;
+    if (typeof gstRate !== "number" || !Number.isFinite(gstRate) || ![0, 5, 12, 18, 28].includes(gstRate)) {
+      throw new Error(`Unsupported GST rate for item ${item.itemCode}. Correct the item master before invoicing.`);
+    }
+    const hsnCode = (item.hsnCode || "").trim();
+    if (!/^\d{4,8}$/.test(hsnCode)) {
+      throw new Error(`HSN code is missing or invalid for item ${item.itemCode}. Configure the verified product tax master before generating commercial documents.`);
+    }
+
     let cgstRate = 0;
     let cgstAmount = 0;
     let sgstRate = 0;
@@ -189,7 +217,7 @@ export function calculateGST(params: {
       itemId: item.itemId,
       itemCode: item.itemCode,
       itemName: item.itemName,
-      hsnCode: item.hsnCode || "40082100", // Default Midas Rubber HSN
+      hsnCode,
       qty,
       rate,
       grossAmount: gross,

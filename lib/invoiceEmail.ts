@@ -1,3 +1,11 @@
+function escapeHtml(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\u0027/g, "&#39;");
+}
 import { Invoice } from "./data";
 import { formatCurrency, formatDate } from "./utils";
 import { CANONICAL_COMPANY_CONFIG } from "./companyConfig";
@@ -25,11 +33,11 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
     <tr style="border-bottom: 1px solid #e5e7eb; font-size: 13px;">
       <td style="padding: 10px 8px; text-align: center; color: #6b7280;">${idx + 1}</td>
       <td style="padding: 10px 8px;">
-        <div style="font-weight: 600; color: #111827;">${item.itemName}</div>
-        <div style="font-size: 11px; color: #6b7280; font-family: monospace;">${item.itemCode}</div>
+        <div style="font-weight: 600; color: #111827;">${escapeHtml(item.itemName)}</div>
+        <div style="font-size: 11px; color: #6b7280; font-family: monospace;">${escapeHtml(item.itemCode)}</div>
       </td>
-      <td style="padding: 10px 8px; text-align: center; font-family: monospace; color: #4b5563;">${item.hsnCode}</td>
-      <td style="padding: 10px 8px; text-align: center; font-weight: 600;">${item.qty} ${item.unit}</td>
+      <td style="padding: 10px 8px; text-align: center; font-family: monospace; color: #4b5563;">${escapeHtml(item.hsnCode)}</td>
+      <td style="padding: 10px 8px; text-align: center; font-weight: 600;">${escapeHtml(item.qty)} ${escapeHtml(item.unit)}</td>
       <td style="padding: 10px 8px; text-align: right; font-family: monospace;">₹${item.rate.toLocaleString("en-IN")}</td>
       <td style="padding: 10px 8px; text-align: right; font-family: monospace; font-weight: 600;">₹${item.taxableAmount.toLocaleString("en-IN")}</td>
       <td style="padding: 10px 8px; text-align: right; font-family: monospace; color: #1f2937;">₹${(item.cgstAmount + item.sgstAmount + item.igstAmount).toLocaleString("en-IN")}</td>
@@ -45,7 +53,7 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tax Invoice ${invoice.invoiceNo} — ${cfg.brandName}</title>
+  <title>Tax Invoice ${escapeHtml(invoice.invoiceNo)} — ${escapeHtml(cfg.brandName)}</title>
 </head>
 <body style="margin: 0; padding: 24px; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
   <div style="max-width: 680px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
@@ -56,14 +64,14 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         <tr>
           <td style="vertical-align: top;">
             <div style="display: inline-block; background: #2563eb; color: #ffffff; font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;">
-              ${cfg.brandName} · Commercial Operations
+              ${escapeHtml(cfg.brandName)} · Commercial Operations
             </div>
             <h1 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">
-              ${cfg.legalEntityName}
+              ${escapeHtml(cfg.legalEntityName)}
             </h1>
             <p style="margin: 4px 0 0; font-size: 12px; color: #9ca3af; line-height: 1.4;">
-              ${cfg.registeredAddress.line1}, ${cfg.registeredAddress.city}, ${cfg.registeredAddress.state} - ${cfg.registeredAddress.pincode}<br>
-              <strong>GSTIN:</strong> ${cfg.gstin} &nbsp;|&nbsp; <strong>State Code:</strong> ${cfg.stateCode} (${cfg.stateName})
+              ${escapeHtml(cfg.registeredAddress.line1)}, ${escapeHtml(cfg.registeredAddress.city)}, ${escapeHtml(cfg.registeredAddress.state)} - ${escapeHtml(cfg.registeredAddress.pincode)}<br>
+              <strong>GSTIN:</strong> ${escapeHtml(cfg.gstin)} &nbsp;|&nbsp; <strong>State Code:</strong> ${escapeHtml(cfg.stateCode)} (${escapeHtml(cfg.stateName)})
             </p>
           </td>
           <td style="text-align: right; vertical-align: top;">
@@ -82,19 +90,19 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         <tr>
           <td style="padding: 4px 0; width: 25%;">
             <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 600;">Invoice No:</span><br>
-            <strong style="color: #2563eb; font-size: 14px; font-family: monospace;">${invoice.invoiceNo}</strong>
+            <strong style="color: #2563eb; font-size: 14px; font-family: monospace;">${escapeHtml(invoice.invoiceNo)}</strong>
           </td>
           <td style="padding: 4px 0; width: 25%;">
             <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 600;">Invoice Date:</span><br>
-            <strong style="color: #1e293b;">${formatDate(invoice.invoiceDate)}</strong>
+            <strong style="color: #1e293b;">${escapeHtml(formatDate(invoice.invoiceDate))}</strong>
           </td>
           <td style="padding: 4px 0; width: 25%;">
             <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 600;">Payment Due:</span><br>
-            <strong style="color: #dc2626;">${formatDate(invoice.dueDate)}</strong>
+            <strong style="color: #dc2626;">${escapeHtml(formatDate(invoice.dueDate))}</strong>
           </td>
           <td style="padding: 4px 0; width: 25%;">
             <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 600;">Order Ref:</span><br>
-            <strong style="color: #1e293b; font-family: monospace;">${invoice.orderNo}</strong>
+            <strong style="color: #1e293b; font-family: monospace;">${escapeHtml(invoice.orderNo)}</strong>
           </td>
         </tr>
       </table>
@@ -106,19 +114,19 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         <tr>
           <td style="width: 50%; vertical-align: top; padding-right: 16px;">
             <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Billed To (Customer):</span>
-            <div style="font-weight: 700; font-size: 14px; color: #111827; margin-top: 4px;">${invoice.customerName}</div>
+            <div style="font-weight: 700; font-size: 14px; color: #111827; margin-top: 4px;">${escapeHtml(invoice.customerName)}</div>
             <div style="font-size: 12px; color: #4b5563; margin-top: 4px; line-height: 1.5;">
-              ${invoice.customerAddress || invoice.customerCity}<br>
-              <strong>GSTIN:</strong> ${invoice.customerGstin || "Unregistered / Consumer"}<br>
-              <strong>Place of Supply:</strong> ${invoice.placeOfSupply || invoice.customerState || "27 - Maharashtra"}
+              ${escapeHtml(invoice.customerAddress || invoice.customerCity)}<br>
+              <strong>GSTIN:</strong> ${escapeHtml(invoice.customerGstin || "Unregistered / Consumer")}<br>
+              <strong>Place of Supply:</strong> ${escapeHtml(invoice.placeOfSupply || invoice.customerState || "Not configured")}
             </div>
           </td>
           <td style="width: 50%; vertical-align: top; padding-left: 16px; border-left: 1px solid #f1f5f9;">
             <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Transport & Delivery:</span>
             <div style="font-size: 12px; color: #4b5563; line-height: 1.6; margin-top: 4px;">
-              <div><strong>Transporter:</strong> ${invoice.transporter || "Standard Fleet Logistics"}</div>
-              <div><strong>Vehicle No:</strong> <span style="font-family: monospace;">${invoice.vehicleNo || "Direct Fleet"}</span></div>
-              ${invoice.ewayBillNo ? `<div><strong>E-Way Bill:</strong> <span style="font-family: monospace;">${invoice.ewayBillNo}</span></div>` : ""}
+              <div><strong>Transporter:</strong> ${escapeHtml(invoice.transporter || "Standard Fleet Logistics")}</div>
+              <div><strong>Vehicle No:</strong> <span style="font-family: monospace;">${escapeHtml(invoice.vehicleNo || "Direct Fleet")}</span></div>
+              ${invoice.ewayBillNo ? `<div><strong>E-Way Bill:</strong> <span style="font-family: monospace;">${escapeHtml(invoice.ewayBillNo)}</span></div>` : ""}
             </div>
           </td>
         </tr>
@@ -152,16 +160,12 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         <tr>
           <td style="width: 55%; vertical-align: top; padding-right: 20px;">
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12px;">
-              <strong style="color: #1e293b; display: block; margin-bottom: 6px;">Remittance & Banking Details:</strong>
-              <div style="color: #475569; line-height: 1.5; font-size: 11px;">
-                Bank: <strong>${cfg.banking.bankName}</strong> (${cfg.banking.branch})<br>
-                A/C Name: <strong>${cfg.banking.accountName}</strong><br>
-                A/C No: <strong style="font-family: monospace; color: #2563eb;">${cfg.banking.accountNumber}</strong><br>
-                IFSC: <strong style="font-family: monospace;">${cfg.banking.ifscCode}</strong><br>
-                UPI ID: <strong style="color: #059669;">${cfg.banking.upiVpa}</strong>
+              <strong style="color: #92400e; display: block; margin-bottom: 6px;">Payment instructions unavailable</strong>
+              <div style="color: #92400e; line-height: 1.5; font-size: 11px;">
+                This environment is not configured for payment collection. Do not transfer funds using instructions from this email. Please contact the company through a separately verified channel.
               </div>
             </div>
-            ${notes ? `<div style="margin-top: 10px; font-size: 11px; color: #6b7280; font-style: italic;">Note: ${notes}</div>` : ""}
+            ${notes ? `<div style="margin-top: 10px; font-size: 11px; color: #6b7280; font-style: italic;">Note: ${escapeHtml(notes)}</div>` : ""}
           </td>
 
           <td style="width: 45%; vertical-align: top;">
@@ -175,11 +179,11 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
                   invoice.cgst > 0
                     ? `
                 <tr>
-                  <td style="padding: 4px 0; color: #64748b;">CGST (9%):</td>
+                  <td style="padding: 4px 0; color: #64748b;">CGST:</td>
                   <td style="padding: 4px 0; text-align: right;">₹${invoice.cgst.toLocaleString("en-IN")}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 4px 0; color: #64748b;">SGST (9%):</td>
+                  <td style="padding: 4px 0; color: #64748b;">SGST:</td>
                   <td style="padding: 4px 0; text-align: right;">₹${invoice.sgst.toLocaleString("en-IN")}</td>
                 </tr>`
                     : ""
@@ -188,7 +192,7 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
                   invoice.igst > 0
                     ? `
                 <tr>
-                  <td style="padding: 4px 0; color: #64748b;">IGST (18%):</td>
+                  <td style="padding: 4px 0; color: #64748b;">IGST:</td>
                   <td style="padding: 4px 0; text-align: right;">₹${invoice.igst.toLocaleString("en-IN")}</td>
                 </tr>`
                     : ""
@@ -211,19 +215,19 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
 
     <!-- Call to Action Buttons -->
     <div style="padding: 16px 28px; background: #f3f4f6; text-align: center; border-top: 1px solid #e5e7eb;">
-      <a href="${appUrl}/invoices/${invoice.id}" 
+      <a href="${escapeHtml(appUrl)}/invoices/${encodeURIComponent(invoice.id)}" 
          style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 10px 24px; border-radius: 6px; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
         View Official Invoice Online &rarr;
       </a>
       <div style="margin-top: 8px; font-size: 11px; color: #6b7280;">
-        Fast online payment available via UPI QR, NetBanking, and Direct Bank Transfer.
+        Payment collection is disabled in this prototype. Do not use this email to initiate a transfer.
       </div>
     </div>
 
     <!-- Footer -->
     <div style="padding: 16px 28px; background: #ffffff; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: center; line-height: 1.4;">
-      This is a computer-generated GST Tax Invoice issued by <strong>${cfg.legalEntityName}</strong><br>
-      For any billing queries or remittances, contact ${cfg.contact.email} or call ${cfg.contact.phone}.
+      This is a computer-generated GST Tax Invoice issued by <strong>${escapeHtml(cfg.legalEntityName)}</strong><br>
+      For billing queries, use a contact channel independently verified with your Vila Sales representative.
     </div>
   </div>
 </body>
@@ -247,7 +251,7 @@ export async function sendInvoiceEmail({
   notes?: string;
 }): Promise<SendEmailResult> {
   const cfg = CANONICAL_COMPANY_CONFIG;
-  const mailSubject = subject || `[${cfg.brandName}] Tax Invoice ${invoice.invoiceNo} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`;
+  const mailSubject = subject || `[${escapeHtml(cfg.brandName)}] Tax Invoice ${escapeHtml(invoice.invoiceNo)} - ₹${invoice.totalAmount.toLocaleString("en-IN")}`;
   const htmlContent = generateInvoiceHtml(invoice, notes);
   const messageId = `vs_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const timestamp = new Date().toISOString();
@@ -263,7 +267,7 @@ export async function sendInvoiceEmail({
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: `${cfg.brandName} Billing <billing@vilasales.in>`,
+          from: `${escapeHtml(cfg.brandName)} Billing <billing@vilasales.in>`,
           to: [recipientEmail],
           subject: mailSubject,
           html: htmlContent,
@@ -313,7 +317,7 @@ export async function sendInvoiceEmail({
   }
 
   // When no API key is present: honestly report sandbox preview mode (do not lie that email was delivered!)
-  console.log(`[Invoice Mailer Sandbox] Invoice ${invoice.invoiceNo} preview rendered for ${recipientEmail}`);
+  console.log(`[Invoice Mailer Sandbox] Invoice ${escapeHtml(invoice.invoiceNo)} preview rendered for ${recipientEmail}`);
 
   return {
     success: true,

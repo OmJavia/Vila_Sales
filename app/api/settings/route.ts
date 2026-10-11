@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const access = requireAuth(req, ["ADMIN", "ACCOUNTS"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const db = serverDb.read();
     return NextResponse.json({ success: true, settings: db.settings });
@@ -16,14 +18,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    // Only ADMIN can modify master configuration
-    if (session && session.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Forbidden: Only Administrator can modify master settings" },
-        { status: 403 }
-      );
-    }
+    const access = requireAuth(req, ["ADMIN"]);
+    if ("errorResponse" in access) return access.errorResponse;
 
     const body = await req.json();
 
@@ -37,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Company configuration updated and persisted durably.",
+      message: "Company configuration updated.",
       settings: updated,
     });
   } catch (error: any) {

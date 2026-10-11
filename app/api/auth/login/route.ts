@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { createSessionToken, AUTH_COOKIE_NAME } from "@/lib/server/auth";
+import { createSessionToken, verifyPassword, AUTH_COOKIE_NAME } from "@/lib/server/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const password = typeof body.password === "string" ? body.password : "";
 
-    if (!email || !password) {
+    if (!email || !password || email.length > 254 || password.length > 1024) {
       return NextResponse.json(
         { success: false, error: "Email and password are required" },
         { status: 400 }
@@ -15,11 +17,11 @@ export async function POST(req: NextRequest) {
 
     const db = serverDb.read();
     const user = db.users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase().trim() && u.isActive
+      (u) => u.email.toLowerCase() === email && u.isActive
     );
 
-    // Verify password (for demo accounts, check against passwordHash)
-    if (!user || user.passwordHash !== password) {
+    // Only modern salted scrypt hashes are accepted; plain-text legacy credentials fail closed.
+    if (!user || !verifyPassword(password, user.passwordHash)) {
       return NextResponse.json(
         { success: false, error: "Invalid email or password" },
         { status: 401 }
@@ -51,7 +53,7 @@ export async function POST(req: NextRequest) {
     return response;
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error.message || "Login failed" },
+      { success: false, error: "Login is temporarily unavailable. Check server authentication and storage configuration." },
       { status: 500 }
     );
   }

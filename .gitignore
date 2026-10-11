@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Runtime business records / customer and finance data must never be committed
+/data/vilasales-db.json
+/data/vilasales-db.json.tmp.*

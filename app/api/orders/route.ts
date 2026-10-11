@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
 export async function GET(req: NextRequest) {
+  const access = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE", "DISPATCH"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
-    const session = getSessionFromRequest(req);
     const db = serverDb.read();
-    let orders = db.orders;
-
-    // If buyer, filter only their own orders
-    if (session && session.role === "BUYER") {
-      orders = orders.filter((o) => o.customerId === session.userId);
-    }
+    const orders = db.orders;
 
     return NextResponse.json({ success: true, orders });
   } catch (error: any) {
@@ -24,8 +20,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Sales Representative";
+    const access = requireAuth(req, ["ADMIN", "SALES"]);
+    if ("errorResponse" in access) return access.errorResponse;
+    const actor = access.session.name;
 
     const body = await req.json();
     const { customerId, items, priority, deliveryDate, notes } = body;

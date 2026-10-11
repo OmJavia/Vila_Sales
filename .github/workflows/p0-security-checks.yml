@@ -1,0 +1,27 @@
+name: P0 security regression gate
+
+on:
+  pull_request:
+  push:
+    branches: [main, fix/security-financial-integrity-p0]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      SESSION_SECRET: "ci-only-test-secret-do-not-use-in-production-1234567890"
+      PORT: "3210"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+      - name: Runtime authentication and role regression tests
+        run: npm run test:security
+        env:
+          SESSION_SECRET: "ci-only-test-secret-do-not-use-in-production-1234567890"
+          PORT: "3210"

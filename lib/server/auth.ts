@@ -1,14 +1,15 @@
 /**
- * Vila Sales — Server-Side Authentication & Role-Based Authorization
- * Enforces role permissions on server actions and API handlers.
+ * Vila Sales — Server-side session verification and password helpers.
+ *
+ * Production must configure SESSION_SECRET with a unique random value of at least
+ * 32 characters. This module deliberately has no hard-coded fallback secret.
  */
-
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Role, UserAccount, serverDb } from "./db";
+import { Role, UserAccount } from "./db";
 
 const AUTH_COOKIE_NAME = "vs_session_token";
-const SESSION_SECRET = process.env.SESSION_SECRET || "vila-sales-secure-production-secret-2026-key-99881";
+const ROLES = new Set<Role>(["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE", "DISPATCH", "BUYER"]);
 
 export interface SessionPayload {
   userId: string;
@@ -18,87 +19,94 @@ export interface SessionPayload {
   expiresAt: number;
 }
 
-/**
- * Sign session token using HMAC-SHA256
- */
+function getSessionSecret(): string | null {
+  const secret = process.env.SESSION_SECRET;
+  return secret && secret.length >= 32 ? secret : null;
+}
+
 export function createSessionToken(user: UserAccount): string {
+  const secret = getSessionSecret();
+  if (!secret) {
+    throw new Error("Authentication is not configured: set SESSION_SECRET to a unique random value of at least 32 characters.");
+  }
+
   const payload: SessionPayload = {
     userId: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
-    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
   };
-
-  const jsonStr = JSON.stringify(payload);
-  const base64Payload = Buffer.from(jsonStr).toString("base64url");
-  const signature = crypto
-    .createHmac("sha256", SESSION_SECRET)
-    .update(base64Payload)
-    .digest("base64url");
-
+  const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = crypto.createHmac("sha256", secret).update(base64Payload).digest("base64url");
   return `${base64Payload}.${signature}`;
 }
 
-/**
- * Verify and parse session token
- */
 export function verifySessionToken(token: string): SessionPayload | null {
   try {
+    const secret = getSessionSecret();
+    if (!secret || typeof token !== "string") return null;
+
     const parts = token.split(".");
-    if (parts.length !== 2) return null;
-
+    if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
     const [base64Payload, signature] = parts;
-    const expectedSig = crypto
-      .createHmac("sha256", SESSION_SECRET)
-      .update(base64Payload)
-      .digest("base64url");
+    const expected = crypto.createHmac("sha256", secret).update(base64Payload).digest();
+    const actual = Buffer.from(signature, "base64url");
+    if (actual.length !== expected.length || !crypto.timingSafeEqual(actual, expected)) return null;
 
-    if (signature !== expectedSig) return null;
+    const payload = JSON.parse(Buffer.from(base64Payload, "base64url").toString("utf8")) as Partial<SessionPayload>;
+    if (
+      typeof payload.userId !== "string" || !payload.userId ||
+      typeof payload.name !== "string" ||
+      typeof payload.email !== "string" ||
+      typeof payload.role !== "string" || !ROLES.has(payload.role as Role) ||
+      typeof payload.expiresAt !== "number" || !Number.isFinite(payload.expiresAt) ||
+      payload.expiresAt <= Date.now()
+    ) return null;
 
-    const jsonStr = Buffer.from(base64Payload, "base64url").toString("utf-8");
-    const payload: SessionPayload = JSON.parse(jsonStr);
-
-    if (payload.expiresAt < Date.now()) {
-      return null; // Expired
-    }
-
-    return payload;
-  } catch (e) {
+    return payload as SessionPayload;
+  } catch {
     return null;
   }
 }
 
-/**
- * Extracts session from NextRequest cookies or Authorization header
- */
 export function getSessionFromRequest(req: NextRequest): SessionPayload | null {
-  // Check cookie first
   const cookie = req.cookies.get(AUTH_COOKIE_NAME)?.value;
   if (cookie) {
     const session = verifySessionToken(cookie);
     if (session) return session;
   }
 
-  // Check Bearer authorization header
   const authHeader = req.headers.get("authorization");
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.substring(7);
-    return verifySessionToken(token);
+  if (authHeader?.startsWith("Bearer ")) {
+    return verifySessionToken(authHeader.slice(7));
   }
-
   return null;
 }
 
 /**
- * Server guard: requires authentication and matches role
+ * Password hashes use: scrypt$<32-char-salt-hex>$<128-char-derived-key-hex>.
+ * Plain-text legacy/demo passwords are intentionally rejected.
  */
+export function verifyPassword(password: string, storedHash: string): boolean {
+  try {
+    const [algorithm, saltHex, expectedHex, extra] = (storedHash || "").split("$");
+    if (algorithm !== "scrypt" || extra !== undefined ||
+        !/^[a-f0-9]{32}$/i.test(saltHex || "") ||
+        !/^[a-f0-9]{128}$/i.test(expectedHex || "")) return false;
+    const actual = crypto.scryptSync(password, Buffer.from(saltHex, "hex"), 64);
+    const expected = Buffer.from(expectedHex, "hex");
+    return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+  } catch {
+    return false;
+  }
+}
+
 export function requireAuth(
   req: NextRequest,
   allowedRoles?: Role[]
 ): { session: SessionPayload } | { errorResponse: NextResponse } {
   const session = getSessionFromRequest(req);
-
   if (!session) {
     return {
       errorResponse: NextResponse.json(
@@ -108,18 +116,14 @@ export function requireAuth(
     };
   }
 
-  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(session.role)) {
+  if (allowedRoles?.length && !allowedRoles.includes(session.role)) {
     return {
       errorResponse: NextResponse.json(
-        {
-          success: false,
-          error: `Forbidden: Role '${session.role}' is not authorized for this action. Required: ${allowedRoles.join(", ")}`,
-        },
+        { success: false, error: "Forbidden: your role is not authorized for this action" },
         { status: 403 }
       ),
     };
   }
-
   return { session };
 }
 

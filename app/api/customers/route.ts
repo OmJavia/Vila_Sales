@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { serverDb } from "@/lib/server/db";
 
-export async function GET() {
+// This endpoint returns live, session-scoped operational data and must never be prerendered.
+export const dynamic = "force-dynamic";
+import { serverDb } from "@/lib/server/db";
+import { requireAuth } from "@/lib/server/auth";
+
+export async function GET(req: NextRequest) {
+  const access = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const db = serverDb.read();
 
@@ -15,7 +21,9 @@ export async function GET() {
       return {
         ...c,
         outstandingAmount: actualOutstanding,
-        creditUsed: Math.min(c.creditLimit, actualOutstanding),
+        // Credit exposure is held at order creation and released only by cancellation/receipts;
+        // invoice-only balances would omit open orders that have not been invoiced yet.
+        creditUsed: Number(c.creditUsed) || 0,
       };
     });
 

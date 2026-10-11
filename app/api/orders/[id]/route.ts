@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
+import type { OrderStatus } from "@/lib/data";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const access = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE", "DISPATCH"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const db = serverDb.read();
     const order = db.orders.find(
@@ -32,23 +35,32 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const patchAccess = requireAuth(req, ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH", "ACCOUNTS"]);
+  if ("errorResponse" in patchAccess) return patchAccess.errorResponse;
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "System Operator";
+    const actor = patchAccess.session.name;
 
     const body = await req.json();
     const { status, cancelReason } = body;
 
-    if (!status) {
+    const allowedStatusesByRole: Record<string, OrderStatus[]> = {
+      ADMIN: ["DRAFT", "CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "ALLOCATED", "VERIFIED", "CHALLAN_READY", "DISPATCHED", "CLOSED", "CANCELLED"],
+      SALES: ["CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "CANCELLED"],
+      WAREHOUSE: ["STOCK_CHECK", "ALLOCATED", "VERIFIED", "CANCELLED"],
+      DISPATCH: ["CHALLAN_READY", "DISPATCHED"],
+      ACCOUNTS: ["CLOSED"],
+    };
+    const allowedStatuses = allowedStatusesByRole[patchAccess.session.role] || [];
+    if (typeof status !== "string" || !allowedStatuses.includes(status as OrderStatus)) {
       return NextResponse.json(
-        { success: false, error: "New status is required" },
-        { status: 400 }
+        { success: false, error: "This role cannot set that order status. Invoice/payment statuses are controlled by reconciled financial records." },
+        { status: 403 }
       );
     }
 
     const updated = await serverDb.updateOrderStatus(
       params.id,
-      status,
+      status as OrderStatus,
       actor,
       cancelReason
     );
