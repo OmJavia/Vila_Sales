@@ -28,14 +28,19 @@ async function check(name, path, expectedStatus, options = {}) {
     method: options.method || "GET",
     redirect: "manual",
     headers: {
-      ...(options.token ? { cookie: `vs_session_token=${options.token}` } : {}),
+      ...(options.token ? { cookie: `vs_session_token=${options.token}`, authorization: `Bearer ${options.token}` } : {}),
       ...(options.body ? { "content-type": "application/json" } : {}),
     },
     ...(options.body ? { body: JSON.stringify(options.body) } : {}),
   });
   const detail = response.status === expectedStatus ? "PASS" : "FAIL";
+  const responseText = await response.clone().text();
   cases.push({ name, status: response.status, expectedStatus, detail });
-  assert.equal(response.status, expectedStatus, `${name}: expected HTTP ${expectedStatus}, got ${response.status}`);
+  assert.equal(
+    response.status,
+    expectedStatus,
+    name + ": expected HTTP " + expectedStatus + ", got " + response.status + "; response=" + responseText.slice(0, 300)
+  );
 }
 
 const child = spawn(
