@@ -469,7 +469,7 @@ class ServerDatabase {
         if (![0, 5, 12, 18, 28].includes(item.gstRate as number)) {
           throw new Error(`GST rate is missing or invalid for item ${item.code}; configure the verified product tax master before ordering.`);
         }
-        if (typeof item.hsnCode !== "string" || !/^\\d{4,8}$/.test(item.hsnCode.trim())) {
+        if (typeof item.hsnCode !== "string" || !/^\d{4,8}$/.test(item.hsnCode.trim())) {
           throw new Error(`HSN code is missing or invalid for item ${item.code}; configure the verified product tax master before ordering.`);
         }
         const stock = Number(item.stock) || 0;
@@ -710,7 +710,7 @@ class ServerDatabase {
         if (![0, 5, 12, 18, 28].includes(item.gstRate as number)) {
           throw new Error(`GST rate is missing or invalid for item ${item.code}; invoice creation is blocked until the tax master is configured.`);
         }
-        if (typeof item.hsnCode !== "string" || !/^\\d{4,8}$/.test(item.hsnCode.trim())) {
+        if (typeof item.hsnCode !== "string" || !/^\d{4,8}$/.test(item.hsnCode.trim())) {
           throw new Error(`HSN code is missing or invalid for item ${item.code}; invoice creation is blocked until the tax master is configured.`);
         }
         return {
