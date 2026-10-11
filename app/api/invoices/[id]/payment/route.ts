@@ -14,6 +14,15 @@ export async function POST(
     const body = await req.json();
     const { amount, paymentMode = "UPI", transactionRef, notes } = body;
 
+    // This is the manual accounts-entry endpoint, not a payment-provider callback.
+    const manualModes = ["UPI", "NEFT_RTGS", "CHEQUE", "CASH"];
+    if (!manualModes.includes(paymentMode)) {
+      return NextResponse.json(
+        { success: false, error: "Only manually reconciled UPI, NEFT/RTGS, cheque or cash receipts can be recorded here. Gateway payments require verified server-side reconciliation." },
+        { status: 400 }
+      );
+    }
+
     const numericAmount = Number(amount);
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
       return NextResponse.json(
