@@ -110,7 +110,7 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
             <div style="font-size: 12px; color: #4b5563; margin-top: 4px; line-height: 1.5;">
               ${invoice.customerAddress || invoice.customerCity}<br>
               <strong>GSTIN:</strong> ${invoice.customerGstin || "Unregistered / Consumer"}<br>
-              <strong>Place of Supply:</strong> ${invoice.placeOfSupply || invoice.customerState || "27 - Maharashtra"}
+              <strong>Place of Supply:</strong> ${invoice.placeOfSupply || invoice.customerState || "Not configured"}
             </div>
           </td>
           <td style="width: 50%; vertical-align: top; padding-left: 16px; border-left: 1px solid #f1f5f9;">
@@ -152,13 +152,9 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         <tr>
           <td style="width: 55%; vertical-align: top; padding-right: 20px;">
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12px;">
-              <strong style="color: #1e293b; display: block; margin-bottom: 6px;">Remittance & Banking Details:</strong>
-              <div style="color: #475569; line-height: 1.5; font-size: 11px;">
-                Bank: <strong>${cfg.banking.bankName}</strong> (${cfg.banking.branch})<br>
-                A/C Name: <strong>${cfg.banking.accountName}</strong><br>
-                A/C No: <strong style="font-family: monospace; color: #2563eb;">${cfg.banking.accountNumber}</strong><br>
-                IFSC: <strong style="font-family: monospace;">${cfg.banking.ifscCode}</strong><br>
-                UPI ID: <strong style="color: #059669;">${cfg.banking.upiVpa}</strong>
+              <strong style="color: #92400e; display: block; margin-bottom: 6px;">Payment instructions unavailable</strong>
+              <div style="color: #92400e; line-height: 1.5; font-size: 11px;">
+                This environment is not configured for payment collection. Do not transfer funds using instructions from this email. Please contact the company through a separately verified channel.
               </div>
             </div>
             ${notes ? `<div style="margin-top: 10px; font-size: 11px; color: #6b7280; font-style: italic;">Note: ${notes}</div>` : ""}
@@ -175,11 +171,11 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
                   invoice.cgst > 0
                     ? `
                 <tr>
-                  <td style="padding: 4px 0; color: #64748b;">CGST (9%):</td>
+                  <td style="padding: 4px 0; color: #64748b;">CGST:</td>
                   <td style="padding: 4px 0; text-align: right;">₹${invoice.cgst.toLocaleString("en-IN")}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 4px 0; color: #64748b;">SGST (9%):</td>
+                  <td style="padding: 4px 0; color: #64748b;">SGST:</td>
                   <td style="padding: 4px 0; text-align: right;">₹${invoice.sgst.toLocaleString("en-IN")}</td>
                 </tr>`
                     : ""
@@ -188,7 +184,7 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
                   invoice.igst > 0
                     ? `
                 <tr>
-                  <td style="padding: 4px 0; color: #64748b;">IGST (18%):</td>
+                  <td style="padding: 4px 0; color: #64748b;">IGST:</td>
                   <td style="padding: 4px 0; text-align: right;">₹${invoice.igst.toLocaleString("en-IN")}</td>
                 </tr>`
                     : ""
@@ -216,14 +212,14 @@ export function generateInvoiceHtml(invoice: Invoice, notes?: string): string {
         View Official Invoice Online &rarr;
       </a>
       <div style="margin-top: 8px; font-size: 11px; color: #6b7280;">
-        Fast online payment available via UPI QR, NetBanking, and Direct Bank Transfer.
+        Payment collection is disabled in this prototype. Do not use this email to initiate a transfer.
       </div>
     </div>
 
     <!-- Footer -->
     <div style="padding: 16px 28px; background: #ffffff; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: center; line-height: 1.4;">
       This is a computer-generated GST Tax Invoice issued by <strong>${cfg.legalEntityName}</strong><br>
-      For any billing queries or remittances, contact ${cfg.contact.email} or call ${cfg.contact.phone}.
+      For billing queries, use a contact channel independently verified with your Vila Sales representative.
     </div>
   </div>
 </body>
