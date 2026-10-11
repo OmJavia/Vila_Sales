@@ -921,6 +921,21 @@ class ServerDatabase {
         customer.creditUsed = Math.round(Math.max(0, (Number(customer.creditUsed) || 0) - amount) * 100) / 100;
       }
 
+      const linkedOrder = data.orders.find((order) => order.orderNo === invoice.orderNo);
+      if (linkedOrder && linkedOrder.status === "INVOICED") {
+        const linkedInvoices = data.invoices.filter((entry) => entry.orderNo === linkedOrder.orderNo);
+        if (linkedInvoices.length > 0 && linkedInvoices.every((entry) => entry.paymentStatus === "PAID")) {
+          linkedOrder.status = "PAYMENT_DONE";
+          linkedOrder.workflow.push({
+            id: `wf-${Date.now()}`,
+            label: "All linked invoices paid and reconciled",
+            status: "COMPLETED",
+            completedAt: new Date().toISOString().split("T")[0],
+            completedBy: params.actor,
+          });
+        }
+      }
+
       const seq = data.counters.receiptSeq++;
       const receipt: PaymentReceiptRecord = {
         id: `RCT-${seq}`,
