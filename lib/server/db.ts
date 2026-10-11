@@ -61,6 +61,8 @@ export interface StockAdjustmentRecord {
 
 export interface SalesReturnRecord {
   id: string;
+  itemId?: string;
+  qty?: number;
   cnNo: string;
   date: string;
   orderNo: string;
@@ -1022,58 +1024,48 @@ class ServerDatabase {
     actor: string;
   }): Promise<SalesReturnRecord> {
     return this.transaction((data) => {
-      let ret = data.returns.find((r) => r.id === params.returnId || r.cnNo === params.returnId);
+      const ret = data.returns.find((r) => r.id === params.returnId || r.cnNo === params.returnId);
       if (!ret) {
-        // If not in DB yet, create from sample or seed
-        const seq = data.counters.cnSeq++;
-        ret = {
-          id: params.returnId,
-          cnNo: `CN-2026-${seq.toString().padStart(3, "0")}`,
-          date: new Date().toISOString().split("T")[0],
-          orderNo: "SO-2026-1048",
-          customerId: "C001",
-          customerName: "ABC Industries Pvt. Ltd.",
-          amount: 3450,
-          reason: "Approved return lot",
-          stockRestocked: false,
-          status: "APPROVED",
-          createdAt: new Date().toISOString(),
-        };
-        data.returns.unshift(ret);
+        throw new Error("Return record not found. Create and inspect a return with a specific SKU and quantity before approval.");
+      }
+      if (ret.stockRestocked) {
+        throw new Error("This return has already been restocked; duplicate stock increases are blocked.");
+      }
+      if (!ret.itemId || !Number.isSafeInteger(ret.qty) || (ret.qty as number) <= 0) {
+        throw new Error("This return is missing a verified SKU or positive whole-number quantity. Correct the return record before restocking.");
       }
 
+      const item = data.items.find((candidate) => candidate.id === ret.itemId || candidate.code === ret.itemId);
+      if (!item) throw new Error("The returned SKU is not present in the item master.");
+      const godownStock = item.godownStock.find((entry) => entry.godown === params.godown);
+      if (!godownStock) throw new Error("The selected warehouse is not configured for the returned SKU.");
+
+      const qty = ret.qty as number;
+      // Every mutation is specific to the recorded return SKU/quantity and guarded against replay.
+      item.stock += qty;
+      godownStock.physical += qty;
+      godownStock.available += qty;
       ret.status = "APPROVED";
       ret.stockRestocked = true;
       ret.restockedGodown = params.godown;
       ret.processedBy = params.actor;
 
-      // Find first item or relevant item to restock
-      const defaultItem = data.items[0];
-      if (defaultItem) {
-        defaultItem.stock += 1;
-        const g = defaultItem.godownStock.find((x) => x.godown === params.godown) || defaultItem.godownStock[0];
-        if (g) {
-          g.physical += 1;
-          g.available += 1;
-        }
-
-        data.stockMovements.unshift({
-          id: `MOV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          timestamp: new Date().toISOString(),
-          itemId: defaultItem.id,
-          itemCode: defaultItem.code,
-          itemName: defaultItem.name,
-          godown: params.godown,
-          changeQty: 1,
-          balanceAfter: defaultItem.stock,
-          direction: "IN",
-          type: "RETURN_RESTOCK",
-          referenceType: "CN",
-          referenceId: ret.cnNo,
-          reason: `Restocked after Quality Verification: ${ret.reason}`,
-          actor: params.actor,
-        });
-      }
+      data.stockMovements.unshift({
+        id: `MOV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        timestamp: new Date().toISOString(),
+        itemId: item.id,
+        itemCode: item.code,
+        itemName: item.name,
+        godown: params.godown,
+        changeQty: qty,
+        balanceAfter: item.stock,
+        direction: "IN",
+        type: "RETURN_RESTOCK",
+        referenceType: "CN",
+        referenceId: ret.cnNo,
+        reason: `Restocked return of ${qty} units after quality verification: ${ret.reason}`,
+        actor: params.actor,
+      });
 
       return ret;
     });
