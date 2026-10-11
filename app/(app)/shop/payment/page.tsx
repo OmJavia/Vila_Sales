@@ -654,12 +654,6 @@ function PaymentContent() {
                     <span className="text-xs font-bold text-[#111] uppercase tracking-wider">
                       Official Beneficiary Details
                     </span>
-                    <button
-                      onClick={handleFillTestNeft}
-                      className="text-[11px] text-blue-600 hover:underline font-medium"
-                    >
-                      Fill Demo Reference
-                    </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
