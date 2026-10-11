@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyRazorpaySignature } from "@/lib/paymentService";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
+    const access = requireAuth(req, ["ADMIN", "ACCOUNTS"]);
+    if ("errorResponse" in access) return access.errorResponse;
+    const session = access.session;
     const body = await req.json();
     const {
       type, // "GATEWAY_SIGNATURE" | "MANUAL_UTR_SUBMISSION" | "ACCOUNTS_APPROVAL"
@@ -37,55 +38,18 @@ export async function POST(req: NextRequest) {
       : null;
 
     // ── Scenario A: Gateway Signature Verification (Razorpay) ──────────────
+    // The current code does not persist and bind gateway order IDs to invoices, nor
+    // reconcile provider webhooks. A valid signature alone cannot establish which
+    // invoice should be credited, so never mark an invoice paid through this endpoint.
     if (type === "GATEWAY_SIGNATURE") {
-      if (!gatewayOrderId || !gatewayPaymentId || !gatewaySignature) {
-        return NextResponse.json(
-          { success: false, error: "Missing gateway order, payment ID or signature" },
-          { status: 400 }
-        );
-      }
-
-      const isValid = verifyRazorpaySignature({
-        orderId: gatewayOrderId,
-        paymentId: gatewayPaymentId,
-        signature: gatewaySignature,
-      });
-
-      if (!isValid) {
-        return NextResponse.json(
-          { success: false, error: "Invalid payment signature. Payment cannot be verified." },
-          { status: 403 }
-        );
-      }
-
-      // Validated! Record payment
-      const verifiedAmount = amount ? Number(amount) : order?.totalAmount || invoice?.totalAmount || 0;
-      if (invoice) {
-        await serverDb.recordInvoicePayment({
-          invoiceId: invoice.id,
-          amount: verifiedAmount,
-          paymentMode: "GATEWAY_CARD",
-          transactionRef: gatewayPaymentId,
-          actor: "Payment Gateway Webhook",
-          notes: `Verified Razorpay Payment ID: ${gatewayPaymentId}`,
-        });
-      }
-
-      if (order && order.status !== "CLOSED") {
-        await serverDb.updateOrderStatus(
-          order.id,
-          "INVOICED",
-          "Gateway Automation",
-          `Payment verified: ${gatewayPaymentId}`
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        status: "PAID",
-        paymentId: gatewayPaymentId,
-        message: "Payment signature verified by server. Order marked paid.",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          code: "GATEWAY_RECONCILIATION_NOT_CONFIGURED",
+          error: "Automated gateway verification is disabled until server-side payment-intent mapping and signed webhook reconciliation are implemented.",
+        },
+        { status: 503 }
+      );
     }
 
     // ── Scenario B: Manual Bank Transfer / UPI UTR Submission ───────────────
@@ -121,29 +85,41 @@ export async function POST(req: NextRequest) {
 
     // ── Scenario C: Accounts Staff Confirms Bank Credit ─────────────────────
     if (type === "ACCOUNTS_APPROVAL") {
-      if (!session || (session.role !== "ADMIN" && session.role !== "ACCOUNTS")) {
+      if (!invoice) {
         return NextResponse.json(
-          { success: false, error: "Only Accounts or Admin users can approve manual bank credits" },
-          { status: 403 }
+          { success: false, error: "A valid invoiceId is required for payment reconciliation." },
+          { status: 400 }
+        );
+      }
+      if (typeof utrNumber !== "string" || utrNumber.trim().length < 3) {
+        return NextResponse.json(
+          { success: false, error: "Enter the bank/UPI reference that was verified against the bank statement." },
+          { status: 400 }
         );
       }
 
-      const verifiedAmount = amount ? Number(amount) : invoice?.totalAmount || order?.totalAmount || 0;
-      if (invoice) {
-        await serverDb.recordInvoicePayment({
-          invoiceId: invoice.id,
-          amount: verifiedAmount,
-          paymentMode: "NEFT_RTGS",
-          transactionRef: utrNumber || "BANK_VERIFIED",
-          actor: session.name,
-          notes: `Bank statement reconciled by ${session.name}`,
-        });
+      const verifiedAmount = Number(amount);
+      if (!Number.isFinite(verifiedAmount) || verifiedAmount <= 0) {
+        return NextResponse.json(
+          { success: false, error: "Enter the exact amount confirmed in the bank statement." },
+          { status: 400 }
+        );
       }
+
+      const result = await serverDb.recordInvoicePayment({
+        invoiceId: invoice.id,
+        amount: verifiedAmount,
+        paymentMode: "NEFT_RTGS",
+        transactionRef: utrNumber.trim(),
+        actor: session.name,
+        notes: `Bank statement reconciled by ${session.name}`,
+      });
 
       return NextResponse.json({
         success: true,
-        status: "PAID",
-        message: `Payment verified and credited by Accounts (${session.name}).`,
+        status: result.invoice.paymentStatus,
+        receipt: result.receipt,
+        message: `Payment recorded against ${result.invoice.invoiceNo} after Accounts verification.`,
       });
     }
 
