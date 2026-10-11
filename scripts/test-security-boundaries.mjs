@@ -28,7 +28,7 @@ async function check(name, path, expectedStatus, options = {}) {
     method: options.method || "GET",
     redirect: "manual",
     headers: {
-      ...(options.token ? { cookie: `vs_session_token=${options.token}`, authorization: `Bearer ${options.token}` } : {}),
+      ...(options.token ? { authorization: `Bearer ${options.token}` } : {}),
       ...(options.body ? { "content-type": "application/json" } : {}),
     },
     ...(options.body ? { body: JSON.stringify(options.body) } : {}),
