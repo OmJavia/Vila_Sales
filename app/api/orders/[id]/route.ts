@@ -35,7 +35,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const patchAccess = requireAuth(req, ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH"]);
+  const patchAccess = requireAuth(req, ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH", "ACCOUNTS"]);
   if ("errorResponse" in patchAccess) return patchAccess.errorResponse;
   try {
     const actor = patchAccess.session.name;
@@ -43,11 +43,18 @@ export async function PATCH(
     const body = await req.json();
     const { status, cancelReason } = body;
 
-    const allowedStatuses: OrderStatus[] = ["DRAFT", "CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "ALLOCATED", "VERIFIED", "CHALLAN_READY", "DISPATCHED", "INVOICED", "PAYMENT_DONE", "CLOSED", "CANCELLED"];
-    if (typeof status !== "string" || !allowedStatuses.includes(status)) {
+    const allowedStatusesByRole: Record<string, OrderStatus[]> = {
+      ADMIN: ["DRAFT", "CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "ALLOCATED", "VERIFIED", "CHALLAN_READY", "DISPATCHED", "CLOSED", "CANCELLED"],
+      SALES: ["CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "CANCELLED"],
+      WAREHOUSE: ["STOCK_CHECK", "ALLOCATED", "VERIFIED", "CANCELLED"],
+      DISPATCH: ["CHALLAN_READY", "DISPATCHED"],
+      ACCOUNTS: ["CLOSED"],
+    };
+    const allowedStatuses = allowedStatusesByRole[patchAccess.session.role] || [];
+    if (typeof status !== "string" || !allowedStatuses.includes(status as OrderStatus)) {
       return NextResponse.json(
-        { success: false, error: "A valid order status is required" },
-        { status: 400 }
+        { success: false, error: "This role cannot set that order status. Invoice/payment statuses are controlled by reconciled financial records." },
+        { status: 403 }
       );
     }
 
