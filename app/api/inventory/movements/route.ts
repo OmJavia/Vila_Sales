@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
+// This endpoint returns live, session-scoped operational data and must never be prerendered.
+export const dynamic = "force-dynamic";
 import { serverDb } from "@/lib/server/db";
 import { requireAuth } from "@/lib/server/auth";
 
