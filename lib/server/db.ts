@@ -961,6 +961,17 @@ class ServerDatabase {
     return this.transaction((data) => {
       const item = data.items.find((i) => i.id === params.itemId || i.code === params.itemId);
       if (!item) throw new Error("Item not found");
+      if (!Number.isSafeInteger(params.physicalCount) || params.physicalCount < 0 || params.physicalCount > 100000000) {
+        throw new Error("Physical stock count must be a whole number between 0 and 100,000,000.");
+      }
+      if (typeof params.reason !== "string" || params.reason.trim().length < 3 || params.reason.length > 500) {
+        throw new Error("A clear stock adjustment reason (3–500 characters) is required.");
+      }
+      const targetGodown = item.godownStock.find((g) => g.godown === params.godown);
+      if (!targetGodown) throw new Error("The selected warehouse is not configured for this item.");
+      if (params.physicalCount < (Number(item.reservedStock) || 0)) {
+        throw new Error("Physical stock cannot be lower than the quantity already reserved against orders.");
+      }
 
       const seq = data.counters.adjSeq++;
       const adjNo = `ADJ-2026-${seq.toString().padStart(3, "0")}`;
@@ -971,11 +982,8 @@ class ServerDatabase {
       item.stock = params.physicalCount;
 
       // Adjust godown stock
-      const targetGodown = item.godownStock.find((g) => g.godown === params.godown) || item.godownStock[0];
-      if (targetGodown) {
-        targetGodown.physical = Math.max(0, targetGodown.physical + difference);
-        targetGodown.available = Math.max(0, targetGodown.physical - targetGodown.reserved);
-      }
+      targetGodown.physical = Math.max(0, targetGodown.physical + difference);
+      targetGodown.available = Math.max(0, targetGodown.physical - targetGodown.reserved);
 
       // Ledger Entry
       data.stockMovements.unshift({
@@ -991,7 +999,7 @@ class ServerDatabase {
         type: "PHYSICAL_ADJUSTMENT",
         referenceType: "ADJ",
         referenceId: adjNo,
-        reason: params.reason,
+        reason: params.reason.trim(),
         actor: params.approvedBy,
       });
 
