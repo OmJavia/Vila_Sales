@@ -584,6 +584,48 @@ class ServerDatabase {
       if (!order) throw new Error("Order not found");
 
       const prevStatus = order.status;
+      if (newStatus === "INVOICED" || newStatus === "PAYMENT_DONE") {
+        throw new Error("Invoice and payment statuses are controlled by invoice creation and reconciled receipts, not manual order-status edits.");
+      }
+
+      const transitions: Record<Order["status"], Order["status"][]> = {
+        DRAFT: ["CONFIRMED", "CANCELLED"],
+        CONFIRMED: ["STOCK_CHECK", "PURCHASE_REQUIRED", "CANCELLED"],
+        STOCK_CHECK: ["ALLOCATED", "PURCHASE_REQUIRED", "CANCELLED"],
+        PURCHASE_REQUIRED: ["STOCK_CHECK", "CANCELLED"],
+        ALLOCATED: ["VERIFIED", "CANCELLED"],
+        VERIFIED: ["CHALLAN_READY", "CANCELLED"],
+        CHALLAN_READY: ["DISPATCHED", "CANCELLED"],
+        DISPATCHED: [],
+        INVOICED: [],
+        PAYMENT_DONE: ["CLOSED"],
+        CLOSED: [],
+        CANCELLED: [],
+      };
+      if (prevStatus === newStatus || !transitions[prevStatus].includes(newStatus)) {
+        throw new Error(`Invalid order transition from ${prevStatus} to ${newStatus}.`);
+      }
+
+      if (newStatus === "DISPATCHED") {
+        const notReady = order.items.find((line) => {
+          const inventoryItem = data.items.find((item) => item.id === line.itemId || item.code === line.itemCode);
+          return !inventoryItem ||
+            line.qtyReserved < line.qtyOrdered ||
+            inventoryItem.stock < line.qtyOrdered ||
+            inventoryItem.reservedStock < line.qtyOrdered;
+        });
+        if (notReady) {
+          throw new Error(`Cannot dispatch ${order.orderNo}: SKU ${notReady.itemCode} is not fully reserved and available.`);
+        }
+      }
+
+      if (newStatus === "CLOSED") {
+        const linkedInvoices = data.invoices.filter((invoice) => invoice.orderNo === order.orderNo);
+        if (prevStatus !== "PAYMENT_DONE" || linkedInvoices.length === 0 || linkedInvoices.some((invoice) => invoice.paymentStatus !== "PAID")) {
+          throw new Error("An order can only be closed after all linked invoices are fully paid and reconciled.");
+        }
+      }
+
       order.status = newStatus;
 
       order.workflow.push({
