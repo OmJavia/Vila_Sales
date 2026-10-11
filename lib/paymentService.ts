@@ -112,10 +112,9 @@ export function verifyRazorpaySignature(params: {
     .update(`${params.orderId}|${params.paymentId}`)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, "utf-8"),
-    Buffer.from(params.signature, "utf-8")
-  );
+  const expected = Buffer.from(generatedSignature, "utf-8");
+  const actual = Buffer.from(params.signature || "", "utf-8");
+  return actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
 }
 
 /**
@@ -137,10 +136,9 @@ export function verifyRazorpayWebhookSignature(params: {
     .update(params.body)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, "utf-8"),
-    Buffer.from(params.signature, "utf-8")
-  );
+  const expected = Buffer.from(generatedSignature, "utf-8");
+  const actual = Buffer.from(params.signature || "", "utf-8");
+  return actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
 }
 
 /**
@@ -161,10 +159,9 @@ export function verifyCashfreeSignature(params: {
     .update(data)
     .digest("base64");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, "utf-8"),
-    Buffer.from(params.signature, "utf-8")
-  );
+  const expected = Buffer.from(generatedSignature, "utf-8");
+  const actual = Buffer.from(params.signature || "", "utf-8");
+  return actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
 }
 
 /**
