@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
 export async function GET(req: NextRequest) {
+  const access = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const db = serverDb.read();
     return NextResponse.json({ success: true, invoices: db.invoices });
@@ -16,8 +18,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Accounts Manager";
+    const access = requireAuth(req, ["ADMIN", "ACCOUNTS"]);
+    if ("errorResponse" in access) return access.errorResponse;
+    const actor = access.session.name;
 
     const body = await req.json();
     const { orderNo, customerId, items, transporter, vehicleNo, ewayBillNo, notes } = body;
