@@ -689,12 +689,27 @@ class ServerDatabase {
       const customer = data.customers.find((c) => c.id === params.customerId);
       if (!customer) throw new Error("Customer not found");
 
+      const order = data.orders.find((candidate) =>
+        candidate.orderNo === params.orderNo || candidate.id === params.orderNo
+      );
+      if (!order) throw new Error("Invoice must reference a real sales order. Direct or fabricated invoices are not accepted.");
+      if (order.customerId !== customer.id) throw new Error("The invoice customer does not match the sales order customer.");
+      if (order.status === "CANCELLED") throw new Error("A cancelled order cannot be invoiced.");
+
       if (!Array.isArray(params.items) || params.items.length < 1 || params.items.length > 100) {
         throw new Error("An invoice must contain between 1 and 100 line items.");
       }
 
-      // Resolve every SKU and price from the server-side catalogue; browser-supplied
-      // names, rates, discounts and tax codes are not authoritative.
+      const previouslyInvoiced = new Map<string, number>();
+      for (const existing of data.invoices.filter((invoice) => invoice.orderNo === order.orderNo)) {
+        for (const line of existing.items || []) {
+          previouslyInvoiced.set(
+            line.itemCode,
+            (previouslyInvoiced.get(line.itemCode) || 0) + Number(line.qty || 0)
+          );
+        }
+      }
+
       const seenCodes = new Set<string>();
       const normalizedItems = params.items.map((input) => {
         const key = typeof input.itemCode === "string" ? input.itemCode.trim() : "";
@@ -704,21 +719,32 @@ class ServerDatabase {
         if (!Number.isSafeInteger(input.qty) || input.qty <= 0 || input.qty > 100000) {
           throw new Error("Invoice quantity must be a positive whole number no greater than 100,000.");
         }
-        const item = data.items.find((candidate) => candidate.code === key || candidate.id === key);
-        if (!item) throw new Error(`Item ${key} not found in catalogue.`);
-        if (!Number.isFinite(item.price) || item.price < 0) throw new Error(`Invalid catalogue price for ${item.code}.`);
-        if (![0, 5, 12, 18, 28].includes(item.gstRate as number)) {
+
+        const orderedLine = order.items.find((line) => line.itemCode === key || line.itemId === key);
+        if (!orderedLine) throw new Error(`Item ${key} was not ordered on ${order.orderNo}.`);
+        const qtyAlreadyInvoiced = previouslyInvoiced.get(orderedLine.itemCode) || 0;
+        if (qtyAlreadyInvoiced + input.qty > orderedLine.qtyOrdered) {
+          throw new Error(`Invoice quantity for ${orderedLine.itemCode} exceeds the uninvoiced order balance.`);
+        }
+
+        const item = data.items.find((candidate) => candidate.code === orderedLine.itemCode || candidate.id === orderedLine.itemId);
+        if (!item) throw new Error(`Item ${orderedLine.itemCode} is missing from the current item master.`);
+        if (!Number.isFinite(orderedLine.rate) || orderedLine.rate < 0) {
+          throw new Error(`The stored order rate for ${orderedLine.itemCode} is invalid.`);
+        }
+        if (typeof item.gstRate !== "number" || ![0, 5, 12, 18, 28].includes(item.gstRate)) {
           throw new Error(`GST rate is missing or invalid for item ${item.code}; invoice creation is blocked until the tax master is configured.`);
         }
         if (typeof item.hsnCode !== "string" || !/^\d{4,8}$/.test(item.hsnCode.trim())) {
           throw new Error(`HSN code is missing or invalid for item ${item.code}; invoice creation is blocked until the tax master is configured.`);
         }
+
         return {
           itemId: item.id,
           itemCode: item.code,
           itemName: item.name,
           qty: input.qty,
-          rate: item.price,
+          rate: orderedLine.rate,
           discountPct: 0,
           hsnCode: item.hsnCode.trim(),
           gstRate: item.gstRate,
@@ -726,49 +752,52 @@ class ServerDatabase {
       });
 
       const gst = calculateGST({
-        items: normalizedItems.map((it) => ({
-          itemId: it.itemId,
-          itemCode: it.itemCode,
-          itemName: it.itemName,
-          qty: it.qty,
-          rate: it.rate,
-          discountPct: it.discountPct,
-          hsnCode: it.hsnCode,
-          gstRate: it.gstRate,
+        items: normalizedItems.map((item) => ({
+          itemId: item.itemId,
+          itemCode: item.itemCode,
+          itemName: item.itemName,
+          qty: item.qty,
+          rate: item.rate,
+          discountPct: item.discountPct,
+          hsnCode: item.hsnCode,
+          gstRate: item.gstRate,
         })),
         customerGstin: customer.gstin,
         customerStateCode: customer.stateCode,
         customerStateName: customer.state,
       });
 
-      const fullLineItems = gst.lineItems.map((li, idx) => ({
-        id: `LI-${idx + 1}`,
-        itemCode: li.itemCode,
-        itemName: li.itemName,
-        hsnCode: li.hsnCode,
-        qty: li.qty,
-        unit: "Roll",
-        rate: li.rate,
-        discountPct: li.discountPct,
-        taxableAmount: li.taxableAmount,
-        gstRate: li.gstRate,
-        cgstAmount: li.cgstAmount,
-        sgstAmount: li.sgstAmount,
-        igstAmount: li.igstAmount,
-        totalAmount: li.totalAmount,
+      const fullLineItems = gst.lineItems.map((line, index) => ({
+        id: `LI-${index + 1}`,
+        itemCode: line.itemCode,
+        itemName: line.itemName,
+        hsnCode: line.hsnCode,
+        qty: line.qty,
+        unit: data.items.find((item) => item.code === line.itemCode)?.unit || "Unit",
+        rate: line.rate,
+        discountPct: line.discountPct,
+        taxableAmount: line.taxableAmount,
+        gstRate: line.gstRate,
+        cgstAmount: line.cgstAmount,
+        sgstAmount: line.sgstAmount,
+        igstAmount: line.igstAmount,
+        totalAmount: line.totalAmount,
       }));
 
+      const seq = data.counters.invoiceSeq++;
+      const invoiceNo = `VS/26-27/${seq.toString().padStart(4, "0")}`;
+      const invoiceId = `INV-${seq}`;
       const newInvoice: Invoice = {
         id: invoiceId,
         invoiceNo,
-        orderNo: params.orderNo,
+        orderNo: order.orderNo,
         customerId: customer.id,
         customerName: customer.name,
         customerGstin: customer.gstin,
         customerAddress: customer.billingAddress || `${customer.city}, ${customer.state}`,
         customerCity: customer.city,
-        customerState: customer.state || "Maharashtra",
-        customerStateCode: customer.stateCode || "27",
+        customerState: customer.state || "",
+        customerStateCode: customer.stateCode || "",
         invoiceDate: new Date().toISOString().split("T")[0],
         dueDate: new Date(Date.now() + (customer.paymentTerms || 30) * 86400000).toISOString().split("T")[0],
         placeOfSupply: gst.placeOfSupply,
@@ -785,10 +814,16 @@ class ServerDatabase {
         items: fullLineItems,
       };
 
-      // Add to customer's outstanding balance
       customer.outstandingAmount = (customer.outstandingAmount || 0) + gst.grandTotal;
-
       data.invoices.unshift(newInvoice);
+
+      const allOrderLinesInvoiced = order.items.every((orderLine) => {
+        const prior = previouslyInvoiced.get(orderLine.itemCode) || 0;
+        const current = normalizedItems.find((line) => line.itemCode === orderLine.itemCode)?.qty || 0;
+        return prior + current >= orderLine.qtyOrdered;
+      });
+      if (allOrderLinesInvoiced) order.status = "INVOICED";
+
       return newInvoice;
     });
   }
