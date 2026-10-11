@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "Quality Inspector";
+    const access = requireAuth(req, ["ADMIN", "WAREHOUSE"]);
+    if ("errorResponse" in access) return access.errorResponse;
+    const actor = access.session.name;
 
     const body = await req.json().catch(() => ({}));
     const godown = body.godown || "Main Warehouse (Bhiwandi Logistics Hub)";
