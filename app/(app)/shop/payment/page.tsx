@@ -40,7 +40,6 @@ import {
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { CUSTOMERS } from "@/lib/data";
-import { generateDynamicUpiQr } from "@/lib/paymentService";
 import { CANONICAL_COMPANY_CONFIG } from "@/lib/companyConfig";
 
 function PaymentContent() {
@@ -197,102 +196,18 @@ function PaymentContent() {
 
   // Complete Payment Action
   const handleConfirmPayment = async () => {
-    if (!bookingData) return;
-
-    if (activeMethod === "UPI") {
-      if (!upiUtr || upiUtr.trim().length < 6) {
-        toast.error("Reference required", "Please enter the 12-digit UPI UTR / Reference number.");
-        return;
-      }
-    } else if (activeMethod === "NEFT_RTGS") {
-      if (!neftUtr || neftUtr.trim().length < 6) {
-        toast.error("UTR required", "Please enter the NEFT/RTGS transaction UTR reference.");
-        return;
-      }
-    } else if (activeMethod === "CARD" && cardSubMode === "CARD") {
-      if (cardNumber.replace(/\s/g, "").length < 16) {
-        toast.error("Card details needed", "Please enter a valid 16-digit card number.");
-        return;
-      }
-      setShowOtpModal(true);
-      return;
-    }
-
-    setIsProcessing(true);
-    await new Promise((r) => setTimeout(r, 1200));
-
-    finalizeBooking();
+    setIsProcessing(false);
+    toast.error(
+      "Payment collection is disabled",
+      "Secure payment-provider reconciliation is not configured yet. Do not submit a UTR or card details on this screen."
+    );
   };
 
   const finalizeBooking = async () => {
-    if (!bookingData) return;
-
-    const todayDate = new Date();
-    const scheduledFollowUpDate = addDaysToDate(todayDate, 5);
-    const utrRef = activeMethod === "UPI" ? upiUtr : activeMethod === "NEFT_RTGS" ? neftUtr : "CARD_PENDING";
-
-    // Call server payment verification API
-    try {
-      await fetch("/api/payments/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "MANUAL_UTR_SUBMISSION",
-          orderId: bookingData.orderId,
-          utrNumber: utrRef,
-          amount: bookingData.grandTotal,
-          senderBank,
-          accountHolder,
-        }),
-      });
-    } catch (e) {
-      console.warn("Server payment registration error:", e);
-    }
-
-    const updatedBooking: CustomerOrderBooking = {
-      ...bookingData,
-      paymentMethod: activeMethod,
-      paymentStatus:
-        activeMethod === "COD"
-          ? "COD_CONFIRMED"
-          : "PENDING_VERIFICATION",
-      paymentDetails: {
-        ...bookingData.paymentDetails,
-        transactionId: utrRef,
-        upiId: activeMethod === "UPI" ? CANONICAL_COMPANY_CONFIG.banking.upiVpa : undefined,
-        appUsed: activeMethod === "UPI" ? upiApp : undefined,
-        senderBank: activeMethod === "NEFT_RTGS" ? senderBank || "State Bank" : undefined,
-        accountHolder: activeMethod === "NEFT_RTGS" ? accountHolder : undefined,
-        receiptFileName: activeMethod === "NEFT_RTGS" ? receiptFile || undefined : undefined,
-        siteContactPerson: activeMethod === "COD" ? siteContactPerson || bookingData.customerName : undefined,
-        cardLast4: activeMethod === "CARD" && cardNumber ? cardNumber.slice(-4) : "8821",
-        bankName: activeMethod === "CARD" && cardSubMode === "NETBANKING" ? selectedBank : undefined,
-        paidAt: new Date().toISOString(),
-      },
-      followUp: {
-        scheduledDate: scheduledFollowUpDate,
-        status: "PENDING",
-        prompt: `Follow up in 5 days (${formatDate(scheduledFollowUpDate)}): Call ${
-          bookingData.customerName
-        } at ${bookingData.companyName} (${bookingData.phone}) to ask how the ${bookingData.items.length} product unit(s) were and check reorder needs.`,
-        notes: `5-day check-in booked automatically on order placement.`,
-      },
-    };
-
-    saveBookedOrder(updatedBooking);
-    checkStockAndNotify(updatedBooking, addNotification);
-    setConfirmedOrder(updatedBooking);
-    setCurrentBooking(updatedBooking);
-    clearCart();
     setIsProcessing(false);
-    setShowOtpModal(false);
-    setIsSuccess(true);
-
-    toast.success(
-      activeMethod === "COD" ? "Order Confirmed!" : "Payment Reference Submitted!",
-      activeMethod === "COD"
-        ? `Order ${updatedBooking.orderNumber} placed via Cash on Delivery.`
-        : `Order ${updatedBooking.orderNumber} placed. Status: Pending Accounts Verification.`
+    toast.error(
+      "Order confirmation is disabled",
+      "This demo does not yet have a trusted, persistent payment/order workflow. No payment was confirmed."
     );
   };
 
@@ -614,25 +529,13 @@ function PaymentContent() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center p-4 bg-[#F9F9FB] rounded-xl border border-[#E8E8EE] mb-5">
-                  {/* Real Dynamic Scannable QR Code Display */}
-                  <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-[#E0E0E0] shadow-xs">
-                    <div className="relative w-44 h-44 bg-white p-2 rounded-lg border border-gray-100 flex items-center justify-center overflow-hidden">
-                      <div
-                        className="w-full h-full flex items-center justify-center"
-                        dangerouslySetInnerHTML={{
-                          __html: generateDynamicUpiQr({
-                            amount: bookingData?.grandTotal || 0,
-                            orderId: bookingData?.orderId || "SO-1048",
-                            orderNumber: bookingData?.orderNumber,
-                            note: `Vila Sales Order ${bookingData?.orderNumber || ""}`,
-                          }).qrSvg,
-                        }}
-                      />
-                    </div>
-                    <span className="text-xs font-bold text-[#111] mt-2">
-                      Amount: {formatCurrency(bookingData?.grandTotal || 0)}
+                  {/* Safe fallback while QR decoding and gateway reconciliation are not verified */}
+                  <div className="flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-lg border border-amber-200 shadow-xs text-center min-h-56">
+                    <AlertCircle className="w-7 h-7 text-amber-600" />
+                    <span className="text-sm font-semibold text-[#111]">UPI QR temporarily unavailable</span>
+                    <span className="text-xs leading-5 text-[#666]">
+                      Online collection is disabled until a verified payment provider and server-side reconciliation are configured. Do not pay using a QR or payment details shown by this demo.
                     </span>
-                    <span className="text-[10px] text-[#888]">Order #{bookingData?.orderNumber}</span>
                   </div>
 
                   {/* UPI Details & App Launchers */}
