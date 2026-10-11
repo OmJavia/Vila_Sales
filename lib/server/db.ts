@@ -439,72 +439,106 @@ class ServerDatabase {
     return this.transaction((data) => {
       const customer = data.customers.find((c) => c.id === params.customerId);
       if (!customer) throw new Error("Customer not found");
+      if (!Array.isArray(params.items) || params.items.length < 1 || params.items.length > 100) {
+        throw new Error("An order must contain between 1 and 100 line items.");
+      }
 
-      const seq = data.counters.orderSeq++;
-      const orderNo = `SO-2026-${seq}`;
-      const orderId = `ORD-2026-${seq}`;
-
-      const orderItems = params.items.map((it) => {
-        const item = data.items.find((i) => i.id === it.itemId || i.code === it.itemId);
-        if (!item) throw new Error(`Item ${it.itemId} not found in catalog`);
-
-        const rate = it.rate !== undefined ? it.rate : item.price;
-        const available = Math.max(0, item.stock - item.reservedStock);
-        const qtyOrdered = it.qty;
-        const qtyReserved = Math.min(qtyOrdered, available);
-        const qtyShort = Math.max(0, qtyOrdered - available);
-
-        // Atomically reserve stock in inventory
-        item.reservedStock += qtyReserved;
-
-        // Record stock movement ledger entry if reserved
-        if (qtyReserved > 0) {
-          data.stockMovements.unshift({
-            id: `MOV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            timestamp: new Date().toISOString(),
-            itemId: item.id,
-            itemCode: item.code,
-            itemName: item.name,
-            godown: item.godownStock[0]?.godown || "Main Warehouse (Bhiwandi Logistics Hub)",
-            changeQty: -qtyReserved,
-            balanceAfter: item.stock - item.reservedStock,
-            direction: "OUT",
-            type: "ORDER_ALLOCATION",
-            referenceType: "SO",
-            referenceId: orderNo,
-            reason: `Reserved for Sales Order ${orderNo}`,
-            actor: params.actor,
-          });
+      // Validate all line items before mutating stock or sequence counters.
+      const seenItems = new Set<string>();
+      const normalized = params.items.map((input) => {
+        if (!input || typeof input.itemId !== "string" || !input.itemId.trim()) {
+          throw new Error("Each order line must reference a valid catalogue item.");
         }
+        if (!Number.isSafeInteger(input.qty) || input.qty <= 0 || input.qty > 100000) {
+          throw new Error("Quantity must be a positive whole number no greater than 100,000.");
+        }
+        const requestedKey = input.itemId.trim();
+        if (seenItems.has(requestedKey)) {
+          throw new Error("Duplicate catalogue items are not accepted; combine their quantities into one line.");
+        }
+        seenItems.add(requestedKey);
 
-        return {
-          itemId: item.id,
-          itemCode: item.code,
-          itemName: item.name,
-          qtyOrdered,
-          qtyAvailable: available,
-          qtyReserved,
-          qtyAllocated: qtyReserved,
-          qtyShort,
-          rate,
-          amount: Math.round(qtyOrdered * rate),
-          unit: item.unit,
-        };
+        const item = data.items.find((candidate) => candidate.id === requestedKey || candidate.code === requestedKey);
+        if (!item) throw new Error(`Item ${requestedKey} not found in catalog`);
+        const rate = Number(item.price);
+        if (!Number.isFinite(rate) || rate < 0) {
+          throw new Error(`Catalogue price is invalid for item ${item.code}; correct the item master before ordering.`);
+        }
+        const stock = Number(item.stock) || 0;
+        const reservedStock = Number(item.reservedStock) || 0;
+        const available = Math.max(0, stock - reservedStock);
+        const qtyReserved = Math.min(input.qty, available);
+        return { item, qtyOrdered: input.qty, rate, available, qtyReserved };
       });
 
-      // Calculate GST
+      const orderItems = normalized.map(({ item, qtyOrdered, rate, available, qtyReserved }) => ({
+        itemId: item.id,
+        itemCode: item.code,
+        itemName: item.name,
+        qtyOrdered,
+        qtyAvailable: available,
+        qtyReserved,
+        qtyAllocated: qtyReserved,
+        qtyShort: Math.max(0, qtyOrdered - available),
+        rate,
+        amount: Math.round(qtyOrdered * rate * 100) / 100,
+        unit: item.unit,
+      }));
+
       const gstCalc = calculateGST({
-        items: orderItems.map((oi) => ({
-          itemId: oi.itemId,
-          itemCode: oi.itemCode,
-          itemName: oi.itemName,
-          qty: oi.qtyOrdered,
-          rate: oi.rate,
+        items: orderItems.map((line) => ({
+          itemId: line.itemId,
+          itemCode: line.itemCode,
+          itemName: line.itemName,
+          qty: line.qtyOrdered,
+          rate: line.rate,
         })),
         customerGstin: customer.gstin,
         customerStateCode: customer.stateCode,
         customerStateName: customer.state,
       });
+
+      const currentlyUsed = Number(customer.creditUsed) || 0;
+      const limit = Number(customer.creditLimit);
+      if (!Number.isFinite(limit) || limit < 0 || currentlyUsed + gstCalc.grandTotal > limit) {
+        throw new Error("Order exceeds the customer's available credit limit. Record/reconcile payments or obtain an authorised credit-limit change first.");
+      }
+
+      // Only now reserve inventory and append ledger entries. A rejected order has no side effects.
+      for (const line of normalized) {
+        line.item.reservedStock = (Number(line.item.reservedStock) || 0) + line.qtyReserved;
+        if (line.qtyReserved > 0) {
+          data.stockMovements.unshift({
+            id: `MOV-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            timestamp: new Date().toISOString(),
+            itemId: line.item.id,
+            itemCode: line.item.code,
+            itemName: line.item.name,
+            godown: line.item.godownStock?.[0]?.godown || "Main Warehouse",
+            changeQty: -line.qtyReserved,
+            balanceAfter: (Number(line.item.stock) || 0) - line.item.reservedStock,
+            direction: "OUT",
+            type: "ORDER_ALLOCATION",
+            referenceType: "SO",
+            referenceId: "PENDING_ORDER",
+            reason: "Reserved for a new sales order",
+            actor: params.actor,
+          });
+        }
+      }
+
+      const seq = data.counters.orderSeq++;
+      const orderNo = `SO-2026-${seq}`;
+      const orderId = `ORD-2026-${seq}`;
+
+      // Link this reservation ledger batch to the generated order number.
+      for (const movement of data.stockMovements) {
+        if (movement.referenceId === "PENDING_ORDER" && movement.actor === params.actor) {
+          movement.referenceId = orderNo;
+          movement.reason = `Reserved for Sales Order ${orderNo}`;
+          break;
+        }
+      }
 
       const newOrder: Order = {
         id: orderId,
@@ -520,22 +554,18 @@ class ServerDatabase {
         notes: params.notes || "",
         assignedTo: params.actor,
         createdBy: params.actor,
-        workflow: [
-          {
-            id: `wf-${Date.now()}`,
-            label: "Order Created & Confirmed",
-            status: "COMPLETED",
-            completedAt: new Date().toISOString().split("T")[0],
-            completedBy: params.actor,
-          },
-        ],
+        workflow: [{
+          id: `wf-${Date.now()}`,
+          label: "Order Created & Confirmed",
+          status: "COMPLETED",
+          completedAt: new Date().toISOString().split("T")[0],
+          completedBy: params.actor,
+        }],
       };
 
-      // Update customer credit & order count
       customer.totalOrders = (customer.totalOrders || 0) + 1;
       customer.lastOrderDate = newOrder.orderDate;
-      customer.creditUsed = Math.min(customer.creditLimit, customer.creditUsed + newOrder.totalAmount);
-
+      customer.creditUsed = currentlyUsed + newOrder.totalAmount;
       data.orders.unshift(newOrder);
       return newOrder;
     });
