@@ -179,21 +179,6 @@ function PaymentContent() {
     setTimeout(() => setCopiedKey(null), 2200);
   };
 
-  const handleFillTestUtr = () => {
-    const randomUtr = "4" + Math.floor(10000000000 + Math.random() * 90000000000).toString();
-    setUpiUtr(randomUtr);
-    toast.info("Test UTR populated", "Simulated 12-digit transaction ID");
-  };
-
-  const handleFillTestNeft = () => {
-    const randomNeft = "HDFCN" + Math.floor(10000000 + Math.random() * 90000000).toString();
-    setNeftUtr(randomNeft);
-    setSenderBank("ICICI Bank Ltd");
-    setAccountHolder(bookingData?.companyName || "Industrial Partner");
-    setReceiptFile("neft_transfer_receipt_2026.pdf");
-    toast.info("NEFT details populated", "Ready to submit");
-  };
-
   // Complete Payment Action
   const handleConfirmPayment = async () => {
     setIsProcessing(false);
@@ -606,13 +591,6 @@ function PaymentContent() {
                     <label className="text-label text-[#111]">
                       12-Digit UPI Transaction ID / UTR Number
                     </label>
-                    <button
-                      type="button"
-                      onClick={handleFillTestUtr}
-                      className="text-[11px] text-indigo-600 hover:underline font-medium"
-                    >
-                      Fill Demo UTR
-                    </button>
                   </div>
                   <div className="flex gap-2">
                     <input
