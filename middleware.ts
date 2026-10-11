@@ -52,8 +52,8 @@ async function readValidSession(token: string, secret: string): Promise<SessionP
       .map((byte) => String.fromCharCode(byte))
       .join("");
     const expectedSignature = btoa(binarySignature)
-      .replace(/\\+/g, "-")
-      .replace(/\\//g, "_")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
       .replace(/=+$/g, "");
     if (expectedSignature !== encodedSignature) return null;
 
