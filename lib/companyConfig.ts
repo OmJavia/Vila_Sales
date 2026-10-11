@@ -80,15 +80,62 @@ export const CANONICAL_COMPANY_CONFIG: CompanyConfig & {
   email: string;
   phone: string;
   bankDetails: {
-    bankName: process.env.VILA_BANK_NAME || "",
-    branch: process.env.VILA_BANK_BRANCH || "",
-    accountName: process.env.VILA_BANK_ACCOUNT_NAME || "",
-    beneficiaryName: process.env.VILA_BANK_BENEFICIARY_NAME || "",
-    accountNumber: process.env.VILA_BANK_ACCOUNT_NUMBER || "",
-    ifscCode: process.env.VILA_BANK_IFSC || "",
+    bankName: string;
+    branch: string;
+    accountName: string;
+    beneficiaryName: string;
+    accountNumber: string;
+    ifscCode: string;
+    accountType: string;
+    upiVpa: string;
+    upiQrPayeeName: string;
+  };
+} = {
+  brandName: "Vila Sales",
+  companyName: "Vila Sales",
+  legalEntityName: process.env.VILA_LEGAL_ENTITY_NAME?.trim() || "Vila Sales",
+  tradeName: process.env.VILA_TRADE_NAME?.trim() || "",
+  gstin: process.env.VILA_GSTIN?.trim() || "",
+  pan: process.env.VILA_PAN?.trim() || "",
+  stateCode: process.env.VILA_STATE_CODE?.trim() || "",
+  stateName: process.env.VILA_STATE_NAME?.trim() || "",
+  cin: process.env.VILA_CIN?.trim() || undefined,
+  registeredAddress: {
+    line1: process.env.VILA_ADDRESS_LINE1?.trim() || "",
+    line2: process.env.VILA_ADDRESS_LINE2?.trim() || undefined,
+    city: process.env.VILA_CITY?.trim() || "",
+    state: process.env.VILA_STATE_NAME?.trim() || "",
+    pincode: process.env.VILA_PINCODE?.trim() || "",
+    country: "India",
+  },
+  contact: {
+    phone: process.env.VILA_PHONE?.trim() || "",
+    email: process.env.VILA_BILLING_EMAIL?.trim() || "",
+    supportEmail: process.env.VILA_SUPPORT_EMAIL?.trim() || "",
+    website: "https://vilasales.vercel.app",
+  },
+  email: process.env.VILA_BILLING_EMAIL?.trim() || "",
+  phone: process.env.VILA_PHONE?.trim() || "",
+  banking: {
+    bankName: process.env.VILA_BANK_NAME?.trim() || "",
+    branch: process.env.VILA_BANK_BRANCH?.trim() || "",
+    accountName: process.env.VILA_BANK_ACCOUNT_NAME?.trim() || "",
+    accountNumber: process.env.VILA_BANK_ACCOUNT_NUMBER?.trim() || "",
+    ifscCode: process.env.VILA_BANK_IFSC?.trim() || "",
     accountType: "CURRENT",
-    upiVpa: process.env.VILA_UPI_VPA || "",
-    upiQrPayeeName: process.env.VILA_UPI_PAYEE_NAME || "",
+    upiVpa: process.env.VILA_UPI_VPA?.trim() || "",
+    upiQrPayeeName: process.env.VILA_UPI_PAYEE_NAME?.trim() || "",
+  },
+  bankDetails: {
+    bankName: process.env.VILA_BANK_NAME?.trim() || "",
+    branch: process.env.VILA_BANK_BRANCH?.trim() || "",
+    accountName: process.env.VILA_BANK_ACCOUNT_NAME?.trim() || "",
+    beneficiaryName: process.env.VILA_BANK_BENEFICIARY_NAME?.trim() || "",
+    accountNumber: process.env.VILA_BANK_ACCOUNT_NUMBER?.trim() || "",
+    ifscCode: process.env.VILA_BANK_IFSC?.trim() || "",
+    accountType: "CURRENT",
+    upiVpa: process.env.VILA_UPI_VPA?.trim() || "",
+    upiQrPayeeName: process.env.VILA_UPI_PAYEE_NAME?.trim() || "",
   },
   godowns: [
     {
@@ -182,7 +229,6 @@ export function isValidGstin(gstin: string): boolean {
   const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
   if (!regex.test(cleaned)) return false;
 
-  // Validate the GSTIN's final base-36 check character, not just its shape.
   const valueOf = (character: string) =>
     character >= "0" && character <= "9"
       ? character.charCodeAt(0) - 48
