@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
 import { requireAuth } from "@/lib/server/auth";
+import type { OrderStatus } from "@/lib/data";
 
 export async function GET(
   req: NextRequest,
@@ -42,7 +43,7 @@ export async function PATCH(
     const body = await req.json();
     const { status, cancelReason } = body;
 
-    const allowedStatuses = ["DRAFT", "CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "ALLOCATED", "VERIFIED", "CHALLAN_READY", "DISPATCHED", "INVOICED", "PAYMENT_DONE", "CLOSED", "CANCELLED"];
+    const allowedStatuses: OrderStatus[] = ["DRAFT", "CONFIRMED", "STOCK_CHECK", "PURCHASE_REQUIRED", "ALLOCATED", "VERIFIED", "CHALLAN_READY", "DISPATCHED", "INVOICED", "PAYMENT_DONE", "CLOSED", "CANCELLED"];
     if (typeof status !== "string" || !allowedStatuses.includes(status)) {
       return NextResponse.json(
         { success: false, error: "A valid order status is required" },
@@ -52,7 +53,7 @@ export async function PATCH(
 
     const updated = await serverDb.updateOrderStatus(
       params.id,
-      status,
+      status as OrderStatus,
       actor,
       cancelReason
     );
