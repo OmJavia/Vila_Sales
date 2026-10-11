@@ -762,33 +762,56 @@ class ServerDatabase {
       const invoice = data.invoices.find((i) => i.id === params.invoiceId || i.invoiceNo === params.invoiceId);
       if (!invoice) throw new Error("Invoice not found");
 
-      const customer = data.customers.find((c) => c.id === invoice.customerId);
-      const seq = data.counters.receiptSeq++;
-      const receiptNo = `RCT-26-27/${seq.toString().padStart(4, "0")}`;
+      const amount = Number(params.amount);
+      const amountRounded = Math.round(amount * 100) / 100;
+      if (!Number.isFinite(amount) || amount <= 0 || Math.abs(amount - amountRounded) > 0.000001) {
+        throw new Error("Payment amount must be a positive valid INR amount with no more than two decimal places.");
+      }
 
-      invoice.amountReceived = Math.min(invoice.totalAmount, (invoice.amountReceived || 0) + params.amount);
+      const transactionRef = typeof params.transactionRef === "string" ? params.transactionRef.trim() : "";
+      if (transactionRef.length < 3 || transactionRef.length > 120) {
+        throw new Error("A valid payment reference is required.");
+      }
+      const referenceKey = transactionRef.toLowerCase();
+      if (data.receipts.some((receipt) => (receipt.transactionRef || "").trim().toLowerCase() === referenceKey)) {
+        throw new Error("This transaction reference has already been recorded. Duplicate payments are blocked.");
+      }
+
+      const validModes: PaymentReceiptRecord["paymentMode"][] = ["UPI", "NEFT_RTGS", "CHEQUE", "GATEWAY_CARD", "CASH"];
+      if (!validModes.includes(params.paymentMode)) throw new Error("Unsupported payment mode.");
+
+      const amountReceived = Number(invoice.amountReceived) || 0;
+      const outstanding = Math.round(Math.max(0, invoice.totalAmount - amountReceived) * 100) / 100;
+      if (outstanding <= 0) throw new Error("This invoice is already fully paid.");
+      if (amount > outstanding + 0.000001) {
+        throw new Error(`Payment exceeds the outstanding invoice balance of ₹${outstanding.toFixed(2)}.`);
+      }
+
+      const customer = data.customers.find((c) => c.id === invoice.customerId);
+      invoice.amountReceived = Math.round((amountReceived + amount) * 100) / 100;
       if (invoice.amountReceived >= invoice.totalAmount) {
+        invoice.amountReceived = invoice.totalAmount;
         invoice.paymentStatus = "PAID";
-      } else if (invoice.amountReceived > 0) {
+      } else {
         invoice.paymentStatus = "PARTIAL";
       }
 
-      // Reconcile customer outstanding & credit used
       if (customer) {
-        customer.outstandingAmount = Math.max(0, (customer.outstandingAmount || 0) - params.amount);
-        customer.creditUsed = Math.max(0, (customer.creditUsed || 0) - params.amount);
+        customer.outstandingAmount = Math.round(Math.max(0, (Number(customer.outstandingAmount) || 0) - amount) * 100) / 100;
+        customer.creditUsed = Math.round(Math.max(0, (Number(customer.creditUsed) || 0) - amount) * 100) / 100;
       }
 
+      const seq = data.counters.receiptSeq++;
       const receipt: PaymentReceiptRecord = {
         id: `RCT-${seq}`,
-        receiptNo,
+        receiptNo: `RCT-26-27/${seq.toString().padStart(4, "0")}`,
         invoiceId: invoice.id,
         invoiceNo: invoice.invoiceNo,
         customerId: invoice.customerId,
         customerName: invoice.customerName,
-        amount: params.amount,
+        amount,
         paymentMode: params.paymentMode,
-        transactionRef: params.transactionRef,
+        transactionRef,
         paymentDate: new Date().toISOString().split("T")[0],
         status: "VERIFIED",
         verifiedBy: params.actor,
