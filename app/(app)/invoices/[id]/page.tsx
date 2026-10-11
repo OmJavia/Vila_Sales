@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Building,
-  QrCode,
   Share2,
   Mail,
 } from "lucide-react";
@@ -296,46 +295,19 @@ export default function InvoiceDetailPage() {
 
         {/* Totals & Tax Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-          {/* Bank Account Details & UPI QR */}
+          {/* Live payment instructions are disabled until the remittance details and reconciliation flow are verified. */}
           <div className="space-y-4">
-            <div className="border border-border p-3 rounded bg-bg-canvas/40 space-y-2">
-              <div className="font-bold text-[11px] text-text-primary flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-brand-primary" />
-                <span>Bank Details for Electronic Remittance (RTGS / NEFT)</span>
+            <div role="status" className="border border-amber-200 rounded-lg bg-amber-50 p-4 space-y-2">
+              <div className="font-bold text-sm text-amber-900 flex items-center gap-2">
+                <Building className="w-4 h-4" aria-hidden="true" />
+                Payment instructions unavailable
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
-                <div>
-                  <span className="text-text-muted block font-sans">Beneficiary:</span>
-                  <span className="font-bold">{CANONICAL_COMPANY_CONFIG.bankDetails.beneficiaryName}</span>
-                </div>
-                <div>
-                  <span className="text-text-muted block font-sans">Bank Name:</span>
-                  <span>{CANONICAL_COMPANY_CONFIG.bankDetails.bankName}, {CANONICAL_COMPANY_CONFIG.bankDetails.branch}</span>
-                </div>
-                <div>
-                  <span className="text-text-muted block font-sans">Account No:</span>
-                  <span className="font-bold text-brand-primary">{CANONICAL_COMPANY_CONFIG.bankDetails.accountNumber}</span>
-                </div>
-                <div>
-                  <span className="text-text-muted block font-sans">IFSC Code:</span>
-                  <span className="font-bold">{CANONICAL_COMPANY_CONFIG.bankDetails.ifscCode}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 border border-border rounded flex items-center gap-3 bg-bg-canvas/20">
-              <div className="w-14 h-14 bg-white p-1 border border-border rounded flex-shrink-0 flex items-center justify-center">
-                <QrCode className="w-10 h-10 text-[#111111]" />
-              </div>
-              <div className="text-[11px] space-y-0.5">
-                <div className="font-bold text-text-primary">Scan to Pay via UPI</div>
-                <div className="text-text-muted text-[10px]">
-                  UPI ID: <strong>{CANONICAL_COMPANY_CONFIG.bankDetails.upiVpa}</strong>
-                </div>
-                <div className="text-text-muted text-[10px]">
-                  Supports GPay, PhonePe, Paytm, BHIM & All Banks
-                </div>
-              </div>
+              <p className="text-xs leading-5 text-amber-900">
+                This is a prototype invoice view. Do not transfer money using a QR,
+                bank account, or UPI ID displayed by this environment. Approved
+                remittance details will be shown only after the company master and
+                payment-reconciliation workflow are configured and verified.
+              </p>
             </div>
           </div>
 
@@ -346,11 +318,11 @@ export default function InvoiceDetailPage() {
               <span className="font-bold text-text-primary">{formatCurrency(invoice.taxableAmount)}</span>
             </div>
             <div className="flex justify-between py-1 text-text-secondary border-b border-border">
-              <span>Central GST (CGST 9%):</span>
+              <span>Central GST (CGST):</span>
               <span>{formatCurrency(invoice.cgst)}</span>
             </div>
             <div className="flex justify-between py-1 text-text-secondary border-b border-border">
-              <span>State GST (SGST 9%):</span>
+              <span>State GST (SGST):</span>
               <span>{formatCurrency(invoice.sgst)}</span>
             </div>
             <div className="flex justify-between py-1 text-text-secondary border-b border-border">
