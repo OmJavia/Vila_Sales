@@ -45,6 +45,9 @@ export interface Item {
   category: string;
   unit: string;
   price: number;
+  /** Configure only from verified product tax masters; required for orders/invoices. */
+  hsnCode?: string;
+  gstRate?: number;
   stock: number;
   minStock: number;
   reservedStock: number;
