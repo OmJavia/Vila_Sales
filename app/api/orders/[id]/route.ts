@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/server/db";
-import { getSessionFromRequest } from "@/lib/server/auth";
+import { requireAuth } from "@/lib/server/auth";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const access = requireAuth(req, ["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE", "DISPATCH"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const db = serverDb.read();
     const order = db.orders.find(
@@ -32,9 +34,10 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const patchAccess = requireAuth(req, ["ADMIN", "SALES", "WAREHOUSE", "DISPATCH"]);
+  if ("errorResponse" in patchAccess) return patchAccess.errorResponse;
   try {
-    const session = getSessionFromRequest(req);
-    const actor = session ? session.name : "System Operator";
+    const actor = patchAccess.session.name;
 
     const body = await req.json();
     const { status, cancelReason } = body;
