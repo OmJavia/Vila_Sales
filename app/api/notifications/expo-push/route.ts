@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/server/auth";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
@@ -14,6 +15,8 @@ function isExpoPushToken(token: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  const access = requireAuth(req, ["ADMIN"]);
+  if ("errorResponse" in access) return access.errorResponse;
   try {
     const body = await req.json();
     const { to, title, body: messageBody, data, sound = "default", priority = "high" } = body;
@@ -25,27 +28,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if token is a demo/simulation placeholder
-    const isMock =
-      to.includes("demo") ||
-      to.includes("w001") ||
-      to.includes("w002") ||
-      to.includes("w003") ||
-      to.includes("admin-01") ||
-      !isExpoPushToken(to);
-
-    if (isMock) {
-      return NextResponse.json({
-        success: true,
-        simulated: true,
-        message: "Simulated Expo push notification delivered successfully",
-        ticket: {
-          id: `sim-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-          status: "ok",
-          recipient: to,
-          sentAt: new Date().toISOString(),
-        },
-      });
+    // A simulated ticket must never be represented as a delivered notification.
+    if (!isExpoPushToken(to)) {
+      return NextResponse.json(
+        { success: false, error: "A valid Expo push token is required; demo tokens are not sent." },
+        { status: 400 }
+      );
     }
 
     // Real Expo Push Notification request
@@ -82,17 +70,10 @@ export async function POST(req: NextRequest) {
         ticket: result.data,
       });
     } catch (networkErr: any) {
-      // Fallback for offline/local environment
-      return NextResponse.json({
-        success: true,
-        simulated: true,
-        warning: "Expo server unreachable from current environment, simulated delivery recorded",
-        ticket: {
-          id: `sim-offline-${Date.now()}`,
-          status: "ok",
-          recipient: to,
-        },
-      });
+      return NextResponse.json(
+        { success: false, error: "Expo push service is unreachable; no notification was confirmed as delivered." },
+        { status: 502 }
+      );
     }
   } catch (err: any) {
     return NextResponse.json(
