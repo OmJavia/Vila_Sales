@@ -1077,53 +1077,69 @@ class ServerDatabase {
     quotationId: string;
     actor: string;
   }): Promise<{ quotation: QuotationRecord; order: Order }> {
-    return this.transaction(async (data) => {
-      let quote = data.quotations.find((q) => q.id === params.quotationId || q.quotationNo === params.quotationId);
-      if (!quote) {
-        // Synthesize quote if from sample
-        quote = {
-          id: params.quotationId,
-          quotationNo: "QT-2026-001",
-          customerId: "C001",
-          customerName: "ABC Industries Pvt. Ltd.",
-          contactPerson: "Ramesh Sharma",
-          date: new Date().toISOString().split("T")[0],
-          validUntil: new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
-          items: [
-            {
-              itemId: data.items[0]?.id || "MIDAS-101",
-              itemCode: data.items[0]?.code || "MDS-BG-FC99",
-              itemName: data.items[0]?.name || "MIDAS BONDING GUM - FAST CURE 99°C",
-              qty: 10,
-              unit: "Roll",
-              rate: 3450,
-              taxable: 34500,
-              gstRate: 18,
-              total: 40710,
-            },
-          ],
-          taxableAmount: 34500,
-          gstAmount: 6210,
-          totalAmount: 40710,
-          status: "ACCEPTED",
-          createdAt: new Date().toISOString(),
-        };
-        data.quotations.unshift(quote);
+    const claimId = `PENDING-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    // Claim the accepted quote under the transaction lock to stop concurrent duplicate conversion.
+    const quote = await this.transaction((data) => {
+      const found = data.quotations.find((candidate) =>
+        candidate.id === params.quotationId || candidate.quotationNo === params.quotationId
+      );
+      if (!found) throw new Error("Quotation not found. Create and save a real quotation before converting it.");
+      if (found.status === "CONVERTED" || found.convertedOrderId) {
+        throw new Error("This quotation has already been converted.");
+      }
+      if (found.status !== "ACCEPTED") {
+        throw new Error("Only an accepted quotation can be converted to an order.");
+      }
+      if (found.validUntil && found.validUntil < new Date().toISOString().split("T")[0]) {
+        throw new Error("This quotation has expired. Renew it before converting it.");
+      }
+      if (!Array.isArray(found.items) || found.items.length === 0) {
+        throw new Error("This quotation has no line items.");
       }
 
-      const order = await this.createOrder({
+      found.status = "CONVERTED";
+      found.convertedOrderId = claimId;
+      return structuredClone(found);
+    });
+
+    let order: Order;
+    try {
+      // Intentionally outside the quote transaction: createOrder acquires its own lock.
+      // Calling it from inside transaction() would deadlock the in-memory mutex.
+      order = await this.createOrder({
         customerId: quote.customerId,
-        items: quote.items.map((i) => ({ itemId: i.itemId, qty: i.qty, rate: i.rate })),
+        items: quote.items.map((line) => ({ itemId: line.itemId, qty: line.qty })),
         notes: `Converted from Quotation ${quote.quotationNo}`,
         actor: params.actor,
       });
+    } catch (error) {
+      await this.transaction((data) => {
+        const found = data.quotations.find((candidate) =>
+          candidate.id === params.quotationId || candidate.quotationNo === params.quotationId
+        );
+        if (found?.convertedOrderId === claimId) {
+          found.status = "ACCEPTED";
+          found.convertedOrderId = undefined;
+        }
+      });
+      throw error;
+    }
 
-      quote.status = "CONVERTED";
-      quote.convertedOrderId = order.orderNo;
-
-      return { quotation: quote, order };
+    const finalizedQuote = await this.transaction((data) => {
+      const found = data.quotations.find((candidate) =>
+        candidate.id === params.quotationId || candidate.quotationNo === params.quotationId
+      );
+      if (!found || found.convertedOrderId !== claimId) {
+        throw new Error("The quotation conversion claim changed unexpectedly. Do not retry blindly; reconcile the created order.");
+      }
+      found.convertedOrderId = order.orderNo;
+      return structuredClone(found);
     });
+
+    return { quotation: finalizedQuote, order };
   }
+
 }
 
 export const serverDb = new ServerDatabase();
