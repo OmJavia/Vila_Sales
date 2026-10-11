@@ -160,10 +160,20 @@ export function calculateGST(params: {
   let totalIgst = 0;
 
   const calculatedItems: CalculatedGSTLineItem[] = params.items.map((item) => {
-    const qty = Math.max(0, item.qty);
-    const rate = Math.max(0, item.rate);
+    if (!Number.isSafeInteger(item.qty) || item.qty <= 0 || item.qty > 100000) {
+      throw new Error(`Quantity must be a positive whole number no greater than 100,000 for item ${item.itemCode}.`);
+    }
+    if (!Number.isFinite(item.rate) || item.rate < 0) {
+      throw new Error(`A valid non-negative catalogue rate is required for item ${item.itemCode}.`);
+    }
+
+    const qty = item.qty;
+    const rate = item.rate;
     const gross = round2(qty * rate);
-    const discPct = Math.min(100, Math.max(0, item.discountPct || 0));
+    const discPct = item.discountPct === undefined ? 0 : item.discountPct;
+    if (!Number.isFinite(discPct) || discPct < 0 || discPct > 100) {
+      throw new Error(`Discount must be between 0 and 100 percent for item ${item.itemCode}.`);
+    }
     const discAmount = round2((gross * discPct) / 100);
     const taxable = round2(gross - discAmount);
 
